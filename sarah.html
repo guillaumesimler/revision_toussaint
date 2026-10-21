@@ -1,0 +1,1295 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sarah · Le Manoir des Ombres (CM2)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Crimson+Pro:wght@400;600;700&display=swap">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+html{background:var(--bg-solid)}
+body{background:var(--bg);background-attachment:fixed;color:var(--ink);font-family:var(--font-body);font-size:18px;line-height:1.5;min-height:100vh;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
+#app{max-width:760px;margin:0 auto;padding:10px 16px 48px}
+h1,h2,h3{font-family:var(--font-head);margin:.2em 0 .3em;line-height:1.15;color:var(--title)}
+h1{font-size:clamp(28px,6vw,40px)}
+h2{font-size:clamp(24px,5vw,30px)}
+h3{font-size:20px;margin-top:1.4em}
+button{font:inherit;cursor:pointer;border:var(--btn-border);border-radius:var(--radius);padding:11px 16px;background:var(--btn);color:var(--ink);transition:transform .08s,background .2s,border-color .2s,opacity .2s;touch-action:manipulation}
+button:active{transform:scale(.97)}
+button:disabled{cursor:default}
+button.primary{background:var(--accent);color:var(--on-accent);border-color:transparent;font-weight:700;box-shadow:var(--btn-shadow)}
+button.big{font-size:20px;padding:14px 22px}
+button.ghost{background:transparent;border-color:transparent;color:var(--muted)}
+button.icon{padding:6px 10px;font-size:20px}
+.muted{color:var(--muted)}.small{font-size:15px}.center{text-align:center}
+.card{background:var(--card);border:var(--card-border);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px}
+.screen{animation:fadein .35s ease}
+@keyframes fadein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* barre du haut */
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.brand{display:flex;align-items:center;gap:8px;color:var(--ink)!important;padding:6px 4px}
+.brand b{font-family:var(--font-head);font-size:20px}
+.bicon{font-size:22px}
+.lvl{font-size:12px;padding:2px 8px;border-radius:99px;background:var(--chip);color:var(--chip-ink);font-weight:700}
+.stats{display:flex;align-items:center;gap:4px;flex-wrap:nowrap;justify-content:flex-end}
+@media (max-width:420px){.stat{font-size:13px;padding:3px 8px}.brand b{font-size:18px}.lvl{display:none}}
+.stat{font-size:15px;padding:4px 10px;border-radius:99px;background:var(--chip);color:var(--chip-ink);font-weight:700;white-space:nowrap}
+
+/* carte */
+.hero{text-align:center;padding:8px 0 14px}
+.hicon{font-size:56px;animation:float 3s ease-in-out infinite}
+@keyframes float{50%{transform:translateY(-8px)}}
+.tag{color:var(--muted);margin:.2em auto .8em;max-width:520px}
+.rank{display:inline-block;margin-bottom:14px;padding:6px 14px;border-radius:99px;background:var(--chip);color:var(--chip-ink);font-size:15px}
+.allDone{padding:12px;border-radius:var(--radius);background:var(--chip);color:var(--chip-ink)}
+.menu{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:6px 0 10px}
+.menu button{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:15px;padding:10px 6px;background:var(--card);box-shadow:var(--shadow)}
+.menu button span{font-size:12px;color:var(--muted)}
+.menu button.has span{color:var(--bad);font-weight:700}
+@media (max-width:560px){.menu{grid-template-columns:repeat(2,1fr)}}
+.mapwrap{display:flex;justify-content:center}
+svg.map{width:100%;max-width:460px;height:auto;overflow:visible}
+.trail{fill:none;stroke:var(--trail);stroke-width:10;stroke-linecap:round;stroke-dasharray:2 16}
+.trail.done{stroke:var(--accent);stroke-dasharray:none;stroke-width:6;opacity:.8}
+.node .disc{fill:var(--node);stroke:var(--node-stroke);stroke-width:3}
+.node .halo{fill:transparent}
+.node .nicon{font-size:28px}
+.node .nlabel{font-size:13px;fill:var(--ink);font-family:var(--font-head);font-weight:700;paint-order:stroke;stroke:var(--label-halo);stroke-width:4px;stroke-linejoin:round}
+.node .nstars{font-size:16px;fill:var(--star);letter-spacing:2px;paint-order:stroke;stroke:var(--label-halo);stroke-width:3px}
+.node[data-act]{cursor:pointer}
+.node.done .disc{fill:var(--node-done);stroke:var(--accent)}
+.node.locked{opacity:.5}
+.node.locked .nlabel{fill:var(--muted)}
+.node.next .halo{fill:var(--accent);opacity:.25;animation:pulse 1.6s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+.node.next .disc{stroke:var(--accent);stroke-width:4}
+@keyframes pulse{50%{transform:scale(1.25);opacity:.05}}
+.deco{opacity:.55;pointer-events:none}
+
+/* intro / fin */
+.intro,.endcard{text-align:left}
+.introicon{font-size:60px;text-align:center;line-height:1.1}
+.kicker{text-align:center;text-transform:uppercase;letter-spacing:.12em;font-size:13px;color:var(--muted)}
+.intro h2,.endcard h2{text-align:center}
+.lead{font-size:19px}
+.plan{list-style:none;padding:0;margin:14px 0}
+.plan li{display:flex;justify-content:space-between;gap:10px;padding:10px 12px;border-bottom:1px solid var(--line)}
+.plan li b{font-weight:400;color:var(--muted);font-size:15px;white-space:nowrap}
+.reward{display:flex;align-items:center;gap:14px;margin:14px 0;padding:12px 16px;border-radius:var(--radius);background:var(--reward-bg);border:1px dashed var(--accent)}
+.reward .ricon{font-size:40px}
+.reward small{color:var(--muted)}
+.reward.win{animation:pop .6s ease .9s both}
+.rules{font-size:15px;padding:10px 14px;border-radius:var(--radius);background:var(--soft);margin:12px 0;color:var(--ink)}
+.btns{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:16px}
+.bigstars{text-align:center;font-size:64px;letter-spacing:8px;margin:6px 0}
+.bigstars .st{color:var(--star-off);display:inline-block}
+.bigstars .st.on{color:var(--star);animation:starin .5s cubic-bezier(.3,1.6,.5,1) both}
+@keyframes starin{from{transform:scale(0) rotate(-90deg)}to{transform:none}}
+@keyframes pop{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.05)}100%{transform:none;opacity:1}}
+table.mini{width:100%;border-collapse:collapse;margin-top:8px}
+table.mini td{padding:7px 4px;border-bottom:1px solid var(--line)}
+table.mini td:last-child{text-align:right;font-weight:700}
+.final{margin:14px 0;padding:14px;border-radius:var(--radius);background:var(--accent);color:var(--on-accent);text-align:center;font-weight:700;animation:pop .6s ease both}
+
+/* question */
+.qtop{display:flex;align-items:center;gap:10px}
+.prog{flex:1;height:12px;background:var(--track);border-radius:99px;overflow:hidden}
+.bar{height:100%;background:var(--accent);border-radius:99px;transition:width .4s}
+.qcount{font-size:15px;color:var(--muted);min-width:44px;text-align:right}
+.hud{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:10px 0}
+.chip{padding:5px 12px;border-radius:99px;background:var(--chip);color:var(--chip-ink);font-size:15px;font-weight:700}
+.combo{font-weight:700;color:var(--muted);font-size:15px}
+.combo.hot{color:var(--hot);animation:pop .4s ease}
+.pts{font-weight:700}
+.secbanner{text-align:center;font-family:var(--font-head);font-size:20px;color:var(--title);margin:4px 0 12px;animation:pop .5s ease both}
+.textcard{margin-bottom:12px;font-size:var(--text-size);line-height:1.65}
+.textcard p{margin:6px 0 0}
+.ttitle{font-family:var(--font-head);font-size:18px;color:var(--title)}
+.sent{border-radius:4px;transition:background .3s,box-shadow .3s}
+.sent.zone{background:var(--zone-bg);box-shadow:0 0 0 3px var(--zone-bg)}
+.sent.okref{background:var(--good-bg);box-shadow:0 0 0 3px var(--good-bg)}
+.qtext{font-size:20px;margin-bottom:14px}
+.qtext.small{font-size:16px;color:var(--muted);margin-bottom:6px}
+.big{display:inline-block;font-size:30px;font-weight:700;margin-top:6px;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.sentence{font-size:23px;line-height:1.7;margin:6px 0 16px}
+.blank{display:inline-block;min-width:74px;margin:0 6px;padding:0 6px;text-align:center;border-bottom:3px dashed var(--accent);color:var(--accent);font-weight:700}
+.blank.zone{background:var(--zone-bg);border-bottom-style:solid;border-color:var(--zone);animation:glow 1.2s ease-in-out 3}
+.blank.ok{color:var(--good);border-bottom:3px solid var(--good)}
+.blank.reveal{color:var(--good);border-bottom:3px solid var(--good);background:var(--good-bg)}
+@keyframes glow{50%{box-shadow:0 0 0 6px var(--zone-bg)}}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.choices.long{grid-template-columns:1fr}
+.choices.row{display:flex;flex-wrap:wrap;justify-content:center}
+.choices.row .choice{min-width:110px}
+.choice{background:var(--choice);border:2px solid var(--choice-border);min-height:58px;font-size:19px;color:var(--ink);text-align:center;line-height:1.3}
+.choice:hover:not(:disabled){border-color:var(--accent)}
+.choice.wrong{border-color:var(--bad);background:var(--bad-bg);opacity:.6;text-decoration:line-through}
+.choice.right,.choice.reveal{border-color:var(--good);background:var(--good-bg);opacity:1;text-decoration:none;font-weight:700}
+.choice:disabled:not(.wrong):not(.right):not(.reveal){opacity:.55}
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1;font-weight:700;margin:0 2px}
+.frac sup,.frac sub{font-size:.95em;vertical-align:baseline;position:static}
+.frac span{display:block;width:100%;height:2px;background:currentColor;font-size:0;margin:2px 0}
+.typeline{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:22px;margin:10px 0}
+.pre,.post{font-size:21px}
+input.ans{font:inherit;font-size:24px;padding:10px 14px;border-radius:var(--radius);border:2px solid var(--choice-border);background:var(--input);color:var(--ink);width:100%;max-width:300px;outline:none}
+input.ans.num{max-width:220px;font-variant-numeric:tabular-nums;letter-spacing:.04em}
+input.ans:focus{border-color:var(--accent)}
+input.ans.ok{border-color:var(--good);background:var(--good-bg)}
+input.ans::selection{background:var(--zone);color:#000}
+.accents{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 6px}
+.accents button{padding:6px 0;width:42px;font-size:19px;background:var(--choice);border:1px solid var(--choice-border)}
+.sayrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:6px}
+.secret{display:none;font-weight:700;padding:4px 10px;border-radius:var(--radius);background:var(--soft)}
+.secret.show{display:inline-block}
+.actions{display:flex;justify-content:center;margin-top:14px}
+.actions:empty{display:none}
+.fb .msg{margin-top:14px;padding:12px 14px;border-radius:var(--radius);animation:pop .35s ease both;font-size:18px}
+.fb .good{background:var(--good-bg);border-left:5px solid var(--good)}
+.fb .zonemsg{background:var(--zone-bg);border-left:5px solid var(--zone)}
+.fb .answer{background:var(--bad-bg);border-left:5px solid var(--bad)}
+.fb .info{background:var(--soft)}
+.exp{margin-top:6px;font-size:16px;color:var(--ink);opacity:.9}
+.hint{margin-top:6px;font-size:16px;font-style:italic}
+.yours{margin:6px 0;font-size:20px}
+.word{font-size:22px;font-weight:700;letter-spacing:.03em}
+.numshow{font-size:24px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:.05em}
+mark.err{background:var(--bad);color:#fff;padding:0 3px;border-radius:4px}
+mark.miss{background:var(--bad);color:#fff;padding:0 2px;border-radius:4px;font-size:.7em;vertical-align:super}
+mark.good{background:var(--good);color:#fff;padding:0 3px;border-radius:4px}
+.zonetag{background:var(--zone);color:#1a1a1a;padding:0 5px;border-radius:4px;font-weight:700}
+.bigans{font-size:24px}
+.shake{animation:shake .4s ease}
+@keyframes shake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+.comp{display:flex;align-items:flex-end;gap:10px;margin-top:16px}
+.avatar{font-size:46px;line-height:1;animation:float 3.5s ease-in-out infinite}
+.bubble{flex:1;background:var(--card);border:var(--card-border);border-radius:16px 16px 16px 4px;padding:10px 14px;font-size:16px;box-shadow:var(--shadow)}
+.bubble.pop{animation:pop .35s ease}
+.particle{position:fixed;z-index:60;pointer-events:none;font-size:26px;animation:fly 1.5s cubic-bezier(.2,.7,.4,1) forwards}
+@keyframes fly{0%{transform:translate(-50%,-50%) scale(.4);opacity:1}100%{transform:translate(calc(var(--dx) - 50%),calc(var(--dy) - 50%)) scale(1.15) rotate(var(--rot));opacity:0}}
+
+/* collection */
+.coll{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:16px 0}
+@media (max-width:560px){.coll{grid-template-columns:repeat(2,1fr)}}
+.item{text-align:center;padding:12px 6px;border-radius:var(--radius);background:var(--soft);border:2px dashed var(--line);opacity:.6}
+.item.got{opacity:1;border:2px solid var(--accent);background:var(--reward-bg)}
+.iicon{font-size:40px}
+.iname{font-size:14px;font-weight:700}
+.istars{color:var(--star);font-size:14px}
+.ranks{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:8px 0}
+.ranks span{padding:6px 12px;border-radius:99px;background:var(--soft);color:var(--muted);font-size:14px;display:flex;flex-direction:column;align-items:center}
+.ranks span.on{background:var(--accent);color:var(--on-accent)}
+.ranks small{font-size:11px;opacity:.8}
+
+/* éclair */
+.eclair{max-width:420px;margin:0 auto}
+.ectop{display:flex;justify-content:space-between;font-size:20px}
+.ectime{height:10px;border-radius:99px;background:var(--track);overflow:hidden;margin:8px 0 14px}
+.ectime div{height:100%;width:100%;background:var(--accent);transition:width 1s linear}
+.ecq{font-size:44px;font-weight:700;font-variant-numeric:tabular-nums}
+.ecin{font-size:40px;min-height:60px;margin:6px auto 12px;padding:4px;border-bottom:3px solid var(--accent);width:160px;font-variant-numeric:tabular-nums}
+.ecin.good{color:var(--good);border-color:var(--good)}
+.ecin.bad{color:var(--bad);border-color:var(--bad)}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.keypad button{font-size:26px;padding:14px 0;background:var(--choice);border:1px solid var(--choice-border)}
+.keypad button.primary{background:var(--accent)}
+
+/* grands-parents */
+.parents p{font-size:16px}
+.tip{padding:10px 14px;border-radius:var(--radius);background:var(--soft)}
+.tblwrap{overflow-x:auto}
+table.res{width:100%;border-collapse:collapse;font-size:15px}
+table.res th,table.res td{padding:7px 6px;border-bottom:1px solid var(--line);text-align:center;vertical-align:top}
+table.res td:nth-child(2){text-align:left}
+table.res tr.off td{color:var(--muted)}
+table.res .stars{color:var(--star);white-space:nowrap}
+.aggs{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.aggs span{padding:6px 12px;border-radius:99px;background:var(--soft);font-size:15px}
+.misslist,.planlist{padding-left:18px;font-size:15px}
+.misslist li,.planlist li{margin:6px 0}
+.tagd{display:inline-block;font-size:12px;padding:1px 8px;border-radius:99px;background:var(--chip);color:var(--chip-ink);font-weight:700}
+.danger{margin-top:18px;font-size:15px}
+.danger summary{cursor:pointer;color:var(--muted)}
+.danger button{background:var(--bad);color:#fff;border-color:transparent}
+:root{
+--bg-solid:#131115;
+--bg:repeating-linear-gradient(90deg,rgba(255,255,255,.022) 0 2px,transparent 2px 22px),radial-gradient(ellipse at 50% -10%,#2a2230 0%,#131115 60%);
+--ink:#ece6dc;--title:#f4eee4;--muted:#a79eae;
+--card:#1d1a20;--card-border:1px solid #3e3745;--radius:8px;--shadow:0 10px 26px rgba(0,0,0,.5);
+--accent:#9e2f43;--on-accent:#f7f0e7;--btn:#26222a;--btn-border:1px solid #453d4c;--btn-shadow:0 3px 0 #561824;
+--chip:#2b2630;--chip-ink:#ddd4c8;
+--good:#6fb07e;--good-bg:#1d3123;--bad:#dc5770;--bad-bg:#3b1c25;--zone:#d9b44c;--zone-bg:#3b3220;
+--choice:#24202a;--choice-border:#463e4e;--input:#141116;--track:#2e2933;--trail:#51485a;--node:#1d1a20;--node-stroke:#5d5266;--node-done:#2c1c24;
+--star:#d9b44c;--star-off:#3a343f;--label-halo:#131115;--reward-bg:#241d24;--soft:#262129;--line:#37313d;--hot:#e08040;--text-size:20px;
+--font-head:'Cinzel',Georgia,'Times New Roman',serif;--font-body:'Crimson Pro',Georgia,'Times New Roman',serif;
+}
+body{font-size:19px}
+h1,h2,.secbanner,.brand b{letter-spacing:.06em}
+h1{text-transform:uppercase;font-size:clamp(26px,6vw,38px)}
+.hero h1::before{content:' ❦ ';color:var(--accent);font-size:.6em;vertical-align:middle}
+.intro h2::after,.endcard h2::after{content:'❦';display:block;font-size:18px;color:var(--accent);margin-top:4px}
+.card{background-image:linear-gradient(180deg,rgba(255,255,255,.025),transparent 40%)}
+.choice{font-family:var(--font-body);font-size:20px}
+.bubble{font-style:italic}
+.bubble b{font-style:normal;font-family:var(--font-head);font-size:14px;letter-spacing:.08em}
+.node .nlabel{font-size:12px;letter-spacing:.04em}
+.hicon{filter:drop-shadow(0 0 12px rgba(158,47,67,.6))}
+.textcard{border-left:3px solid var(--accent)}
+.final{background:#0d0b0e;color:var(--star);border:1px solid var(--star)}
+
+</style>
+</head>
+<body>
+<div id="app"></div>
+<noscript>Ce jeu a besoin de JavaScript pour fonctionner.</noscript>
+<script>
+var CFG = {
+  id: 'sarah', name: 'Sarah', level: 'CM2',
+  title: 'Le Manoir des Ombres',
+  tagline: 'Dix salles. Dix énigmes. Un médaillon que personne n\'a trouvé depuis un siècle.',
+  homeIcon: '🕯️', revIcon: '🕸️', collTitle: 'Le cabinet de curiosités',
+  comp: { name: 'Nyx', icon: '🦇' },
+  icons: { ortho: '✒️', calc: '🧮', lect: '📜', points: '🖤' },
+  sec: { ortho: 'Orthographe', calc: 'Calcul', lect: 'Lecture' },
+  ranks: [{ min: 0, name: 'Visiteuse' }, { min: 3, name: 'Habitante du manoir' }, { min: 6, name: 'Gardienne des secrets' }, { min: 10, name: 'Maîtresse des ombres' }],
+  mapX: [130, 270, 200, 115, 250, 285, 160, 115, 245, 200],
+  deco: [[340, 1100, '🕯️', 26], [45, 1000, '🕸️', 30], [355, 930, '🦇', 24], [40, 850, '🥀', 24], [350, 760, '🕷️', 22], [50, 680, '🌙', 30], [360, 590, '🦇', 20], [40, 510, '🗝️', 22], [355, 420, '🕸️', 28], [45, 330, '🕯️', 24], [350, 230, '🦇', 26], [60, 150, '⭐', 16], [330, 60, '🌕', 32], [90, 50, '🦇', 18]],
+  particles: ['🦇', '🖤', '🕷️', '🥀', '✦'],
+  sounds: { type: 'triangle', ok: [440, 523, 659], ok2: [392, 466], wrong: [196, 185], win: [220, 262, 330, 440, 523] },
+  lines: {
+    hello: ['Bonsoir, Sarah. Le manoir t\'attendait. Évidemment.', 'Te revoilà. Les araignées sont ravies. Moi aussi, un peu.', 'Une nouvelle salle s\'ouvre. Ne fais pas de bruit, les portraits dorment.'],
+    idle: ['Je t\'observe.', 'Prends ton temps. L\'éternité est longue.', 'Silence. On réfléchit.', 'Les murs ont des oreilles. Et ils notent.', 'Rien ne presse. Sauf peut-être les fantômes.'],
+    sec: { calc: 'Les chiffres, maintenant. Un brouillon est autorisé. Même les sorcières en utilisent.', lect: 'Lis le texte en entier d\'abord. Les secrets se cachent dans les détails.' },
+    ok: ['Exact.', 'Correct. Je ne suis pas surprise.', 'Juste. Le manoir approuve en silence.', 'Parfait. C\'en est presque inquiétant.', 'Bonne réponse. Une chauve-souris a applaudi. Une seule.', 'Impeccable. Comme une partition bien jouée.'],
+    ok2: ['Rattrapé de justesse. Ça compte.', 'Correct au deuxième essai. La persévérance est une qualité sombre mais utile.', 'Voilà. Tu as débusqué l\'erreur.'],
+    wrong1: ['Non. L\'erreur rôde dans la zone indiquée.', 'Raté. Regarde la partie marquée : quelque chose cloche.', 'Hmm. Une faute se cache là. Débusque-la.'],
+    wrong2: ['Voici la réponse. Grave-la dans ta mémoire.', 'Les ombres te révèlent la solution. Retiens-la.', 'Celle-ci rejoint les Revanches. Elle ne s\'échappera pas.'],
+    combo: ['Série de 5. Même les fantômes sont impressionnés.', 'Série en cours. C\'est presque effrayant.', 'Implacable. Le manoir frissonne.'],
+    end3: ['Trois étoiles. Le manoir s\'incline. Discrètement.', 'Trois étoiles. Les portraits ont souri. C\'est rare.'],
+    end2: ['Deux étoiles. Honorable, pour une vivante.', 'Deux étoiles. Le corbeau hoche la tête, ce qui est beaucoup pour lui.'],
+    end1: ['Mission accomplie. Les ombres attendent mieux demain.', 'Terminé. Les Revanches t\'attendent dans la toile.'],
+    final: '🖤 Le Médaillon des Ombres est à toi. Sarah devient Maîtresse des ombres du manoir. Personne ne l\'avait trouvé depuis un siècle.',
+    allDone: '🖤 Les dix salles sont explorées. Rejoue pour les trois étoiles partout, ou prends tes revanches.',
+    revIntro: 'Les questions ratées sont prises dans la toile. Réussis-les du premier coup pour les libérer.',
+    revEmpty: 'La toile est vide. Aucune erreur ne t\'échappe. C\'est presque inquiétant.',
+    record: '🏆 Nouveau record. Même l\'horloge du hall a eu du mal à suivre.'
+  }
+};
+
+var DATA = { days: [
+/* ---------------- JOUR 1 ---------------- */
+{
+  place: 'Bibliothèque interdite', icon: '📚', reward: { icon: '📜', name: 'Le Grimoire d\'argent' },
+  focus: 'a/à, et/est, son/sont, ces/ses · grands nombres jusqu\'aux milliards',
+  intro: 'Personne n\'entre plus dans la bibliothèque depuis cent ans. Personne, sauf toi.',
+  ortho: [
+    { t: 'fill', s: 'Sarah ___ toujours un livre étrange sous le bras.', c: ['a', 'à'], a: 0, z: 'Remplace par « avait ».', e: 'Sarah avait toujours un livre : a (verbe avoir).' },
+    { t: 'fill', s: 'La bibliothèque ___ fermée depuis cent ans.', c: ['est', 'et'], a: 0, z: 'Remplace par « était ».', e: 'La bibliothèque était fermée : est (verbe être).' },
+    { t: 'fill', s: 'Les vieux livres ___ couverts de poussière.', c: ['sont', 'son'], a: 0, z: 'Remplace par « étaient ».', e: 'Les livres étaient couverts : sont (verbe être).' },
+    { t: 'fill', s: 'Sarah range ___ partitions dans son cartable noir.', c: ['ses', 'ces'], a: 0, z: 'Ce sont les siennes ou celles qu\'on montre du doigt ? Essaie « les siennes ».', e: '« ses » = les siennes, à elle. « ces » = celles-là, qu\'on montre.' },
+    { t: 'fill', s: 'Regarde ___ chauves-souris accrochées au plafond !', c: ['ces', 'ses'], a: 0, z: 'On les montre du doigt : on pourrait dire « ces chauves-souris-là ».', e: 'On montre les chauves-souris : ces (celles-là).' },
+    { t: 'fill', s: 'Elle lit à la lueur d\'une bougie ___ d\'une lanterne.', c: ['et', 'est'], a: 0, z: 'Remplace par « et puis ».', e: 'On peut dire « et puis » : et.' }
+  ],
+  calc: {
+    gen: [['placeM'], ['wordsM'], ['compareM']],
+    probs: [
+      { t: 'num', q: 'La bibliothèque contient <b>3 450 000</b> pages. Un fantôme en a déjà lu <b>1 275 000</b>. Combien de pages lui reste-t-il à lire ?', a: 2175000, chk: '3450000-1275000', z: 'Ce qui reste : une soustraction. Aligne bien les classes (millions, mille, unités).', e: '3 450 000 − 1 275 000 = 2 175 000 pages.' },
+      { t: 'num', q: 'Un grimoire compte <b>365 pages</b>. Combien de pages ont <b>4 grimoires</b> identiques ?', a: 1460, chk: '365*4', z: '4 fois 365.', e: '365 × 4 = 1 460 pages.' }
+    ]
+  },
+  lect: {
+    title: 'Le livre qui murmurait',
+    s: ['Personne n\'entrait plus dans la bibliothèque du manoir depuis l\'hiver où la grande horloge s\'était arrêtée.', 'Sarah, elle, aimait le silence épais des étagères et l\'odeur des vieux papiers.', 'Un mercredi, alors qu\'elle cherchait une partition de violoncelle, elle entendit un murmure.', 'Il venait d\'un livre à la couverture violette, coincé entre deux dictionnaires.', 'Quand elle l\'ouvrit, les pages étaient blanches, sauf une phrase écrite à l\'encre d\'argent : « Remets l\'horloge à l\'heure. »', 'Sarah descendit dans le hall, grimpa sur un tabouret et poussa doucement l\'aiguille.', 'L\'horloge reprit son tic-tac, et toutes les bougies du manoir s\'allumèrent en même temps.', 'Le livre, lui, se referma avec un petit soupir satisfait.'],
+    qs: [
+      { q: 'Depuis quand personne n\'entre plus dans la bibliothèque ?', c: ['Depuis l\'hiver où l\'horloge s\'est arrêtée', 'Depuis l\'arrivée de Sarah', 'Depuis la dernière tempête', 'Depuis toujours'], a: 0, r: [0], e: 'Depuis l\'hiver où la grande horloge s\'était arrêtée.' },
+      { q: 'Que cherchait Sarah dans la bibliothèque ?', c: ['Une partition de violoncelle', 'Un dictionnaire', 'Une bougie', 'Un livre violet'], a: 0, r: [2], e: 'Elle cherchait une partition de violoncelle quand elle a entendu le murmure.' },
+      { q: 'Que demande le livre à Sarah ?', c: ['De remettre l\'horloge à l\'heure', 'D\'allumer les bougies', 'De jouer du violoncelle', 'De le ranger à sa place'], a: 0, r: [4], e: 'La phrase à l\'encre d\'argent dit : « Remets l\'horloge à l\'heure. »' },
+      { q: 'Que montre le « petit soupir satisfait » du livre ?', c: ['Qu\'il est content que Sarah ait réussi', 'Qu\'il est fatigué', 'Qu\'il est déçu', 'Qu\'il a peur de l\'horloge'], a: 0, r: [7], e: 'Satisfait = content : sa mission est accomplie grâce à Sarah.' }
+    ]
+  }
+},
+/* ---------------- JOUR 2 ---------------- */
+{
+  place: 'Salle de musique hantée', icon: '🎻', reward: { icon: '🕯️', name: 'La Bougie noire' },
+  focus: 'c\'est / s\'est, ce / se · addition et soustraction de grands nombres',
+  intro: 'Chaque nuit, à minuit, un violoncelle joue tout seul. Il est temps de savoir pourquoi.',
+  ortho: [
+    { t: 'fill', s: '___ le plus beau violoncelle du manoir.', c: ['C\'est', 'S\'est'], a: 0, z: 'Remplace par « Cela est ».', e: 'On peut dire « Cela est le plus beau » : c\'est.' },
+    { t: 'fill', s: 'Le fantôme ___ caché derrière le piano.', c: ['s\'est', 'c\'est'], a: 0, z: 'Mets la phrase avec « je » : « je me suis caché ». Quel petit mot change ?', e: 'Se cacher : il s\'est caché (je me suis caché). C\'est un verbe pronominal.' },
+    { t: 'fill', s: 'Sarah ___ prépare pour son concert.', c: ['se', 'ce'], a: 0, z: 'Remplace par « me » : « je me prépare ».', e: 'Se préparer : elle se prépare (je me prépare).' },
+    { t: 'fill', s: '___ soir, la salle de musique résonne.', c: ['Ce', 'Se'], a: 0, z: 'Le petit mot est devant un nom (« soir »). Peut-on dire « cette nuit » ?', e: 'Devant un nom, on écrit « ce » : ce soir, cette nuit.' },
+    { t: 'fill', s: 'L\'archet ___ mis à grincer tout seul.', c: ['s\'est', 'c\'est'], a: 0, z: 'Avec « je » : « je me suis mis à... ».', e: 'Se mettre : il s\'est mis (je me suis mis).' },
+    { t: 'dictee', say: 'un violoncelle', a: ['un violoncelle'], e: 'violoncelle : deux l, un c, et un e à la fin.' }
+  ],
+  calc: {
+    gen: [['add', 7, 6], ['sub', 7, 6], ['x10']],
+    probs: [
+      { t: 'num', q: 'Le concert du manoir a attiré <b>1 248</b> fantômes le samedi et <b>987</b> le dimanche. Combien de spectateurs en tout ?', a: 2235, chk: '1248+987', z: 'En tout : une addition.', e: '1 248 + 987 = 2 235 spectateurs.' },
+      { t: 'num', q: 'Un violoncelle a <b>4 cordes</b>. Combien de cordes faut-il pour <b>26 violoncelles</b> ?', a: 104, chk: '4*26', z: '26 fois 4 cordes.', e: '26 × 4 = 104 cordes.' }
+    ]
+  },
+  lect: {
+    title: 'Le violoncelle fantôme',
+    s: ['Chaque nuit, à minuit précis, un air de violoncelle s\'élevait de la salle de musique.', 'Les domestiques du manoir refusaient d\'y entrer, persuadés qu\'un fantôme y jouait.', 'Sarah, qui ne croyait qu\'à ce qu\'elle voyait, décida d\'aller vérifier.', 'Elle se cacha derrière un rideau de velours et attendit sans un bruit.', 'À minuit, une fenêtre mal fermée s\'ouvrit, et le vent fit vibrer les cordes de l\'instrument.', 'Le « fantôme » n\'était qu\'un courant d\'air musicien.', 'Sarah ferma la fenêtre, un peu déçue : elle aurait préféré un vrai fantôme.'],
+    qs: [
+      { q: 'Pourquoi les domestiques n\'entrent-ils pas dans la salle de musique ?', c: ['Ils pensent qu\'un fantôme y joue', 'La porte est fermée à clé', 'Sarah le leur interdit', 'Ils n\'aiment pas la musique'], a: 0, r: [1], e: 'Ils sont persuadés qu\'un fantôme y joue.' },
+      { q: 'Quel trait de caractère de Sarah ce texte montre-t-il ?', c: ['Elle veut vérifier par elle-même', 'Elle est peureuse', 'Elle est paresseuse', 'Elle est bavarde'], a: 0, r: [2], e: 'Elle ne croit qu\'à ce qu\'elle voit et décide d\'aller vérifier.' },
+      { q: 'Qui joue vraiment du violoncelle la nuit ?', c: ['Le vent', 'Un fantôme', 'Un domestique', 'Sarah'], a: 0, r: [4, 5], e: 'C\'est le vent, par une fenêtre mal fermée, qui fait vibrer les cordes.' },
+      { q: 'Pourquoi Sarah est-elle « un peu déçue » ?', c: ['Elle aurait aimé rencontrer un vrai fantôme', 'Le violoncelle est cassé', 'Elle a eu froid', 'Elle n\'a pas pu jouer'], a: 0, r: [6], e: 'Elle aurait préféré un vrai fantôme. Chacun ses goûts.' }
+    ]
+  }
+},
+/* ---------------- JOUR 3 ---------------- */
+{
+  place: 'Salle de bal des ombres', icon: '🩰', reward: { icon: '🥀', name: 'La Rose fanée' },
+  focus: 'présent des verbes du 3e groupe · sujet inversé ou éloigné · multiplication posée',
+  intro: 'Les ombres d\'anciens danseurs tournent encore dans la salle de bal. Ne marche pas sur leurs pieds.',
+  ortho: [
+    { t: 'type', q: 'Conjugue au présent.', pre: 'nous (prendre) → nous', a: ['prenons'], e: 'Prendre : nous prenons, vous prenez, ils prennent.' },
+    { t: 'type', q: 'Conjugue au présent.', pre: 'ils (venir) → ils', a: ['viennent'], e: 'Venir : ils viennent (deux n).' },
+    { t: 'type', q: 'Conjugue au présent.', pre: 'vous (faire) → vous', a: ['faites'], e: 'Vous faites (jamais « vous faisez »), comme vous dites.' },
+    { t: 'type', q: 'Conjugue au présent.', pre: 'elles (savoir) → elles', a: ['savent'], e: 'Savoir : je sais, tu sais, il sait, nous savons, vous savez, ils savent.' },
+    { t: 'fill', s: 'Dans la salle de bal ___ les ombres des anciens danseurs.', c: ['dansent', 'danse'], a: 0, z: 'Qui est-ce qui danse ? Cherche le sujet : il est placé APRÈS le verbe.', e: 'Le sujet est « les ombres », placé après le verbe : elles dansent.' },
+    { t: 'fill', s: 'Les danseuses du manoir, vêtues de noir, ___ sans bruit.', c: ['glissent', 'glisse'], a: 0, z: 'Qui est-ce qui glisse ? « du manoir, vêtues de noir » sépare le sujet du verbe.', e: 'Le sujet est « les danseuses » : elles glissent.' }
+  ],
+  calc: {
+    gen: [['mul2', 3, 2], ['mul2', 2, 2], ['table', [6, 7, 8, 9]]],
+    probs: [
+      { t: 'num', q: 'Une chorégraphie compte <b>8 temps</b> par mesure. Combien de temps y a-t-il dans <b>32 mesures</b> ?', a: 256, chk: '8*32', z: '32 mesures de 8 temps : 32 fois 8.', e: '32 × 8 = 256 temps.' },
+      { t: 'num', q: 'La salle de bal a <b>24 rangées</b> de <b>35 chaises</b>. Combien de chaises en tout ?', a: 840, chk: '24*35', z: 'Pose la multiplication 35 × 24.', e: '35 × 24 = 840 chaises.' }
+    ]
+  },
+  lect: {
+    title: 'Les chaussons de pointe',
+    s: ['Les danseuses classiques portent parfois des chaussons de pointe, qui leur permettent de se tenir sur le bout des orteils.', 'Le bout de ces chaussons est rigide : il est fabriqué avec des couches de tissu et de colle durcies.', 'Une danseuse ne commence pas les pointes avant plusieurs années de danse, car ses pieds et ses chevilles doivent être assez forts.', 'Les danseuses professionnelles usent leurs chaussons très vite : parfois une paire en un seul spectacle.', 'Avant de les porter, beaucoup les « cassent » volontairement, en les pliant ou en les tapant, pour qu\'ils soient plus souples.'],
+    qs: [
+      { q: 'À quoi servent les chaussons de pointe ?', c: ['À se tenir sur le bout des orteils', 'À danser plus vite', 'À sauter plus haut', 'À ne pas glisser'], a: 0, r: [0], e: 'Ils permettent de se tenir sur le bout des orteils.' },
+      { q: 'Avec quoi est fabriqué le bout du chausson ?', c: ['Des couches de tissu et de colle durcies', 'Du bois', 'Du métal', 'Du plastique'], a: 0, r: [1], e: 'Des couches de tissu et de colle durcies.' },
+      { q: 'Pourquoi faut-il attendre avant de faire des pointes ?', c: ['Les pieds et les chevilles doivent être assez forts', 'Les chaussons coûtent trop cher', 'Il faut connaître toute la musique', 'Il faut être très grande'], a: 0, r: [2], e: 'Les pieds et les chevilles doivent être assez forts.' },
+      { q: 'Pourquoi les danseuses « cassent »-elles leurs chaussons neufs ?', c: ['Pour les rendre plus souples', 'Parce qu\'elles sont en colère', 'Pour en acheter d\'autres', 'Pour les décorer'], a: 0, r: [4], e: 'Pour qu\'ils soient plus souples.' }
+    ]
+  }
+},
+/* ---------------- JOUR 4 ---------------- */
+{
+  place: 'Bassin souterrain', icon: '🌊', reward: { icon: '🐙', name: 'La Pieuvre des profondeurs' },
+  focus: 'imparfait de l\'indicatif · calcul mental (× 25, × 11, ÷ 10, ÷ 100) · problèmes de natation',
+  intro: 'Sous le manoir dort un bassin d\'eau noire. Ton grand-oncle le traversait d\'une traite. Et toi ?',
+  ortho: [
+    { t: 'type', q: 'Conjugue à l\'<b>imparfait</b>.', pre: 'nous (nager) → nous', a: ['nagions'], e: 'À l\'imparfait, devant -ions, le e disparaît : nous nagions (mais je nageais).' },
+    { t: 'type', q: 'Conjugue à l\'<b>imparfait</b>.', pre: 'je (plonger) → je', a: ['plongeais'], e: 'Devant a, on garde le e pour le son [j] : je plongeais.' },
+    { t: 'type', q: 'Conjugue à l\'<b>imparfait</b>.', pre: 'ils (être) → ils', a: ['étaient'], e: 'Être à l\'imparfait : j\'étais, tu étais, il était, nous étions, vous étiez, ils étaient.' },
+    { t: 'type', q: 'Conjugue à l\'<b>imparfait</b>.', pre: 'vous (avoir) → vous', a: ['aviez'], e: 'Avoir à l\'imparfait : j\'avais, ..., vous aviez, ils avaient.' },
+    { t: 'type', q: 'Conjugue à l\'<b>imparfait</b>.', pre: 'tu (faire) → tu', a: ['faisais'], e: 'Faire à l\'imparfait : je faisais, tu faisais (on écrit « ai » mais on entend [e]).' },
+    { t: 'type', q: 'Conjugue à l\'<b>imparfait</b>.', pre: 'elle (commencer) → elle', a: ['commençait'], e: 'Devant a, le c prend une cédille : elle commençait.' }
+  ],
+  calc: {
+    gen: [['mental'], ['mental'], ['mul2', 3, 2]],
+    probs: [
+      { t: 'num', q: 'Le bassin mesure <b>25 m</b>. Sarah nage <b>36 longueurs</b>. Combien de mètres a-t-elle nagé ?', a: 900, unit: 'm', chk: '25*36', z: 'Astuce : × 25, c\'est × 100 puis ÷ 4.', e: '36 × 25 = 900 m (36 × 100 = 3 600, puis ÷ 4).' },
+      { t: 'num', q: 'Au club, Sarah nage <b>1 500 m</b> dans un bassin de <b>50 m</b>. Combien de longueurs fait-elle ?', a: 30, chk: '1500/50', z: 'Combien de fois 50 dans 1 500 ? Pense à 150 ÷ 5.', e: '1 500 ÷ 50 = 30 longueurs.' }
+    ]
+  },
+  lect: {
+    title: 'Le bassin sous le manoir',
+    s: ['Sous le manoir s\'étendait un bassin d\'eau noire, si calme qu\'il reflétait les voûtes comme un miroir.', 'Autrefois, le grand-oncle de Sarah y nageait chaque matin avant le lever du soleil.', 'Sarah, qui s\'entraînait trois fois par semaine au club, rêvait de le traverser d\'une seule traite.', 'L\'eau était glacée, et personne ne savait vraiment ce qui se cachait au fond.', 'Un matin, elle plongea, compta ses mouvements et nagea sans jamais s\'arrêter.', 'Arrivée de l\'autre côté, elle aperçut sur la paroi des initiales gravées : celles de son grand-oncle.', 'Elle prit un caillou pointu et grava les siennes juste en dessous.'],
+    qs: [
+      { q: 'À quoi ressemble l\'eau du bassin ?', c: ['À un miroir', 'À une rivière', 'À de l\'encre bleue', 'À de la neige'], a: 0, r: [0], e: 'Elle est si calme qu\'elle reflète les voûtes comme un miroir.' },
+      { q: 'Quel est le rêve de Sarah ?', c: ['Traverser le bassin sans s\'arrêter', 'Trouver un trésor au fond', 'Rencontrer son grand-oncle', 'Plonger jusqu\'au fond'], a: 0, r: [2], e: 'Le traverser « d\'une seule traite », c\'est-à-dire sans s\'arrêter.' },
+      { q: 'Que trouve-t-elle de l\'autre côté ?', c: ['Les initiales de son grand-oncle', 'Un coffre', 'Une sortie secrète', 'Une partition'], a: 0, r: [5], e: 'Des initiales gravées : celles de son grand-oncle.' },
+      { q: 'Que veut montrer Sarah en gravant ses initiales ?', c: ['Qu\'elle a réussi le même exploit que son grand-oncle', 'Qu\'elle s\'ennuie', 'Que le manoir lui appartient', 'Qu\'elle s\'est perdue'], a: 0, r: [5, 6], e: 'Elle grave les siennes sous celles de son grand-oncle : elle a réussi la même traversée.' }
+    ]
+  }
+},
+/* ---------------- JOUR 5 ---------------- */
+{
+  place: 'Serre carnivore', icon: '🌿', reward: { icon: '🪴', name: 'La Plante carnivore apprivoisée' },
+  focus: 'futur simple · division posée par un chiffre · multiples',
+  intro: 'Dans la serre, les plantes ont faim. Réponds juste, et elles te laisseront passer.',
+  ortho: [
+    { t: 'type', q: 'Conjugue au <b>futur</b>.', pre: 'je (chanter) → je', a: ['chanterai'], e: 'Futur : infinitif + -ai, -as, -a, -ons, -ez, -ont. Je chanterai.' },
+    { t: 'type', q: 'Conjugue au <b>futur</b>.', pre: 'nous (finir) → nous', a: ['finirons'], e: 'Nous finirons : finir + -ons.' },
+    { t: 'type', q: 'Conjugue au <b>futur</b>.', pre: 'ils (aller) → ils', a: ['iront'], e: 'Aller est irrégulier au futur : j\'irai, tu iras, ils iront.' },
+    { t: 'type', q: 'Conjugue au <b>futur</b>.', pre: 'tu (venir) → tu', a: ['viendras'], e: 'Venir au futur : je viendrai, tu viendras.' },
+    { t: 'type', q: 'Conjugue au <b>futur</b>.', pre: 'vous (voir) → vous', a: ['verrez'], e: 'Voir au futur : je verrai, vous verrez (deux r).' },
+    { t: 'type', q: 'Conjugue au <b>futur</b>.', pre: 'elle (pouvoir) → elle', a: ['pourra'], e: 'Pouvoir au futur : je pourrai, elle pourra (deux r).' }
+  ],
+  calc: {
+    gen: [['div1', 2], ['div1', 3], ['multiple']],
+    probs: [
+      { t: 'num', q: 'La serre contient <b>144 plantes carnivores</b>, réparties en <b>9 rangées</b> égales. Combien de plantes par rangée ?', a: 16, chk: '144/9', z: 'Partager en parts égales : une division. 9 fois combien font 144 ?', e: '144 ÷ 9 = 16 plantes, car 16 × 9 = 144.' },
+      { t: 'num', q: 'Une plante carnivore attrape <b>7 mouches</b> par jour. Combien en attrape-t-elle en <b>3 semaines</b> ?', a: 147, chk: '7*21', z: 'Combien de jours dans 3 semaines ?', e: '3 semaines = 21 jours. 21 × 7 = 147 mouches.' }
+    ]
+  },
+  lect: {
+    title: 'Les plantes carnivores',
+    s: ['Les plantes carnivores poussent souvent dans des sols pauvres, où elles trouvent peu de nourriture.', 'Pour compléter leur repas, elles capturent de petits insectes.', 'La dionée, par exemple, possède des feuilles qui se referment comme une mâchoire quand un insecte les touche deux fois.', 'Le népenthès, lui, forme une sorte d\'urne glissante remplie de liquide, dans laquelle les insectes tombent.', 'Contrairement à ce que l\'on croit parfois, aucune plante carnivore ne peut dévorer un être humain.'],
+    qs: [
+      { q: 'Pourquoi les plantes carnivores capturent-elles des insectes ?', c: ['Parce que leur sol est pauvre en nourriture', 'Pour se défendre', 'Pour décorer leurs feuilles', 'Parce qu\'elles détestent les insectes'], a: 0, r: [0, 1], e: 'Leur sol est pauvre : les insectes complètent leur repas.' },
+      { q: 'Que se passe-t-il quand un insecte touche deux fois une feuille de dionée ?', c: ['La feuille se referme', 'La feuille tombe', 'La plante fleurit', 'L\'insecte s\'envole'], a: 0, r: [2], e: 'Elle se referme comme une mâchoire.' },
+      { q: 'Comment le népenthès attrape-t-il ses proies ?', c: ['Elles glissent dans une urne remplie de liquide', 'Il les colle avec ses fleurs', 'Il les écrase', 'Il les poursuit'], a: 0, r: [3], e: 'Les insectes tombent dans son urne glissante remplie de liquide.' },
+      { q: 'Que nous apprend la dernière phrase ?', c: ['Une plante carnivore ne peut pas manger un humain', 'Les plantes carnivores mangent parfois des humains', 'Il faut les arroser souvent', 'Elles sont très rares'], a: 0, r: [4], e: 'Aucune plante carnivore ne peut dévorer un être humain. Dommage, diront certains.' }
+    ]
+  }
+},
+/* ---------------- JOUR 6 ---------------- */
+{
+  place: 'Grenier aux portraits', icon: '🖼️', reward: { icon: '🗝️', name: 'La Clé rouillée' },
+  focus: 'pluriel des noms et adjectifs (exceptions) · accord dans le groupe nominal · fractions',
+  intro: 'Vingt ancêtres te fixent depuis leurs cadres. L\'un d\'eux vient de cligner des yeux.',
+  ortho: [
+    { t: 'type', q: 'Écris au pluriel.', pre: 'un travail → des', a: ['travaux'], e: 'Quelques noms en -ail font -aux : travail, vitrail, corail, émail, soupirail, bail, vantail.' },
+    { t: 'type', q: 'Écris au pluriel.', pre: 'un festival → des', a: ['festivals'], e: 'Exceptions en -al qui prennent un s : bal, carnaval, chacal, festival, récital, régal.' },
+    { t: 'type', q: 'Écris au pluriel.', pre: 'un pneu → des', a: ['pneus'], e: 'Exceptions en -eu qui prennent un s : bleu, pneu, émeu.' },
+    { t: 'type', q: 'Écris au pluriel.', pre: 'un vitrail → des', a: ['vitraux'], e: 'Vitrail fait partie des noms en -ail qui font -aux : des vitraux.' },
+    { t: 'fill', s: 'Les portraits ___ observent Sarah.', c: ['anciens', 'ancien', 'anciennes'], a: 0, z: '« portraits » est masculin pluriel.', e: 'Masculin pluriel : anciens.' },
+    { t: 'fill', s: 'Des robes ___ pendent dans la vieille armoire.', c: ['noires', 'noirs', 'noir'], a: 0, z: '« robes » : féminin, pluriel.', e: 'Féminin pluriel : noires (e + s).' }
+  ],
+  calc: {
+    gen: [['fracOf'], ['fracCompare'], ['mul2', 3, 2]],
+    probs: [
+      { t: 'qcm', q: 'Sarah a mangé <b>3 parts</b> d\'un gâteau coupé en <b>8 parts égales</b>. Quelle fraction du gâteau a-t-elle mangée ?', c: ['3/8', '8/3', '3/5', '5/8'], a: 0, z: 'Le nombre du bas dit en combien de parts on a coupé, celui du haut combien on en prend.', e: '3 parts sur 8 : 3/8. (5/8, c\'est ce qui reste.)' },
+      { t: 'num', q: 'Le grenier contient <b>60 portraits</b>. Les <b>2/3</b> représentent des ancêtres moustachus. Combien de portraits moustachus ?', a: 40, chk: '60/3*2', z: 'Cherche d\'abord 1/3 de 60, puis prends-en 2.', e: '60 ÷ 3 = 20, puis 20 × 2 = 40 portraits.' }
+    ]
+  },
+  lect: {
+    title: 'Le portrait effacé',
+    s: ['Au grenier, vingt portraits d\'ancêtres fixaient la poussière depuis des décennies.', 'Sarah les connaissait tous, sauf un : une fillette en robe noire dont le nom avait été effacé.', 'Ce jour-là, elle eut l\'impression que la fillette avait cligné des yeux.', 'Elle s\'approcha, souffla sur le cadre et découvrit une inscription : « Agathe, 1891, violoncelliste ».', 'Derrière le tableau, cachée dans le bois, se trouvait une vieille partition jaunie.', 'Sarah la déchiffra le soir même : c\'était un morceau magnifique, que personne n\'avait joué depuis plus d\'un siècle.'],
+    qs: [
+      { q: 'Combien de portraits y a-t-il au grenier ?', c: ['Vingt', 'Dix', 'Cent', 'Un seul'], a: 0, r: [0], e: 'Vingt portraits d\'ancêtres.' },
+      { q: 'Qu\'est-ce qui intrigue Sarah dans le portrait de la fillette ?', c: ['Son nom est effacé et elle croit la voir cligner des yeux', 'La fillette lui ressemble trait pour trait', 'Le cadre est en or', 'Il est plus grand que les autres'], a: 0, r: [1, 2], e: 'Le nom est effacé, et la fillette semble cligner des yeux.' },
+      { q: 'Quel point commun Sarah a-t-elle avec Agathe ?', c: ['Elles jouent toutes les deux du violoncelle', 'Elles ont le même âge', 'Elles vivent au grenier', 'Elles portent le même prénom'], a: 0, r: [3], e: 'L\'inscription dit « violoncelliste », comme Sarah.' },
+      { q: 'Comment sait-on que la partition est très ancienne ?', c: ['Personne ne l\'a jouée depuis plus d\'un siècle', 'Elle est en couleur', 'Elle est écrite au stylo', 'Sarah l\'a écrite elle-même'], a: 0, r: [4, 5], e: 'Elle est jaunie et personne ne l\'a jouée depuis plus d\'un siècle.' }
+    ]
+  }
+},
+/* ---------------- JOUR 7 ---------------- */
+{
+  place: 'Observatoire de minuit', icon: '🔭', reward: { icon: '🌙', name: 'La Lune d\'argent' },
+  focus: 'passé composé avec avoir et être · accord du participe passé avec être · nombres décimaux',
+  intro: 'Minuit sonne. La lunette est pointée vers la Lune. Les chiffres, eux, sont à virgule.',
+  ortho: [
+    { t: 'type', q: 'Conjugue au <b>passé composé</b>.', pre: 'nous (regarder) → nous', a: ['avons regardé'], e: 'Passé composé = avoir ou être au présent + participe passé : nous avons regardé.' },
+    { t: 'type', q: 'Conjugue au <b>passé composé</b>.', pre: 'elle (partir) → elle', a: ['est partie'], e: 'Avec être, le participe s\'accorde avec le sujet : elle est partie (+ e).' },
+    { t: 'type', q: 'Conjugue au <b>passé composé</b>.', pre: 'ils (venir) → ils', a: ['sont venus'], e: 'Avec être : ils sont venus (masculin pluriel, + s).' },
+    { t: 'type', q: 'Conjugue au <b>passé composé</b>.', pre: 'j\' (prendre) → j\'', a: ['ai pris'], e: 'Prendre : j\'ai pris (participe passé « pris », avec un s).' },
+    { t: 'fill', s: 'Les étoiles sont ___ une à une.', c: ['apparues', 'apparu', 'apparus'], a: 0, z: 'Avec l\'auxiliaire être, le participe s\'accorde avec le sujet « les étoiles ».', e: '« les étoiles » : féminin pluriel, donc apparues.' },
+    { t: 'fill', s: 'Sarah est ___ à l\'observatoire.', c: ['montée', 'monté', 'montés'], a: 0, z: 'Auxiliaire être : accorde avec « Sarah ».', e: 'Sarah est féminin singulier : montée.' }
+  ],
+  calc: {
+    gen: [['decCompare'], ['decAdd'], ['mul2', 2, 2]],
+    probs: [
+      { t: 'num', q: 'La lunette de l\'observatoire mesure <b>1,25 m</b>. Son support mesure <b>0,8 m</b>. Quelle est la hauteur totale ?', a: '2,05', unit: 'm', chk: '1.25+0.8', z: 'Aligne les virgules : 0,8 = 0,80.', e: '1,25 + 0,80 = 2,05 m.' },
+      { t: 'num', q: 'Sarah observe la Lune <b>3 nuits</b> de suite, <b>45 minutes</b> chaque nuit. Combien de minutes en tout ?', a: 135, unit: 'min', chk: '3*45', z: '3 fois 45 minutes.', e: '3 × 45 = 135 minutes (soit 2 h 15 min).' }
+    ]
+  },
+  lect: {
+    title: 'La Lune',
+    s: ['La Lune tourne autour de la Terre en un peu moins d\'un mois.', 'Elle ne produit pas de lumière : elle renvoie celle du Soleil, comme un miroir.', 'Selon sa position, nous voyons une partie plus ou moins grande de sa face éclairée : ce sont les phases de la Lune.', 'Lors de la nouvelle lune, on ne la voit presque pas ; lors de la pleine lune, elle apparaît comme un disque entier.', 'La Lune montre toujours la même face à la Terre : c\'est pourquoi on a longtemps parlé de sa « face cachée ».'],
+    qs: [
+      { q: 'D\'où vient la lumière de la Lune ?', c: ['Du Soleil', 'De la Lune elle-même', 'Des étoiles', 'De la Terre'], a: 0, r: [1], e: 'Elle renvoie la lumière du Soleil, comme un miroir.' },
+      { q: 'Comment appelle-t-on les changements d\'aspect de la Lune ?', c: ['Les phases', 'Les éclipses', 'Les saisons', 'Les marées'], a: 0, r: [2], e: 'Ce sont les phases de la Lune.' },
+      { q: 'Quand la Lune apparaît-elle comme un disque entier ?', c: ['À la pleine lune', 'À la nouvelle lune', 'Le matin', 'En hiver'], a: 0, r: [3], e: 'À la pleine lune.' },
+      { q: 'Pourquoi parle-t-on de « face cachée » de la Lune ?', c: ['Elle montre toujours la même face à la Terre', 'Une de ses faces est toujours dans le noir', 'Elle est souvent cachée par les nuages', 'Personne n\'est jamais allé sur la Lune'], a: 0, r: [4], e: 'Elle nous montre toujours la même face : l\'autre reste invisible depuis la Terre.' }
+    ]
+  }
+},
+/* ---------------- JOUR 8 ---------------- */
+{
+  place: 'Cabinet de curiosités', icon: '🕷️', reward: { icon: '🕷️', name: 'L\'Araignée apprivoisée' },
+  focus: '-é / -er, ou / où, la / l\'a / là · conversions de longueurs, masses et durées',
+  intro: 'Bocaux, plumes, fossiles et une clé qui n\'ouvre rien. Le cabinet a besoin d\'être étiqueté.',
+  ortho: [
+    { t: 'fill', s: 'Sarah veut ___ un nouveau bocal.', c: ['ranger', 'rangé', 'rangez'], a: 0, z: 'Remplace par « mordre » : « Sarah veut mordre » ou « Sarah veut mordu » ?', e: 'On dit « veut mordre » : c\'est l\'infinitif, ranger.' },
+    { t: 'fill', s: 'Elle a ___ une araignée très rare.', c: ['trouvé', 'trouver', 'trouvez'], a: 0, z: 'Remplace par « mordu » : « elle a mordu » ou « elle a mordre » ?', e: 'On dit « a mordu » : c\'est le participe passé, trouvé.' },
+    { t: 'fill', s: '___ as-tu caché la clé ?', c: ['Où', 'Ou'], a: 0, z: 'Peut-on remplacer par « ou bien » ? Si non, c\'est le « où » du lieu.', e: 'On demande un lieu : où (avec un accent).' },
+    { t: 'fill', s: 'Préfères-tu la plume de corbeau ___ la plume de hibou ?', c: ['ou', 'où'], a: 0, z: 'Remplace par « ou bien ».', e: 'On peut dire « ou bien » : ou (sans accent).' },
+    { t: 'fill', s: 'La clé ? Sarah ___ cachée dans un tiroir.', c: ['l\'a', 'la', 'là'], a: 0, z: 'Remplace par « l\'avait » : « Sarah l\'avait cachée ».', e: 'On peut dire « l\'avait » : l\'a (verbe avoir).' },
+    { t: 'fill', s: 'Pose ce bocal ___, sur l\'étagère du haut.', c: ['là', 'la', 'l\'a'], a: 0, z: 'Remplace par « ici ».', e: 'On peut dire « ici » : là (avec un accent), qui indique un lieu.' }
+  ],
+  calc: {
+    gen: [['conv'], ['conv'], ['conv']],
+    probs: [
+      { t: 'num', q: 'Une araignée tisse <b>12 cm</b> de fil par minute. Combien de centimètres tisse-t-elle en <b>un quart d\'heure</b> ?', a: 180, unit: 'cm', chk: '12*15', z: 'Un quart d\'heure, c\'est combien de minutes ?', e: 'Un quart d\'heure = 15 min. 12 × 15 = 180 cm.' },
+      { t: 'num', q: 'Le cabinet contient <b>245 objets</b>. Sarah ajoute <b>3 boîtes</b> de <b>18 objets</b>. Combien d\'objets maintenant ?', a: 299, chk: '245+3*18', z: 'Calcule d\'abord combien d\'objets il y a dans les 3 boîtes.', e: '3 × 18 = 54, puis 245 + 54 = 299 objets.' }
+    ]
+  },
+  lect: {
+    title: 'Les étiquettes du cabinet',
+    s: ['Étiquette n° 1 : plume de corbeau trouvée sur le rebord de la tour, un soir d\'orage.', 'Étiquette n° 2 : coquillage fossile vieux de plusieurs millions d\'années, rapporté d\'une falaise par l\'arrière-grand-mère de Sarah.', 'Étiquette n° 3 : clé rouillée qui n\'ouvre aucune porte connue du manoir.', 'Étiquette n° 4 : araignée empaillée, espèce inconnue, découverte dans le piano.', 'Note de Sarah : la clé n° 3 me semble très suspecte. Il doit bien exister une porte qu\'elle ouvre.'],
+    qs: [
+      { q: 'Où a été trouvée la plume de corbeau ?', c: ['Sur le rebord de la tour', 'Dans le piano', 'Sur une falaise', 'Dans la serre'], a: 0, r: [0], e: 'Sur le rebord de la tour, un soir d\'orage.' },
+      { q: 'Quel objet est sans doute le plus ancien ?', c: ['Le coquillage fossile', 'La plume de corbeau', 'La clé rouillée', 'L\'araignée'], a: 0, r: [1], e: 'Il a plusieurs millions d\'années.' },
+      { q: 'Qui a rapporté le coquillage ?', c: ['L\'arrière-grand-mère de Sarah', 'Sarah', 'Le grand-oncle de Sarah', 'Un domestique'], a: 0, r: [1], e: 'L\'arrière-grand-mère de Sarah, d\'une falaise.' },
+      { q: 'Que pense Sarah de la clé ?', c: ['Qu\'elle ouvre forcément une porte encore inconnue', 'Qu\'il faut la jeter', 'Qu\'elle est en or', 'Qu\'elle appartient à l\'araignée'], a: 0, r: [4], e: 'Elle la trouve suspecte : il doit exister une porte qu\'elle ouvre. Affaire à suivre...' }
+    ]
+  }
+},
+/* ---------------- JOUR 9 ---------------- */
+{
+  place: 'Crypte aux échos', icon: '⚰️', reward: { icon: '🔮', name: 'L\'Orbe mystérieux' },
+  focus: 'sujet, COD, compléments circonstanciels · féminin des noms et adjectifs · problèmes à étapes, durées',
+  intro: 'Dans la crypte, l\'écho répète tout. Enfin, presque tout.',
+  ortho: [
+    { t: 'qcm', q: '« Dans la crypte, l\'écho répète les mots de Sarah. »<br>Quel est le <b>sujet</b> du verbe « répète » ?', c: ['l\'écho', 'Sarah', 'les mots', 'la crypte'], a: 0, z: 'Pose la question : qui est-ce qui répète ?', e: 'C\'est l\'écho qui répète : « l\'écho » est le sujet.' },
+    { t: 'qcm', q: '« Dans la crypte, l\'écho répète les mots de Sarah. »<br>Quel est le <b>complément d\'objet direct</b> (COD) ?', c: ['les mots de Sarah', 'Dans la crypte', 'l\'écho', 'répète'], a: 0, z: 'Pose la question : l\'écho répète QUOI ?', e: 'L\'écho répète quoi ? Les mots de Sarah : c\'est le COD.' },
+    { t: 'qcm', q: '« <b>Dans la crypte</b>, l\'écho répète les mots de Sarah. »<br>« Dans la crypte » est un complément circonstanciel de...', c: ['lieu', 'temps', 'manière', 'cause'], a: 0, z: 'Ce groupe répond à quelle question : où ? quand ? comment ? pourquoi ?', e: 'Il répond à la question « où ? » : c\'est un complément circonstanciel de lieu.' },
+    { t: 'type', q: 'Écris au féminin.', pre: 'un violoncelliste → une', a: ['violoncelliste'], e: 'Piège ! Les noms en -iste ne changent pas au féminin : une violoncelliste, une pianiste.' },
+    { t: 'type', q: 'Écris au féminin.', pre: 'un acteur → une', a: ['actrice'], e: 'Beaucoup de noms en -teur font -trice : actrice, directrice.' },
+    { t: 'type', q: 'Accorde l\'adjectif entre parenthèses.', pre: 'une élève (sérieux) →', a: ['sérieuse'], e: '-eux devient -euse au féminin : sérieuse.' }
+  ],
+  calc: {
+    gen: [['div1', 3], ['fracOf'], ['mul2', 3, 2]],
+    probs: [
+      { t: 'num', q: 'La crypte compte <b>6 couloirs</b>. Dans chaque couloir, il y a <b>14 niches</b>, et dans chaque niche, <b>3 bougies</b>. Combien de bougies en tout ?', a: 252, chk: '6*14*3', z: 'Commence par compter les niches (6 couloirs de 14), puis les bougies.', e: '6 × 14 = 84 niches, puis 84 × 3 = 252 bougies.' },
+      { t: 'qcm', q: 'Le cours de danse commence à <b>17 h 45</b> et dure <b>1 h 20</b>. À quelle heure se termine-t-il ?', c: ['19 h 05', '18 h 65', '19 h 15', '18 h 05'], a: 0, z: 'Ajoute d\'abord 1 h, puis 20 min. Attention : une heure n\'a que 60 minutes.', e: '17 h 45 + 1 h = 18 h 45, puis + 15 min = 19 h, puis + 5 min = 19 h 05.' }
+    ]
+  },
+  lect: {
+    title: 'L\'écho de la crypte',
+    s: ['On racontait que l\'écho de la crypte ne répétait pas toujours ce qu\'on lui disait.', 'Sarah voulut en avoir le cœur net et descendit avec une lampe et un carnet.', 'Elle cria « Bonsoir ! », et l\'écho répondit « Bonsoir ! » trois fois, de plus en plus faiblement.', 'Puis elle demanda : « Où est la porte de la clé rouillée ? »', 'Cette fois, l\'écho ne répéta rien du tout : une pierre du mur glissa lentement sur le côté.', 'Derrière, un escalier en colimaçon montait vers le haut du beffroi.', 'Sarah nota dans son carnet : « Les échos aussi savent garder des secrets. »'],
+    qs: [
+      { q: 'Qu\'emporte Sarah dans la crypte ?', c: ['Une lampe et un carnet', 'Une clé et une bougie', 'Son violoncelle', 'Une corde'], a: 0, r: [1], e: 'Une lampe et un carnet.' },
+      { q: 'Comment l\'écho répond-il au « Bonsoir ! » ?', c: ['Il le répète trois fois, de plus en plus faiblement', 'Il ne répond pas', 'Il crie plus fort', 'Il répond « Au revoir »'], a: 0, r: [2], e: 'Trois fois, de plus en plus faiblement.' },
+      { q: 'Que se passe-t-il quand Sarah pose sa question ?', c: ['Une pierre glisse et révèle un passage', 'L\'écho éclate de rire', 'La lampe s\'éteint', 'Une porte se referme'], a: 0, r: [4, 5], e: 'Une pierre glisse et révèle un escalier vers le beffroi.' },
+      { q: 'De quel objet d\'une salle précédente parle Sarah ?', c: ['De la clé rouillée du cabinet de curiosités', 'De la plume du corbeau', 'Du portrait d\'Agathe', 'De la plante carnivore'], a: 0, r: [3], e: 'Elle cherche la porte de la clé rouillée, trouvée dans le cabinet de curiosités (mission 8).' }
+    ]
+  }
+},
+/* ---------------- JOUR 10 ---------------- */
+{
+  place: 'Tour du beffroi', icon: '🔔', reward: { icon: '🖤', name: 'Le Médaillon des Ombres' },
+  focus: 'grand défi : révision de tout le programme',
+  intro: 'L\'escalier monte vers la cloche. Ta clé rouillée tremble dans ta poche. C\'est la dernière salle.',
+  ortho: [
+    { t: 'fill', s: 'Les chauves-souris se ___ envolées au crépuscule.', c: ['sont', 'son'], a: 0, z: 'Remplace par « étaient ».', e: 'Elles s\'étaient envolées : sont (verbe être).' },
+    { t: 'type', q: 'Conjugue à l\'<b>imparfait</b>.', pre: 'nous (manger) → nous', a: ['mangions'], e: 'Imparfait : nous mangions (pas de e devant i).' },
+    { t: 'type', q: 'Écris au pluriel.', pre: 'un récital → des', a: ['récitals'], e: 'Récital fait partie des exceptions en -al qui prennent un s.' },
+    { t: 'fill', s: '___ la dernière marche du beffroi.', c: ['C\'est', 'S\'est'], a: 0, z: 'Remplace par « Cela est ».', e: 'Cela est la dernière marche : c\'est.' },
+    { t: 'type', q: 'Conjugue au <b>futur</b>.', pre: 'nous (être) → nous', a: ['serons'], e: 'Être au futur : je serai, nous serons.' },
+    { t: 'fill', s: 'Les deux amies sont ___ en haut de la tour.', c: ['arrivées', 'arrivé', 'arriver'], a: 0, z: 'Auxiliaire être : accorde avec le sujet « les deux amies ».', e: '« les deux amies » : féminin pluriel, donc arrivées.' }
+  ],
+  calc: {
+    gen: [['wordsM'], ['div1', 3], ['decCompare']],
+    probs: [
+      { t: 'num', q: 'Le beffroi compte <b>248 marches</b>. Sarah les monte, puis les redescend. Combien de marches au total ?', a: 496, chk: '248*2', z: 'Elle monte et redescend : deux fois les marches.', e: '248 × 2 = 496 marches.' },
+      { t: 'num', q: 'La cloche sonne <b>12 coups</b> à midi et <b>12 coups</b> à minuit. Combien de coups pour ces deux heures-là en <b>une semaine</b> ?', a: 168, chk: '24*7', z: 'Combien de coups par jour ? Puis combien de jours dans une semaine ?', e: '12 + 12 = 24 coups par jour, et 24 × 7 = 168 coups.' }
+    ]
+  },
+  lect: {
+    title: 'Le sommet du beffroi',
+    s: ['L\'escalier en colimaçon semblait ne jamais finir, mais Sarah compta chaque marche sans se plaindre.', 'Tout en haut, sous l\'énorme cloche, elle trouva une petite porte avec une serrure rouillée.', 'La clé du cabinet de curiosités tourna sans effort.', 'Dans la pièce, il n\'y avait qu\'un coffret de bois sombre, posé sur un pupitre de musique.', 'À l\'intérieur reposait un médaillon noir, avec un mot : « Pour celle qui a eu la patience de tout découvrir. »', 'Sarah l\'accrocha à son cou et, pour la première fois depuis longtemps, elle sourit. Un tout petit peu.'],
+    qs: [
+      { q: 'Comment Sarah monte-t-elle l\'escalier ?', c: ['En comptant chaque marche sans se plaindre', 'En courant', 'En se plaignant à chaque marche', 'En chantant'], a: 0, r: [0], e: 'Elle compte chaque marche, sans se plaindre.' },
+      { q: 'Quelle clé ouvre la petite porte ?', c: ['La clé du cabinet de curiosités', 'Une clé en or', 'La clé de la bibliothèque', 'Aucune : la porte est ouverte'], a: 0, r: [2], e: 'La clé rouillée du cabinet de curiosités. Le mystère est résolu.' },
+      { q: 'Sur quoi est posé le coffret ?', c: ['Sur un pupitre de musique', 'Sur la cloche', 'Sur un piano', 'Par terre'], a: 0, r: [3], e: 'Sur un pupitre de musique.' },
+      { q: 'Que nous apprend la dernière phrase sur Sarah ?', c: ['Elle sourit rarement, mais là elle est contente', 'Elle est très triste', 'Elle a peur du médaillon', 'Elle rit tout le temps'], a: 0, r: [5], e: '« Pour la première fois depuis longtemps » : elle sourit rarement. « Un tout petit peu » : c\'est déjà beaucoup pour elle.' }
+    ]
+  }
+}
+]};
+
+(function () {
+'use strict';
+var app = document.getElementById('app');
+var KEY = 'revision-' + CFG.id + '-v1';
+var MEM = null;
+function fresh() { return { points: 0, days: {}, missed: [], eclairBest: 0, current: null, muted: false }; }
+function load() {
+  var s = null;
+  try { s = localStorage.getItem(KEY); } catch (e) {}
+  if (!s) s = MEM;
+  if (!s) return null;
+  try { var o = JSON.parse(s), f = fresh(); for (var k in f) if (!(k in o)) o[k] = f[k]; return o; } catch (e) { return null; }
+}
+function save() { var s = JSON.stringify(S); MEM = s; try { localStorage.setItem(KEY, s); } catch (e) {} }
+var S = load() || fresh();
+var RUN = null, EC = null;
+
+/* ---------- utilitaires ---------- */
+var NB = ' ';
+function R(a, b) { return a + Math.floor(Math.random() * (b - a + 1)); }
+function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+function fmt(n) { if (typeof n !== 'number') return String(n); return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, NB); }
+function strip(s) { return String(s).replace(/<br\s*\/?>/g, ' ').replace(/<sup>(\d+)<\/sup><span>\/<\/span><sub>(\d+)<\/sub>/g, '$1/$2').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim(); }
+function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+function today() { try { return new Date().toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' }); } catch (e) { return ''; } }
+function randN(d) { return R(Math.pow(10, d - 1), Math.pow(10, d) - 1); }
+function frac(n, d) { return '<span class="frac"><sup>' + n + '</sup><span>/</span><sub>' + d + '</sub></span>'; }
+function dec(h) { var i = Math.floor(h / 100), r = h % 100; if (r === 0) return String(i); var s = (r < 10 ? '0' : '') + r; if (s[1] === '0') s = s[0]; return i + ',' + s; }
+function big(s) { return '<span class="big">' + s + '</span>'; }
+
+/* ---------- nombres en lettres ---------- */
+var U = ['zéro', 'un', 'deux', 'trois', 'quatre', 'cinq', 'six', 'sept', 'huit', 'neuf', 'dix', 'onze', 'douze', 'treize', 'quatorze', 'quinze', 'seize', 'dix-sept', 'dix-huit', 'dix-neuf'];
+var T = ['', 'dix', 'vingt', 'trente', 'quarante', 'cinquante', 'soixante', 'soixante', 'quatre-vingt', 'quatre-vingt'];
+function w99(n, pl) {
+  if (n < 20) return U[n];
+  var t = Math.floor(n / 10), u = n % 10;
+  if (t === 7 || t === 9) { var r = n - (t === 7 ? 60 : 80); if (n === 71) return 'soixante et onze'; return T[t] + '-' + U[r]; }
+  if (u === 0) return t === 8 ? (pl ? 'quatre-vingts' : 'quatre-vingt') : T[t];
+  if (u === 1 && t !== 8) return T[t] + ' et un';
+  return T[t] + '-' + U[u];
+}
+function w999(n, pl) {
+  var c = Math.floor(n / 100), r = n % 100, s = '';
+  if (c > 0) { s = c === 1 ? 'cent' : U[c] + ' cent'; if (r === 0 && c > 1 && pl) s += 's'; }
+  if (r > 0) s += (s ? ' ' : '') + w99(r, pl);
+  return s;
+}
+function words(n) {
+  if (n === 0) return 'zéro';
+  var g = [Math.floor(n / 1e9) % 1000, Math.floor(n / 1e6) % 1000, Math.floor(n / 1e3) % 1000, n % 1000], s = [];
+  if (g[0]) s.push(w999(g[0], true) + ' milliard' + (g[0] > 1 ? 's' : ''));
+  if (g[1]) s.push(w999(g[1], true) + ' million' + (g[1] > 1 ? 's' : ''));
+  if (g[2]) s.push(g[2] === 1 ? 'mille' : w999(g[2], false) + ' mille');
+  if (g[3]) s.push(w999(g[3], true));
+  return s.join(' ');
+}
+var PLACES = ['unités', 'dizaines', 'centaines', 'unités de mille', 'dizaines de mille', 'centaines de mille', 'unités de millions', 'dizaines de millions', 'centaines de millions', 'unités de milliards'];
+
+/* ---------- générateurs de calcul ---------- */
+var POSE = "Pose l'opération en alignant bien les unités, et n'oublie pas les retenues.";
+var GEN = {
+  place: function (d) {
+    var n = randN(d), s = String(n), p = R(1, d - 1), dg = +s[s.length - 1 - p];
+    return { t: 'num', q: 'Dans le nombre <b>' + fmt(n) + '</b>, quel est le chiffre des <b>' + PLACES[p] + '</b> ?', a: dg, one: true,
+      z: 'Compte les rangs en partant de la droite : unités, dizaines, centaines, puis la classe des mille' + (d > 6 ? ', puis celle des millions' : '') + '.',
+      e: 'Dans ' + fmt(n) + ', le chiffre des ' + PLACES[p] + ' est ' + dg + '.' };
+  },
+  placeM: function () { return GEN.place(R(9, 10)); },
+  words: function (d, zeros) {
+    var s = String(randN(d)).split(''); zeros = zeros || (Math.random() < .6 ? 1 : 0);
+    for (var k = 0; k < zeros; k++) s[R(1, d - 1)] = '0';
+    var n = +s.join('');
+    return { t: 'num', q: 'Écris ce nombre en chiffres :<br>' + big(words(n)), a: n,
+      z: "Découpe le nombre par classes (millions, mille, puis le reste) et n'oublie pas les zéros.",
+      e: '« ' + words(n) + ' » s\'écrit ' + fmt(n) + '.' };
+  },
+  wordsM: function () { return GEN.words(R(7, 9), 2); },
+  add: function (da, db) { var a = randN(da), b = randN(db); return { t: 'num', q: 'Calcule (tu peux poser l\'opération) :<br>' + big(fmt(a) + ' + ' + fmt(b)), a: a + b, z: POSE, e: fmt(a) + ' + ' + fmt(b) + ' = ' + fmt(a + b) + '.' }; },
+  add3: function (d) { var a = randN(d), b = randN(d), c = randN(d); return { t: 'num', q: 'Calcule :<br>' + big(fmt(a) + ' + ' + fmt(b) + ' + ' + fmt(c)), a: a + b + c, z: POSE, e: fmt(a) + ' + ' + fmt(b) + ' + ' + fmt(c) + ' = ' + fmt(a + b + c) + '.' }; },
+  sub: function (da, db) { var a = randN(da), b = randN(db); if (b > a) { var t = a; a = b; b = t; } if (a === b) a += R(11, 99); return { t: 'num', q: 'Calcule (tu peux poser l\'opération) :<br>' + big(fmt(a) + ' − ' + fmt(b)), a: a - b, z: POSE, e: fmt(a) + ' − ' + fmt(b) + ' = ' + fmt(a - b) + '. Vérifie : ' + fmt(a - b) + ' + ' + fmt(b) + ' = ' + fmt(a) + '.' }; },
+  table: function (list) { var a = pick(list), b = R(2, 10); if (Math.random() < .5) { var t = a; a = b; b = t; } return { t: 'num', q: 'Table de multiplication :<br>' + big(a + ' × ' + b), a: a * b, z: 'Récite la table depuis le début si besoin.', e: a + ' × ' + b + ' = ' + a * b + '.' }; },
+  x10: function () { var n = R(2, 99) * (Math.random() < .5 ? 1 : R(2, 9)), m = pick([10, 100, 1000]); return { t: 'num', q: 'Calcul mental :<br>' + big(fmt(n) + ' × ' + fmt(m)), a: n * m, z: 'Multiplier par ' + fmt(m) + ', c\'est ajouter ' + (String(m).length - 1) + ' zéro' + (m > 10 ? 's' : '') + ' à droite.', e: fmt(n) + ' × ' + fmt(m) + ' = ' + fmt(n * m) + '.' }; },
+  double: function () { var n = R(13, 99); if (n % 10 === 0) n++; return { t: 'num', q: 'Quel est le <b>double</b> de ' + n + ' ?', a: 2 * n, z: 'Le double, c\'est ' + n + ' + ' + n + '.', e: 'Le double de ' + n + ' est ' + 2 * n + '.' }; },
+  half: function () { var n = 2 * R(12, 250); return { t: 'num', q: 'Quelle est la <b>moitié</b> de ' + fmt(n) + ' ?', a: n / 2, z: 'Coupe en deux : moitié des centaines, puis des dizaines, puis des unités.', e: 'La moitié de ' + fmt(n) + ' est ' + fmt(n / 2) + ' car ' + fmt(n / 2) + ' + ' + fmt(n / 2) + ' = ' + fmt(n) + '.' }; },
+  mul1: function (d) { var a = randN(d), b = R(3, 9); return { t: 'num', q: 'Calcule (pose l\'opération) :<br>' + big(fmt(a) + ' × ' + b), a: a * b, z: 'Multiplie chiffre par chiffre en partant des unités, sans oublier les retenues.', e: fmt(a) + ' × ' + b + ' = ' + fmt(a * b) + '.' }; },
+  mul2: function (da, db) { var a = randN(da), b = randN(db); if (b % 10 === 0) b++; return { t: 'num', q: 'Calcule (pose l\'opération) :<br>' + big(fmt(a) + ' × ' + b), a: a * b, z: 'Une ligne pour les unités, une ligne pour les dizaines (avec un zéro au bout), puis additionne.', e: fmt(a) + ' × ' + b + ' = ' + fmt(a * b) + '.' }; },
+  div1: function (qd) { var dv = R(3, 9), q = randN(qd || 2), n = q * dv; return { t: 'num', q: 'Calcule :<br>' + big(fmt(n) + ' ÷ ' + dv), a: q, z: 'Vérifie avec la table de ' + dv + ' : ton résultat × ' + dv + ' doit redonner ' + fmt(n) + '.', e: fmt(n) + ' ÷ ' + dv + ' = ' + fmt(q) + ' car ' + fmt(q) + ' × ' + dv + ' = ' + fmt(n) + '.' }; },
+  divTable: function () { var k = R(3, 9), m = R(3, 10); return { t: 'num', q: 'Combien de fois <b>' + k + '</b> dans <b>' + k * m + '</b> ?', a: m, one: true, z: 'Récite la table de ' + k + ' jusqu\'à trouver ' + k * m + '.', e: k + ' × ' + m + ' = ' + k * m + ', donc il y a ' + m + ' fois ' + k + ' dans ' + k * m + '.' }; },
+  compare: function (d) {
+    var base = randN(d), set = [base], digs = String(base).split(''), g = 0;
+    while (set.length < 4 && g++ < 300) { var s = digs.slice(), i = R(0, d - 1), j = R(0, d - 1), t = s[i]; s[i] = s[j]; s[j] = t; var v = +s.join(''); if (s[0] !== '0' && set.indexOf(v) < 0) set.push(v); }
+    while (set.length < 4) { var w = base + R(1, 999) * (R(0, 1) ? 1 : -1); if (set.indexOf(w) < 0 && String(w).length === d) set.push(w); }
+    var mx = Math.random() < .6, ans = mx ? Math.max.apply(null, set) : Math.min.apply(null, set);
+    return { t: 'qcm', q: 'Quel est le <b>plus ' + (mx ? 'grand' : 'petit') + '</b> nombre ?', c: set.map(fmt), a: fmt(ans),
+      z: 'Compare les chiffres un par un en partant de la gauche : le premier chiffre différent décide.', e: 'Le plus ' + (mx ? 'grand' : 'petit') + ' est ' + fmt(ans) + '.' };
+  },
+  compareM: function () { return GEN.compare(R(7, 9)); },
+  multiple: function () {
+    var k = R(3, 9), good = k * R(4, 12), o = [good], g = 0;
+    while (o.length < 4 && g++ < 200) { var x = R(good - 15, good + 15); if (x > 1 && x % k !== 0 && o.indexOf(x) < 0) o.push(x); }
+    return { t: 'qcm', q: 'Quel nombre est un <b>multiple de ' + k + '</b> ?', c: o.map(String), a: String(good), z: 'Récite la table de ' + k + ' : lequel de ces nombres y apparaît ?', e: good + ' = ' + k + ' × ' + good / k + ', c\'est donc un multiple de ' + k + '.' };
+  },
+  fracOf: function () { var den = pick([2, 3, 4, 5, 8, 10]), num = R(1, den - 1), whole = den * R(2, 9), part = whole / den; return { t: 'num', q: 'Combien font ' + frac(num, den) + ' de <b>' + whole + '</b> ?', a: part * num, z: 'Partage d\'abord ' + whole + ' en ' + den + ' parts égales, puis prends-en ' + num + '.', e: whole + ' ÷ ' + den + ' = ' + part + ', puis ' + part + ' × ' + num + ' = ' + part * num + '.' }; },
+  fracCompare: function () {
+    var den = pick([4, 5, 6, 8]), bigN = R(den + 1, 2 * den - 1), sm = [];
+    while (sm.length < 3) { var n = R(1, den - 1); if (sm.indexOf(n) < 0) sm.push(n); }
+    var c = [frac(bigN, den)].concat(sm.map(function (n) { return frac(n, den); }));
+    return { t: 'qcm', q: 'Quelle fraction est <b>plus grande que 1</b> ?', c: c, a: c[0], z: 'Une fraction est plus grande que 1 quand le nombre du haut (numérateur) est plus grand que celui du bas (dénominateur).', e: bigN + '/' + den + ' est plus grande que 1 car ' + bigN + ' > ' + den + '.' };
+  },
+  decCompare: function () {
+    var b = R(1, 9), x = R(2, 8), c = [b + ',' + x, b + ',' + (x - 1) + R(5, 9), b + ',' + (x - 1) + R(1, 9) + R(1, 9), b + ',0' + R(1, 9)];
+    return { t: 'qcm', q: 'Quel est le <b>plus grand</b> nombre ?', c: c, a: c[0], z: 'Compare d\'abord les dixièmes (le premier chiffre après la virgule). Un nombre plus long n\'est pas forcément plus grand !', e: c[0] + ' est le plus grand : son chiffre des dixièmes (' + x + ') est le plus grand.' };
+  },
+  decAdd: function () { var A = R(11, 89) * 10, B = R(105, 499); return { t: 'num', q: 'Calcule :<br>' + big(dec(A) + ' + ' + dec(B)), a: dec(A + B), z: 'Aligne bien les virgules : dixièmes sous les dixièmes, centièmes sous les centièmes.', e: dec(A) + ' + ' + dec(B) + ' = ' + dec(A + B) + '.' }; },
+  conv: function () {
+    var k = R(0, 3), a, b;
+    if (k === 0) { a = R(2, 9); b = R(1, 19) * 50; return { t: 'num', q: 'Convertis :<br>' + big(a + ' km ' + b + ' m = ? m'), a: a * 1000 + b, z: '1 km = 1 000 m.', e: a + ' km = ' + fmt(a * 1000) + ' m, donc ' + a + ' km ' + b + ' m = ' + fmt(a * 1000 + b) + ' m.' }; }
+    if (k === 1) { a = R(1, 5); b = R(1, 9) * 100; return { t: 'num', q: 'Convertis :<br>' + big(a + ' kg ' + b + ' g = ? g'), a: a * 1000 + b, z: '1 kg = 1 000 g.', e: a + ' kg = ' + fmt(a * 1000) + ' g, donc ' + a + ' kg ' + b + ' g = ' + fmt(a * 1000 + b) + ' g.' }; }
+    if (k === 2) { a = R(1, 4); b = R(1, 11) * 5; return { t: 'num', q: 'Convertis :<br>' + big(a + ' h ' + b + ' min = ? min'), a: a * 60 + b, z: '1 h = 60 min.', e: a + ' h = ' + a * 60 + ' min, donc ' + a + ' h ' + b + ' min = ' + (a * 60 + b) + ' min.' }; }
+    a = R(1, 9); b = R(1, 99); return { t: 'num', q: 'Convertis :<br>' + big(a + ' m ' + b + ' cm = ? cm'), a: a * 100 + b, z: '1 m = 100 cm.', e: a + ' m = ' + a * 100 + ' cm, donc ' + a + ' m ' + b + ' cm = ' + (a * 100 + b) + ' cm.' };
+  },
+  mental: function () {
+    var k = R(0, 4), n;
+    if (k === 0) { n = 4 * R(2, 25); return { t: 'num', q: 'Calcul mental :<br>' + big(n + ' × 25'), a: n * 25, z: 'Astuce : × 25, c\'est × 100 puis ÷ 4.', e: n + ' × 25 = ' + fmt(n * 25) + ' (' + n + ' × 100 = ' + fmt(n * 100) + ', puis ÷ 4).' }; }
+    if (k === 1) { n = R(12, 45); return { t: 'num', q: 'Calcul mental :<br>' + big(n + ' × 11'), a: n * 11, z: 'Astuce : × 11, c\'est × 10, puis on ajoute le nombre une fois.', e: n + ' × 11 = ' + n * 10 + ' + ' + n + ' = ' + n * 11 + '.' }; }
+    if (k === 2) { n = R(12, 99) * 10; return { t: 'num', q: 'Calcul mental :<br>' + big(fmt(n) + ' ÷ 10'), a: n / 10, z: 'Diviser par 10, c\'est enlever un zéro à droite.', e: fmt(n) + ' ÷ 10 = ' + n / 10 + '.' }; }
+    if (k === 3) { n = R(12, 99) * 100; return { t: 'num', q: 'Calcul mental :<br>' + big(fmt(n) + ' ÷ 100'), a: n / 100, z: 'Diviser par 100, c\'est enlever deux zéros à droite.', e: fmt(n) + ' ÷ 100 = ' + n / 100 + '.' }; }
+    n = R(12, 99); return { t: 'num', q: 'Calcul mental :<br>' + big(n + ' × 1' + NB + '000'), a: n * 1000, z: 'Multiplier par 1 000, c\'est ajouter trois zéros.', e: n + ' × 1 000 = ' + fmt(n * 1000) + '.' };
+  }
+};
+
+/* ---------- préparation des missions ---------- */
+function clone(o) { return JSON.parse(JSON.stringify(o)); }
+function prep(q, dom, id) {
+  q = clone(q); q.dom = dom; q.id = id; q.tries = 0; q.done = false;
+  if (q.c) { var corr = typeof q.a === 'number' ? q.c[q.a] : q.a; q.c = shuffle(q.c); q.a = corr; }
+  return q;
+}
+function buildDay(d) {
+  var D = DATA.days[d], qs = [], uid = Date.now().toString(36);
+  D.ortho.forEach(function (q, i) { qs.push(prep(q, 'ortho', d + '-o' + i)); });
+  (D.calc.gen || []).forEach(function (g, i) { qs.push(prep(GEN[g[0]].apply(null, g.slice(1)), 'calc', d + '-g' + i + '-' + uid)); });
+  (D.calc.probs || []).forEach(function (q, i) { qs.push(prep(q, 'calc', d + '-p' + i)); });
+  D.lect.qs.forEach(function (q, i) { var x = prep(q, 'lect', d + '-l' + i); x.t = 'qcm'; x.txt = { title: D.lect.title, s: D.lect.s }; qs.push(x); });
+  return qs;
+}
+
+/* ---------- vérification ---------- */
+function norm(s) { return String(s).toLowerCase().replace(/[’`´ʼ]/g, "'").replace(/\s+/g, ' ').replace(/\s*'\s*/g, "'").replace(/[.!]+$/, '').trim(); }
+function numVal(s) { s = String(s).replace(/[\s  ]/g, '').replace(',', '.'); if (!/^-?\d+(\.\d+)?$/.test(s)) return null; return parseFloat(s); }
+function cleanTyped(q, val) {
+  var v = norm(val);
+  if (q.pre) {
+    var tail = norm(strip(q.pre)).split(/[\s→]+/).pop();
+    if (tail) {
+      if (tail.slice(-1) === "'") { if (v.indexOf(tail) === 0) v = v.slice(tail.length); }
+      else if (v.indexOf(tail + ' ') === 0) v = v.slice(tail.length + 1);
+    }
+  }
+  return v.trim();
+}
+function isRight(q, val) {
+  if (q.t === 'qcm' || q.t === 'fill') return val === q.a;
+  if (q.t === 'num') { var a = numVal(val), b = numVal(q.a); return a !== null && Math.abs(a - b) < 1e-9; }
+  var v = cleanTyped(q, val);
+  return q.a.some(function (x) { return norm(x) === v; });
+}
+function diffZone(inp, exp) {
+  var i = 0; while (i < inp.length && i < exp.length && inp[i] === exp[i]) i++;
+  var j = 0; while (j < inp.length - i && j < exp.length - i && inp[inp.length - 1 - j] === exp[exp.length - 1 - j]) j++;
+  return { i: i, j: j };
+}
+function bestTarget(q, v) {
+  var best = null, bs = -1;
+  q.a.forEach(function (x) { var e = norm(x), z = diffZone(v, e); if (z.i + z.j > bs) { bs = z.i + z.j; best = e; } });
+  return best;
+}
+function groupMark(s, wrong) {
+  var out = '', n = s.length;
+  for (var k = 0; k < n; k++) { out += wrong.indexOf(k) >= 0 ? '<mark class="err">' + s[k] + '</mark>' : s[k]; var rem = n - 1 - k; if (rem > 0 && rem % 3 === 0) out += NB; }
+  return '<span class="numshow">' + out + '</span>';
+}
+function ansText(q) {
+  if (q.t === 'num') return typeof q.a === 'number' ? fmt(q.a) : q.a;
+  if (q.t === 'type' || q.t === 'dictee') return q.a[0];
+  return q.a;
+}
+function promptText(q) {
+  if (q.t === 'fill') return strip(q.s);
+  if (q.t === 'type') return strip((q.q || '') + ' ' + (q.s || '') + ' ' + (q.pre || '') + ' …');
+  if (q.t === 'dictee') return 'Dictée : « ' + q.say + ' »';
+  return strip(q.q);
+}
+
+/* ---------- sons et effets ---------- */
+var AC = null;
+function tone(freqs, dur) {
+  if (S.muted || !freqs) return; dur = dur || 0.11;
+  try {
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    var t = AC.currentTime;
+    freqs.forEach(function (f, i) {
+      var o = AC.createOscillator(), g = AC.createGain();
+      o.type = CFG.sounds.type; o.frequency.value = f;
+      g.gain.setValueAtTime(0.0001, t + i * dur);
+      g.gain.exponentialRampToValueAtTime(0.12, t + i * dur + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + i * dur + dur * 2.2);
+      o.connect(g); g.connect(AC.destination); o.start(t + i * dur); o.stop(t + i * dur + dur * 2.4);
+    });
+  } catch (e) {}
+}
+function burst(n, el) {
+  var x = window.innerWidth / 2, y = window.innerHeight / 2;
+  if (el && el.getBoundingClientRect) { var r = el.getBoundingClientRect(); x = r.left + r.width / 2; y = r.top + r.height / 2; }
+  for (var i = 0; i < n; i++) {
+    var p = document.createElement('span'); p.className = 'particle'; p.textContent = pick(CFG.particles);
+    p.style.left = (x + R(-30, 30)) + 'px'; p.style.top = (y + R(-10, 10)) + 'px';
+    p.style.setProperty('--dx', R(-200, 200) + 'px'); p.style.setProperty('--dy', R(-260, -60) + 'px'); p.style.setProperty('--rot', R(-60, 60) + 'deg');
+    p.style.animationDelay = (i * 25) + 'ms';
+    document.body.appendChild(p);
+    (function (pp) { setTimeout(function () { if (pp.parentNode) pp.parentNode.removeChild(pp); }, 1800); })(p);
+  }
+}
+var canSpeak = 'speechSynthesis' in window;
+function say(text, rate) {
+  try {
+    var u = new SpeechSynthesisUtterance(text); u.lang = 'fr-FR'; u.rate = rate;
+    var v = speechSynthesis.getVoices().filter(function (v) { return /^fr/i.test(v.lang); })[0]; if (v) u.voice = v;
+    speechSynthesis.cancel(); speechSynthesis.speak(u);
+  } catch (e) {}
+}
+
+/* ---------- état global ---------- */
+function daysDone() { var n = 0; for (var i = 0; i < DATA.days.length; i++) if (S.days[i] && S.days[i].done) n++; return n; }
+function starsTotal() { var n = 0; for (var k in S.days) n += S.days[k].stars || 0; return n; }
+function unlocked(i) { return i === 0 || !!(S.days[i - 1] && S.days[i - 1].done); }
+function rank() { var n = daysDone(), cur = CFG.ranks[0]; CFG.ranks.forEach(function (r) { if (n >= r.min) cur = r; }); return cur.name; }
+function starsStr(n, max) { max = max || 3; var s = ''; for (var i = 0; i < max; i++) s += i < n ? '★' : '☆'; return s; }
+function stopEclair() { if (EC && EC.timer) clearInterval(EC.timer); EC = null; }
+
+function topbar() {
+  return '<div class="topbar"><button class="ghost brand" data-act="home"><span class="bicon">' + CFG.homeIcon + '</span><b>' + CFG.name + '</b><span class="lvl">' + CFG.level + '</span></button>' +
+    '<div class="stats"><span class="stat" title="Étoiles">★ ' + starsTotal() + '/30</span><span class="stat" title="Points">' + CFG.icons.points + ' ' + S.points + '</span>' +
+    '<button class="ghost icon" data-act="mute" title="Son">' + (S.muted ? '🔇' : '🔊') + '</button></div></div>';
+}
+
+/* ---------- carte ---------- */
+function pathD(p) {
+  var d = 'M' + p[0][0] + ',' + p[0][1];
+  for (var i = 0; i < p.length - 1; i++) {
+    var p0 = p[i - 1] || p[i], p1 = p[i], p2 = p[i + 1], p3 = p[i + 2] || p2;
+    var c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6], c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
+    d += ' C' + c1[0].toFixed(1) + ',' + c1[1].toFixed(1) + ' ' + c2[0].toFixed(1) + ',' + c2[1].toFixed(1) + ' ' + p2[0] + ',' + p2[1];
+  }
+  return d;
+}
+function renderMap() {
+  stopEclair(); RUN = null;
+  var n = DATA.days.length, xs = CFG.mapX, pts = [], nextI = -1;
+  for (var i = 0; i < n; i++) pts.push([xs[i], 60 + i * 112]);
+  for (i = 0; i < n; i++) if (unlocked(i) && !(S.days[i] && S.days[i].done)) { nextI = i; break; }
+  var reach = nextI < 0 ? n - 1 : nextI;
+  var svg = '<svg class="map" viewBox="0 0 400 1140" role="img" aria-label="Carte des missions">';
+  CFG.deco.forEach(function (d) { svg += '<text class="deco" x="' + d[0] + '" y="' + (1140 - d[1]) + '" font-size="' + d[3] + '" text-anchor="middle">' + d[2] + '</text>'; });
+  svg += '<path class="trail" d="' + pathD(pts) + '"/>';
+  if (reach > 0) svg += '<path class="trail done" d="' + pathD(pts.slice(0, reach + 1)) + '"/>';
+  for (i = 0; i < n; i++) {
+    var D = DATA.days[i], st = S.days[i], done = st && st.done, open = unlocked(i);
+    var cls = done ? 'done' : open ? 'open' : 'locked';
+    if (i === nextI) cls += ' next';
+    svg += '<g class="node ' + cls + '" ' + (open ? 'data-act="day" data-d="' + i + '" tabindex="0"' : '') + ' transform="translate(' + pts[i][0] + ',' + pts[i][1] + ')">' +
+      '<circle class="halo" r="40"/><circle class="disc" r="31"/>' +
+      '<text class="nicon" y="10" text-anchor="middle">' + (open ? (done ? D.reward.icon : D.icon) : '🔒') + '</text>' +
+      '<text class="nlabel" y="56" text-anchor="middle">J' + (i + 1) + ' · ' + D.place + '</text>' +
+      (done ? '<text class="nstars" y="76" text-anchor="middle">' + starsStr(st.stars) + '</text>' : '') + '</g>';
+  }
+  svg += '</svg>';
+  var miss = S.missed.length;
+  var cta = nextI >= 0 ? '<button class="primary big" data-act="day" data-d="' + nextI + '">Mission ' + (nextI + 1) + ' : ' + DATA.days[nextI].place + ' →</button>'
+    : '<div class="allDone">' + CFG.lines.allDone + '</div>';
+  if (S.current && S.current.mode === 'day') cta = '<button class="primary big" data-act="day" data-d="' + S.current.day + '">Reprendre la mission ' + (S.current.day + 1) + ' →</button>';
+  app.innerHTML = topbar() +
+    '<div class="screen"><header class="hero"><div class="hicon">' + CFG.comp.icon + '</div><h1>' + CFG.title + '</h1><p class="tag">' + CFG.tagline + '</p>' +
+    '<div class="rank">Rang : <b>' + rank() + '</b> · ' + daysDone() + '/10 missions</div>' + cta + '</header>' +
+    '<nav class="menu"><button data-act="coll">🎁 Collection<span>' + daysDone() + '/10</span></button>' +
+    '<button data-act="rev" class="' + (miss ? 'has' : '') + '">' + CFG.revIcon + ' Revanches<span>' + miss + '</span></button>' +
+    '<button data-act="eclair">⚡ Défi Éclair<span>record ' + S.eclairBest + '</span></button>' +
+    '<button data-act="parents">👵👴 Grands-parents<span>bilan</span></button></nav>' +
+    '<div class="mapwrap">' + svg + '</div></div>';
+  setTimeout(function () { var el = document.querySelector('.node.next'); if (el && el.scrollIntoView && daysDone() > 2) el.scrollIntoView({ block: 'center', behavior: 'smooth' }); }, 60);
+}
+
+/* ---------- intro de mission ---------- */
+function renderIntro(d) {
+  var D = DATA.days[d], st = S.days[d], resume = S.current && S.current.mode === 'day' && S.current.day === d;
+  app.innerHTML = topbar() + '<div class="screen"><div class="card intro">' +
+    '<div class="introicon">' + D.icon + '</div><div class="kicker">Mission ' + (d + 1) + ' sur 10</div><h2>' + D.place + '</h2>' +
+    '<p class="lead">' + D.intro + '</p>' +
+    '<ul class="plan"><li><span>' + CFG.icons.ortho + ' ' + CFG.sec.ortho + '</span><b>' + D.ortho.length + ' questions</b></li>' +
+    '<li><span>' + CFG.icons.calc + ' ' + CFG.sec.calc + '</span><b>' + ((D.calc.gen || []).length + (D.calc.probs || []).length) + ' questions</b></li>' +
+    '<li><span>' + CFG.icons.lect + ' ' + CFG.sec.lect + ' : « ' + D.lect.title + ' »</span><b>' + D.lect.qs.length + ' questions</b></li></ul>' +
+    '<div class="reward"><span class="ricon">' + D.reward.icon + '</span><div><small>À gagner</small><br><b>' + D.reward.name + '</b></div></div>' +
+    (st && st.done ? '<p class="muted center">Déjà réussie avec ' + starsStr(st.stars) + '. Rejoue pour gagner plus d\'étoiles !</p>' : '') +
+    '<div class="rules"><b>Règle du jeu :</b> si tu te trompes, ' + CFG.comp.name + ' te montre <i>où</i> est l\'erreur. Au deuxième essai raté, la réponse s\'affiche et la question part dans tes Revanches.</div>' +
+    '<div class="btns"><button class="primary big" data-act="start" data-d="' + d + '">' + (resume ? 'Reprendre' : 'Commencer') + '</button><button class="ghost" data-act="home">Retour à la carte</button></div>' +
+    '</div></div>';
+}
+function startDay(d) {
+  if (S.current && S.current.mode === 'day' && S.current.day === d) {
+    RUN = S.current;
+    while (RUN.i < RUN.qs.length && RUN.qs[RUN.i].done) RUN.i++;
+    if (RUN.i >= RUN.qs.length) return finishDay();
+  } else {
+    RUN = { mode: 'day', day: d, qs: buildDay(d), i: 0, res: [], pts: 0, combo: 0, maxCombo: 0 };
+    S.current = RUN;
+  }
+  save(); renderQ();
+}
+
+/* ---------- question ---------- */
+function cur() { return RUN.qs[RUN.i]; }
+var ACCENTS = ['é', 'è', 'ê', 'ë', 'à', 'â', 'ç', 'ù', 'û', 'î', 'ï', 'ô', 'œ', "'"];
+function accentBar() { return '<div class="accents">' + ACCENTS.map(function (c) { return '<button data-act="acc" data-c="' + esc(c) + '" tabindex="-1">' + c + '</button>'; }).join('') + '</div>'; }
+function qBody(q) {
+  var h = '';
+  if (q.t === 'qcm') {
+    h += '<div class="qtext">' + q.q + '</div><div class="choices' + (q.c.length > 2 && q.c.some(function (c) { return strip(c).length > 24; }) ? ' long' : '') + '">' +
+      q.c.map(function (c, i) { return '<button class="choice" data-act="choice" data-i="' + i + '">' + c + '</button>'; }).join('') + '</div><div id="actions" class="actions"></div>';
+  } else if (q.t === 'fill') {
+    h += '<div class="qtext small">' + (q.q || 'Choisis le bon mot pour compléter la phrase :') + '</div>' +
+      '<div class="sentence">' + q.s.replace('___', '<span class="blank" id="blank">?</span>') + '</div>' +
+      '<div class="choices row">' + q.c.map(function (c, i) { return '<button class="choice" data-act="choice" data-i="' + i + '">' + c + '</button>'; }).join('') + '</div><div id="actions" class="actions"></div>';
+  } else if (q.t === 'type' || q.t === 'dictee') {
+    if (q.t === 'dictee') {
+      h += '<div class="qtext">' + (q.q || 'Dictée : écoute et écris ce que tu entends.') + '</div><div class="sayrow">' +
+        (canSpeak ? '<button data-act="say">🔊 Écouter</button><button data-act="sayslow">🐢 Lentement</button>' : '') +
+        '<button class="ghost" data-act="reveal">Pour un grand-parent : voir la dictée</button><span class="secret" id="secret">« ' + q.say + ' »</span></div>';
+    } else {
+      h += '<div class="qtext">' + q.q + '</div>' + (q.s ? '<div class="sentence">' + q.s + '</div>' : '');
+    }
+    h += '<div class="typeline">' + (q.pre ? '<span class="pre">' + q.pre + '</span>' : '') +
+      '<input id="inp" class="ans" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="ta réponse">' +
+      (q.post ? '<span class="post">' + q.post + '</span>' : '') + '</div>' + accentBar() +
+      '<div id="actions" class="actions"><button class="primary big" data-act="check">Valider</button></div>';
+  } else if (q.t === 'num') {
+    h += '<div class="qtext">' + q.q + '</div><div class="typeline"><input id="inp" class="ans num" type="text" inputmode="decimal" autocomplete="off" placeholder="?">' +
+      (q.unit ? '<span class="post">' + q.unit + '</span>' : '') + '</div>' +
+      '<div id="actions" class="actions"><button class="primary big" data-act="check">Valider</button></div>';
+  }
+  return h;
+}
+function renderQ() {
+  var q = cur(), total = RUN.qs.length, prev = RUN.qs[RUN.i - 1], newSec = !prev || prev.dom !== q.dom;
+  var secN = ['ortho', 'calc', 'lect'].indexOf(q.dom) + 1;
+  var h = '<div class="screen qscreen"><div class="qtop"><button class="ghost icon" data-act="quit" title="Quitter">✕</button>' +
+    '<div class="prog"><div class="bar" style="width:' + (RUN.i / total * 100) + '%"></div></div><div class="qcount">' + (RUN.i + 1) + '/' + total + '</div></div>' +
+    '<div class="hud"><span class="chip">' + CFG.icons[q.dom] + ' ' + CFG.sec[q.dom] + '</span><span class="combo' + (RUN.combo >= 3 ? ' hot' : '') + '" id="combo">' + (RUN.combo >= 2 ? '🔥 série ' + RUN.combo : '') + '</span>' +
+    '<span class="pts" id="pts">' + CFG.icons.points + ' ' + RUN.pts + '</span></div>';
+  if (newSec && RUN.mode === 'day') h += '<div class="secbanner">' + CFG.icons[q.dom] + ' Épreuve ' + secN + ' : ' + CFG.sec[q.dom] + '</div>';
+  if (RUN.mode === 'rev') h += '<div class="secbanner">' + CFG.revIcon + ' Revanche ' + (RUN.i + 1) + ' sur ' + total + '</div>';
+  if (q.txt) h += '<div class="card textcard" id="txt"><div class="ttitle">' + CFG.icons.lect + ' ' + q.txt.title + '</div><p>' +
+    q.txt.s.map(function (s, i) { return '<span class="sent" data-s="' + i + '">' + s + '</span>'; }).join(' ') + '</p></div>';
+  var tip = RUN.i === 0 && RUN.mode === 'day' ? pick(CFG.lines.hello) : newSec && CFG.lines.sec[q.dom] ? CFG.lines.sec[q.dom] : pick(CFG.lines.idle);
+  h += '<div class="card qcard">' + qBody(q) + '<div class="fb" id="fb"></div></div>' +
+    '<div class="comp"><div class="avatar">' + CFG.comp.icon + '</div><div class="bubble" id="bubble"><b>' + CFG.comp.name + ' :</b> <span id="btext">' + tip + '</span></div></div></div>';
+  app.innerHTML = h;
+  window.scrollTo(0, 0);
+  var inp = document.getElementById('inp');
+  if (inp && window.innerWidth > 700) inp.focus();
+  if (q.t === 'dictee' && canSpeak) setTimeout(function () { say(q.say, 0.85); }, 400);
+}
+function fb(html, cls) { var el = document.getElementById('fb'); if (el) el.innerHTML = '<div class="msg ' + cls + '">' + html + '</div>'; }
+function bubble(t) { var b = document.getElementById('btext'); if (b) { b.innerHTML = t; var p = b.parentNode; p.classList.remove('pop'); void p.offsetWidth; p.classList.add('pop'); } }
+function hud() {
+  var c = document.getElementById('combo'), p = document.getElementById('pts');
+  if (c) { c.textContent = RUN.combo >= 2 ? '🔥 série ' + RUN.combo : ''; c.className = 'combo' + (RUN.combo >= 3 ? ' hot' : ''); }
+  if (p) p.textContent = CFG.icons.points + ' ' + RUN.pts;
+}
+function showNext() {
+  var a = document.getElementById('actions'); if (!a) return;
+  var last = RUN.i === RUN.qs.length - 1;
+  a.innerHTML = '<button class="primary big" id="next" data-act="next">' + (last ? 'Terminer ✓' : 'Suivant →') + '</button>';
+  var inp = document.getElementById('inp'); if (inp) inp.disabled = true;
+  document.querySelectorAll('.accents button').forEach(function (b) { b.disabled = true; });
+  setTimeout(function () { var n = document.getElementById('next'); if (n) n.focus(); }, 30);
+}
+function lockChoices() { document.querySelectorAll('.choice').forEach(function (b) { b.disabled = true; }); }
+function markRefs(q, cls) {
+  if (!q.txt || !q.r) return;
+  q.r.forEach(function (i) { var s = document.querySelector('.sent[data-s="' + i + '"]'); if (s) s.classList.add(cls); });
+  var first = document.querySelector('.sent.' + cls); if (first && first.scrollIntoView) first.scrollIntoView({ block: 'center', behavior: 'smooth' });
+}
+function submit(val, btn) {
+  var q = cur(); if (q.done) return;
+  var inp = document.getElementById('inp');
+  if (q.t === 'num' && numVal(val) === null) { fb('Écris seulement un nombre' + (String(q.a).indexOf(',') >= 0 ? ' (avec une virgule si besoin)' : '') + '.', 'info'); return; }
+  if ((q.t === 'type' || q.t === 'dictee') && !norm(val)) { fb('Écris ta réponse dans la case.', 'info'); return; }
+  var ok = isRight(q, val);
+  if (ok) {
+    q.done = true; var first = q.tries === 0;
+    var gain = first ? 10 + (RUN.combo >= 4 ? 5 : 0) : 5;
+    RUN.pts += gain; RUN.res.push({ dom: q.dom, r: first ? 2 : 1, id: q.id });
+    if (first) { RUN.combo++; RUN.maxCombo = Math.max(RUN.maxCombo, RUN.combo); } else RUN.combo = 0;
+    if (btn) btn.classList.add('right');
+    if (q.t === 'qcm' || q.t === 'fill') lockChoices();
+    if (q.t === 'fill') { var bl = document.getElementById('blank'); if (bl) { bl.textContent = q.a; bl.className = 'blank ok'; } }
+    if (inp) inp.classList.add('ok');
+    var extra = '';
+    if (!first && q.c && q.c.length === 2) addMissed(q);
+    if (RUN.mode === 'rev' && first) { S.missed = S.missed.filter(function (m) { return m.q.id !== q.id; }); extra = ' <b>Revanche gagnée !</b>'; }
+    fb('<b>+' + gain + '</b> ' + (first ? '' : '(2e essai) ') + extra + (q.e && !first ? '<div class="exp">' + q.e + '</div>' : q.e && q.dom === 'ortho' ? '<div class="exp">' + q.e + '</div>' : ''), 'good');
+    if (q.txt) markRefs(q, 'okref');
+    var line = first ? pick(CFG.lines.ok) : pick(CFG.lines.ok2);
+    if (first && (RUN.combo === 5 || RUN.combo === 10)) { line = pick(CFG.lines.combo); burst(14, btn || inp); tone(CFG.sounds.win, 0.08); }
+    else { burst(first ? 6 : 3, btn || inp); tone(first ? CFG.sounds.ok : CFG.sounds.ok2); }
+    bubble(line); hud(); showNext();
+  } else {
+    q.tries++; RUN.combo = 0; hud(); tone(CFG.sounds.wrong, 0.16);
+    if (q.tries === 1) showZone(q, val, btn);
+    else { q.done = true; RUN.res.push({ dom: q.dom, r: 0, id: q.id }); showAnswer(q, val, btn); addMissed(q); }
+  }
+  if (RUN.mode === 'day') save();
+}
+function shake(el) { if (!el) return; el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); }
+function showZone(q, val, btn) {
+  bubble(pick(CFG.lines.wrong1));
+  if (q.t === 'qcm' || q.t === 'fill') {
+    if (btn) { btn.classList.add('wrong'); btn.disabled = true; shake(btn); }
+    if (q.t === 'fill') { var bl = document.getElementById('blank'); if (bl) bl.classList.add('zone'); }
+    if (q.txt) { markRefs(q, 'zone'); fb('<b>Pas tout à fait.</b> La réponse se cache dans la partie <span class="zonetag">surlignée</span> du texte. Relis-la !', 'zonemsg'); }
+    else fb('<b>Pas tout à fait.</b> ' + (q.z || 'Relis bien la question : un mot important t\'a peut-être échappé.'), 'zonemsg');
+    return;
+  }
+  var inp = document.getElementById('inp');
+  shake(inp);
+  if (q.t === 'num') {
+    var exp = String(q.a).replace(',', '.'), got = String(val).replace(/[\s  ]/g, '').replace(',', '.'), isInt = function (s) { return /^\d+$/.test(s); }, msg, html = '';
+    if (isInt(exp) && isInt(got) && !q.one && exp.length > 1) {
+      if (got.length !== exp.length) {
+        html = groupMark(got, got.split('').map(function (_, k) { return k; }));
+        msg = (got.length > exp.length ? 'Ton résultat a <b>trop de chiffres</b>' : 'Ton résultat n\'a <b>pas assez de chiffres</b>') + ' : vérifie l\'ordre de grandeur.' + (q.z ? '<div class="hint">' + q.z + '</div>' : '');
+      } else {
+        var wrong = []; for (var k = 0; k < exp.length; k++) if (got[k] !== exp[k]) wrong.push(k);
+        var names = wrong.map(function (k) { return PLACES[exp.length - 1 - k]; });
+        html = groupMark(got, wrong);
+        msg = names.length === 1 ? 'L\'erreur est dans le chiffre des <b>' + names[0] + '</b>.' : 'Les erreurs sont dans les chiffres des <b>' + names.slice(0, -1).join('</b>, des <b>') + '</b> et des <b>' + names[names.length - 1] + '</b>.';
+        if (q.z && q.dom === 'calc' && q.id && q.id.indexOf('-p') > 0) msg += '<div class="hint">' + q.z + '</div>';
+      }
+    } else if (!isInt(exp)) {
+      msg = exp.split('.')[0] !== got.split('.')[0] ? 'La <b>partie entière</b> (avant la virgule) n\'est pas bonne.' : 'La partie entière est juste : l\'erreur est <b>après la virgule</b>.';
+      if (q.z) msg += '<div class="hint">' + q.z + '</div>';
+    } else msg = q.z || 'Vérifie ton calcul.';
+    fb('<b>Pas tout à fait.</b> ' + (html ? '<div class="yours">Tu as écrit : ' + html + '</div>' : '') + msg, 'zonemsg');
+    if (inp) { inp.select(); }
+    return;
+  }
+  // texte : on repère la zone fautive lettre par lettre
+  var v = cleanTyped(q, val), e = bestTarget(q, v), z = diffZone(v, e);
+  var mid = v.slice(z.i, v.length - z.j), shown;
+  if (z.i === 0 && z.j === 0) shown = '<mark class="err">' + esc(v) + '</mark>';
+  else if (!mid) shown = esc(v.slice(0, z.i)) + '<mark class="miss">▾</mark>' + esc(v.slice(z.i));
+  else shown = esc(v.slice(0, z.i)) + '<mark class="err">' + esc(mid) + '</mark>' + esc(v.slice(v.length - z.j));
+  var m = z.i === 0 && z.j === 0 ? 'Tout le mot est à revoir : relis bien la consigne.' : !mid ? 'Il manque quelque chose à l\'endroit marqué <b>▾</b>.' : 'L\'erreur se cache dans la partie <span class="zonetag">colorée</span>. Corrige-la !';
+  fb('<b>Pas tout à fait.</b><div class="yours">Ton essai : <span class="word">' + shown + '</span></div>' + m + (q.z ? '<div class="hint">' + q.z + '</div>' : ''), 'zonemsg');
+  if (inp) { inp.value = v; inp.focus(); try { inp.setSelectionRange(z.i, Math.max(z.i, v.length - z.j)); } catch (er) {} }
+}
+function showAnswer(q, val, btn) {
+  bubble(pick(CFG.lines.wrong2));
+  var ans = ansText(q);
+  if (q.t === 'qcm' || q.t === 'fill') {
+    if (btn) { btn.classList.add('wrong'); shake(btn); }
+    document.querySelectorAll('.choice').forEach(function (b, i) { if (q.c[i] === q.a) b.classList.add('reveal'); });
+    lockChoices();
+    if (q.t === 'fill') { var bl = document.getElementById('blank'); if (bl) { bl.textContent = q.a; bl.className = 'blank reveal'; } }
+    if (q.txt) markRefs(q, 'zone');
+    fb('La bonne réponse est : <b>' + ans + '</b>' + (q.e ? '<div class="exp">' + q.e + '</div>' : ''), 'answer');
+  } else if (q.t === 'num') {
+    fb('La bonne réponse est : <b class="bigans">' + ans + '</b>' + (q.e ? '<div class="exp">' + q.e + '</div>' : ''), 'answer');
+  } else {
+    var v = cleanTyped(q, val), e = bestTarget(q, v), z = diffZone(v, e), mid = e.slice(z.i, e.length - z.j);
+    var shown = z.i === 0 && z.j === 0 ? '<mark class="good">' + esc(e) + '</mark>' : esc(e.slice(0, z.i)) + (mid ? '<mark class="good">' + esc(mid) + '</mark>' : '') + esc(e.slice(e.length - z.j));
+    fb('Il fallait écrire : <span class="word">' + (q.pre ? strip(q.pre).split('→').pop().trim() + ' ' : '') + shown + '</span>' + (q.e ? '<div class="exp">' + q.e + '</div>' : ''), 'answer');
+  }
+  showNext();
+}
+function addMissed(q) {
+  if (RUN.mode !== 'day') return;
+  if (S.missed.some(function (m) { return m.q.id === q.id; })) return;
+  var c = clone(q); delete c.tries; delete c.done;
+  S.missed.push({ q: c, day: RUN.day, date: today() });
+}
+function next() {
+  RUN.i++;
+  if (RUN.mode === 'day') save();
+  if (RUN.i >= RUN.qs.length) return RUN.mode === 'day' ? finishDay() : finishRev();
+  renderQ();
+}
+
+/* ---------- fin de mission ---------- */
+function finishDay() {
+  var d = RUN.day, D = DATA.days[d], tot = RUN.res.length, first = RUN.res.filter(function (r) { return r.r === 2; }).length;
+  var ratio = tot ? first / tot : 0, stars = ratio >= 0.85 ? 3 : ratio >= 0.6 ? 2 : 1;
+  var by = {}; ['ortho', 'calc', 'lect'].forEach(function (k) { var rs = RUN.res.filter(function (r) { return r.dom === k; }); by[k] = [rs.filter(function (r) { return r.r === 2; }).length, rs.length]; });
+  var prev = S.days[d], isFirst = !(prev && prev.done);
+  var hist = (prev && prev.hist) || []; hist.push({ date: today(), stars: stars, first: first, tot: tot, by: by });
+  S.days[d] = { done: true, stars: Math.max(stars, (prev && prev.stars) || 0), hist: hist };
+  var bonus = stars * 10; S.points += RUN.pts + bonus; S.current = null; save();
+  var pts = RUN.pts, maxC = RUN.maxCombo; RUN = null;
+  var final = d === DATA.days.length - 1 && isFirst;
+  app.innerHTML = topbar() + '<div class="screen"><div class="card endcard">' +
+    '<div class="kicker">Mission ' + (d + 1) + ' terminée</div><h2>' + D.place + '</h2>' +
+    '<div class="bigstars">' + [0, 1, 2].map(function (i) { return '<span class="st' + (i < stars ? ' on' : '') + '" style="animation-delay:' + (300 + i * 350) + 'ms">★</span>'; }).join('') + '</div>' +
+    '<p class="lead center">' + pick(CFG.lines['end' + stars]) + '</p>' +
+    '<div class="reward win"><span class="ricon">' + D.reward.icon + '</span><div><small>' + (isFirst ? 'Nouveau trésor débloqué !' : 'Déjà dans ta collection') + '</small><br><b>' + D.reward.name + '</b></div></div>' +
+    '<table class="mini"><tr><td>' + CFG.icons.ortho + ' ' + CFG.sec.ortho + '</td><td>' + by.ortho[0] + '/' + by.ortho[1] + '</td></tr>' +
+    '<tr><td>' + CFG.icons.calc + ' ' + CFG.sec.calc + '</td><td>' + by.calc[0] + '/' + by.calc[1] + '</td></tr>' +
+    '<tr><td>' + CFG.icons.lect + ' ' + CFG.sec.lect + '</td><td>' + by.lect[0] + '/' + by.lect[1] + '</td></tr>' +
+    '<tr><td>🔥 Plus longue série</td><td>' + maxC + '</td></tr><tr><td>' + CFG.icons.points + ' Points gagnés</td><td>+' + pts + ' (+' + bonus + ' bonus étoiles)</td></tr></table>' +
+    '<p class="muted small center">(réponses justes du premier coup)</p>' +
+    (final ? '<div class="final">' + CFG.lines.final + '</div>' : '') +
+    '<div class="btns"><button class="primary big" data-act="home">Retour à la carte</button><button data-act="eclair">⚡ Bonus : Défi Éclair</button></div></div></div>';
+  tone(CFG.sounds.win, 0.1);
+  setTimeout(function () { burst(final ? 40 : 20, document.querySelector('.bigstars')); }, 500);
+  if (final) setTimeout(function () { burst(30); }, 1400);
+}
+
+/* ---------- revanches ---------- */
+function renderRevIntro() {
+  var n = S.missed.length;
+  app.innerHTML = topbar() + '<div class="screen"><div class="card intro center"><div class="introicon">' + CFG.revIcon + '</div><h2>Revanches</h2>' +
+    (n ? '<p class="lead">' + CFG.lines.revIntro + '</p><p>Questions à reconquérir : <b>' + n + '</b></p><p class="muted small">Une revanche réussie du premier coup disparaît de la liste et rapporte des points.</p>' +
+      '<div class="btns"><button class="primary big" data-act="revgo">Prendre ma revanche (' + Math.min(n, 10) + ' questions)</button><button class="ghost" data-act="home">Retour à la carte</button></div>'
+      : '<p class="lead">' + CFG.lines.revEmpty + '</p><div class="btns"><button class="primary big" data-act="home">Retour à la carte</button></div>') + '</div></div>';
+}
+function startRev() {
+  var list = shuffle(S.missed).slice(0, 10).map(function (m) { var q = clone(m.q); q.tries = 0; q.done = false; if (q.c) q.c = shuffle(q.c); return q; });
+  if (!list.length) return renderRevIntro();
+  RUN = { mode: 'rev', qs: list, i: 0, res: [], pts: 0, combo: 0, maxCombo: 0 };
+  renderQ();
+}
+function finishRev() {
+  var won = RUN.res.filter(function (r) { return r.r === 2; }).length, tot = RUN.res.length;
+  S.points += RUN.pts; save(); var pts = RUN.pts; RUN = null;
+  app.innerHTML = topbar() + '<div class="screen"><div class="card endcard center"><div class="introicon">' + CFG.revIcon + '</div><h2>Revanches terminées</h2>' +
+    '<p class="lead">' + won + ' revanche' + (won > 1 ? 's' : '') + ' gagnée' + (won > 1 ? 's' : '') + ' sur ' + tot + '.</p><p>' + CFG.icons.points + ' +' + pts + ' points</p>' +
+    '<p class="muted">Il reste ' + S.missed.length + ' question' + (S.missed.length > 1 ? 's' : '') + ' à reconquérir.</p>' +
+    '<div class="btns"><button class="primary big" data-act="home">Retour à la carte</button></div></div></div>';
+  if (won) burst(16);
+}
+
+/* ---------- collection ---------- */
+function renderColl() {
+  var h = '<div class="screen"><div class="card"><h2 class="center">🎁 ' + CFG.collTitle + '</h2><p class="center muted">Chaque mission terminée t\'offre un trésor.</p><div class="coll">';
+  DATA.days.forEach(function (D, i) {
+    var st = S.days[i], done = st && st.done;
+    h += '<div class="item' + (done ? ' got' : '') + '"><div class="iicon">' + (done ? D.reward.icon : '?') + '</div><div class="iname">' + (done ? D.reward.name : 'Mission ' + (i + 1)) + '</div><div class="istars">' + (done ? starsStr(st.stars) : '') + '</div></div>';
+  });
+  h += '</div><p class="center">Rang actuel : <b>' + rank() + '</b></p><div class="ranks">' + CFG.ranks.map(function (r) { return '<span class="' + (daysDone() >= r.min ? 'on' : '') + '">' + r.name + '<small>' + r.min + ' mission' + (r.min > 1 ? 's' : '') + '</small></span>'; }).join('') + '</div>' +
+    '<div class="btns"><button class="primary" data-act="home">Retour à la carte</button></div></div></div>';
+  app.innerHTML = topbar() + h;
+}
+
+/* ---------- défi éclair ---------- */
+function renderEclairIntro() {
+  stopEclair();
+  app.innerHTML = topbar() + '<div class="screen"><div class="card intro center"><div class="introicon">⚡</div><h2>Défi Éclair</h2>' +
+    '<p class="lead">60 secondes pour répondre à un maximum de ' + (CFG.level === 'CM2' ? 'multiplications et divisions' : 'tables de multiplication') + '.</p>' +
+    '<p>Record : <b>' + S.eclairBest + '</b> · chaque bonne réponse rapporte 2 ' + CFG.icons.points + '</p>' +
+    '<div class="btns"><button class="primary big" data-act="ecgo">C\'est parti !</button><button class="ghost" data-act="home">Retour à la carte</button></div></div></div>';
+}
+function eclairGo() {
+  stopEclair();
+  EC = { t: 60, score: 0, cur: null, buf: '', lock: false, timer: null };
+  var keys = ['7', '8', '9', '4', '5', '6', '1', '2', '3', 'del', '0', 'ok'];
+  app.innerHTML = topbar() + '<div class="screen"><div class="card eclair center"><div class="ectop"><span>⏳ <b id="ect">60</b> s</span><span>✔ <b id="ecs">0</b></span></div>' +
+    '<div class="ectime"><div id="ecbar"></div></div><div class="ecq" id="ecq"></div><div class="ecin" id="ecin">&nbsp;</div><div class="keypad">' +
+    keys.map(function (k) { return '<button class="' + (k === 'ok' ? 'primary' : '') + '" data-act="key" data-k="' + k + '">' + (k === 'del' ? '⌫' : k === 'ok' ? 'OK' : k) + '</button>'; }).join('') +
+    '</div><p class="muted small">Tu peux aussi taper au clavier puis Entrée.</p></div></div>';
+  ecNext();
+  EC.timer = setInterval(function () {
+    if (!EC) return; EC.t--;
+    var el = document.getElementById('ect'), b = document.getElementById('ecbar');
+    if (el) el.textContent = EC.t; if (b) b.style.width = (EC.t / 60 * 100) + '%';
+    if (EC.t <= 0) ecEnd();
+  }, 1000);
+}
+function ecNext() {
+  var a = R(2, 9), b = R(2, 10);
+  if (CFG.level === 'CM2' && Math.random() < 0.35) EC.cur = { q: (a * b) + ' ÷ ' + a, a: b };
+  else { if (Math.random() < .5) { var t = a; a = b; b = t; } EC.cur = { q: a + ' × ' + b, a: a * b }; }
+  EC.buf = ''; EC.lock = false; ecDraw();
+}
+function ecDraw(cls) {
+  var q = document.getElementById('ecq'), i = document.getElementById('ecin'), s = document.getElementById('ecs');
+  if (q) q.textContent = EC.cur.q + ' = ?'; if (i) { i.innerHTML = EC.buf || '&nbsp;'; i.className = 'ecin ' + (cls || ''); } if (s) s.textContent = EC.score;
+}
+function ecKey(k) {
+  if (!EC || EC.t <= 0 || EC.lock) return;
+  if (k === 'del') EC.buf = EC.buf.slice(0, -1);
+  else if (k === 'ok') {
+    if (!EC.buf) return;
+    if (+EC.buf === EC.cur.a) { EC.score++; tone([CFG.sounds.ok[0], CFG.sounds.ok[2]], 0.06); ecDraw('good'); EC.lock = true; setTimeout(function () { if (EC) ecNext(); }, 180); return; }
+    tone(CFG.sounds.wrong, 0.1); EC.buf = String(EC.cur.a); ecDraw('bad'); EC.lock = true; setTimeout(function () { if (EC) ecNext(); }, 900); return;
+  } else if (EC.buf.length < 3) EC.buf += k;
+  ecDraw();
+}
+function ecEnd() {
+  var sc = EC.score, rec = sc > S.eclairBest; clearInterval(EC.timer); EC = null;
+  if (rec) S.eclairBest = sc; S.points += sc * 2; save();
+  app.innerHTML = topbar() + '<div class="screen"><div class="card endcard center"><div class="introicon">⚡</div><h2>Temps écoulé !</h2>' +
+    '<p class="lead"><b>' + sc + '</b> bonne' + (sc > 1 ? 's' : '') + ' réponse' + (sc > 1 ? 's' : '') + '</p>' +
+    (rec ? '<p class="final">' + CFG.lines.record + '</p>' : '<p class="muted">Record : ' + S.eclairBest + '</p>') +
+    '<p>' + CFG.icons.points + ' +' + sc * 2 + ' points</p><div class="btns"><button class="primary big" data-act="ecgo">Rejouer</button><button class="ghost" data-act="home">Retour à la carte</button></div></div></div>';
+  tone(CFG.sounds.win, 0.09); if (rec) burst(24);
+}
+
+/* ---------- coin des grands-parents ---------- */
+function pct(a, b) { return b ? Math.round(a / b * 100) + ' %' : '-'; }
+function renderParents() {
+  var rows = '', agg = { ortho: [0, 0], calc: [0, 0], lect: [0, 0] };
+  DATA.days.forEach(function (D, i) {
+    var st = S.days[i];
+    if (!st || !st.done) { rows += '<tr class="off"><td>J' + (i + 1) + '</td><td>' + D.place + '</td><td colspan="5">pas encore jouée</td></tr>'; return; }
+    var L = st.hist[st.hist.length - 1];
+    ['ortho', 'calc', 'lect'].forEach(function (k) { agg[k][0] += L.by[k][0]; agg[k][1] += L.by[k][1]; });
+    rows += '<tr><td>J' + (i + 1) + '</td><td>' + D.place + '<div class="muted small">' + D.focus + '</div></td><td class="stars">' + starsStr(L.stars) + '</td>' +
+      ['ortho', 'calc', 'lect'].map(function (k) { return '<td>' + L.by[k][0] + '/' + L.by[k][1] + '</td>'; }).join('') + '<td class="small">' + L.date + (st.hist.length > 1 ? '<br>(' + st.hist.length + ' essais)' : '') + '</td></tr>';
+  });
+  var miss = S.missed.slice().sort(function (a, b) { return a.day - b.day; }).map(function (m) {
+    return '<li><span class="tagd">J' + (m.day + 1) + ' · ' + CFG.sec[m.q.dom] + '</span> ' + esc(promptText(m.q)) + ' <b>→ ' + strip(ansText(m.q)) + '</b></li>';
+  }).join('');
+  var plan = DATA.days.map(function (D, i) { return '<li><b>J' + (i + 1) + '</b> ' + D.focus + '</li>'; }).join('');
+  app.innerHTML = topbar() + '<div class="screen"><div class="card parents"><h2>👵👴 Le coin des grands-parents</h2>' +
+    '<p>Une mission par jour, 15 à 20 minutes : 6 questions d\'orthographe, 5 de calcul et une lecture avec ses questions. Programme de ' + CFG.level + ', première période (septembre-octobre).</p>' +
+    '<p><b>Le principe :</b> à la première erreur, le jeu montre <i>où</i> se trouve l\'erreur (lettres fautives, chiffre faux, phrase du texte, astuce de remplacement). À la deuxième, il donne la réponse et range la question dans les « Revanches » à rejouer plus tard.</p>' +
+    '<p class="tip">Le plus utile pour vous : regarder ensemble la liste des erreurs ci-dessous, et faire expliquer la règle avec ses mots plutôt que la réponse.</p>' +
+    '<h3>Résultats (réponses justes du premier coup)</h3><div class="tblwrap"><table class="res"><tr><th></th><th>Mission</th><th>Étoiles</th><th>' + CFG.icons.ortho + '</th><th>' + CFG.icons.calc + '</th><th>' + CFG.icons.lect + '</th><th>Date</th></tr>' + rows + '</table></div>' +
+    '<div class="aggs"><span>' + CFG.icons.ortho + ' Orthographe <b>' + pct(agg.ortho[0], agg.ortho[1]) + '</b></span><span>' + CFG.icons.calc + ' Calcul <b>' + pct(agg.calc[0], agg.calc[1]) + '</b></span><span>' + CFG.icons.lect + ' Lecture <b>' + pct(agg.lect[0], agg.lect[1]) + '</b></span><span>⚡ Record Éclair <b>' + S.eclairBest + '</b></span></div>' +
+    '<h3>Erreurs à retravailler (' + S.missed.length + ')</h3>' + (miss ? '<ul class="misslist">' + miss + '</ul>' : '<p class="muted">Aucune pour le moment.</p>') +
+    '<h3>Le programme des 10 jours</h3><ul class="planlist">' + plan + '</ul>' +
+    '<details class="danger"><summary>Remettre le jeu à zéro</summary><p>Efface toutes les étoiles, points, trésors et erreurs enregistrés sur cet appareil.</p><button data-act="reset">Tout effacer</button></details>' +
+    '<div class="btns"><button class="primary" data-act="home">Retour à la carte</button></div></div></div>';
+}
+
+/* ---------- événements ---------- */
+document.addEventListener('click', function (ev) {
+  var b = ev.target.closest('[data-act]'); if (!b) return;
+  var act = b.getAttribute('data-act');
+  switch (act) {
+    case 'home': if (RUN && RUN.mode === 'rev') { S.points += RUN.pts; save(); } renderMap(); break;
+    case 'mute': S.muted = !S.muted; save(); b.textContent = S.muted ? '🔇' : '🔊'; break;
+    case 'day': renderIntro(+b.getAttribute('data-d')); break;
+    case 'start': startDay(+b.getAttribute('data-d')); break;
+    case 'quit':
+      if (RUN && RUN.mode === 'day') { if (confirm('Faire une pause ? Ta mission est gardée, tu pourras la reprendre.')) renderMap(); }
+      else { if (RUN) { S.points += RUN.pts; save(); } renderMap(); }
+      break;
+    case 'choice': var q = cur(); if (!q.done) submit(q.c[+b.getAttribute('data-i')], b); break;
+    case 'check': var inp = document.getElementById('inp'); if (inp) submit(inp.value, null); break;
+    case 'next': next(); break;
+    case 'acc':
+      var i2 = document.getElementById('inp'); if (!i2 || i2.disabled) break;
+      var c = b.getAttribute('data-c'), s0 = i2.selectionStart != null ? i2.selectionStart : i2.value.length, s1 = i2.selectionEnd != null ? i2.selectionEnd : s0;
+      i2.value = i2.value.slice(0, s0) + c + i2.value.slice(s1); i2.focus(); try { i2.setSelectionRange(s0 + c.length, s0 + c.length); } catch (e) {}
+      break;
+    case 'say': say(cur().say, 0.85); break;
+    case 'sayslow': say(cur().say, 0.55); break;
+    case 'reveal': var sc = document.getElementById('secret'); if (sc) sc.classList.toggle('show'); break;
+    case 'coll': renderColl(); break;
+    case 'rev': renderRevIntro(); break;
+    case 'revgo': startRev(); break;
+    case 'eclair': renderEclairIntro(); break;
+    case 'ecgo': eclairGo(); break;
+    case 'key': ecKey(b.getAttribute('data-k')); break;
+    case 'parents': renderParents(); break;
+    case 'reset':
+      if (confirm('Tout effacer pour ' + CFG.name + ' ?') && confirm('Vraiment ? Cette action est définitive.')) { S = fresh(); save(); renderMap(); }
+      break;
+  }
+});
+document.addEventListener('keydown', function (ev) {
+  if (EC) {
+    if (/^[0-9]$/.test(ev.key)) { ecKey(ev.key); ev.preventDefault(); }
+    else if (ev.key === 'Backspace') { ecKey('del'); ev.preventDefault(); }
+    else if (ev.key === 'Enter') { ecKey('ok'); ev.preventDefault(); }
+    return;
+  }
+  if (ev.key !== 'Enter') return;
+  var n = document.getElementById('next');
+  if (n) { ev.preventDefault(); n.click(); return; }
+  var inp = document.getElementById('inp');
+  if (inp && document.activeElement === inp) { ev.preventDefault(); submit(inp.value, null); return; }
+  var t = ev.target.closest && ev.target.closest('.node[data-act]'); if (t) t.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+});
+if (canSpeak) { try { speechSynthesis.getVoices(); } catch (e) {} }
+window.__TEST__ = { GEN: GEN, words: words, isRight: isRight, cleanTyped: cleanTyped, state: function () { return S; }, run: function () { return RUN; } };
+renderMap();
+})();
+
+</script>
+</body>
+</html>
