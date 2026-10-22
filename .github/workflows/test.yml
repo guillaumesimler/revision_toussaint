@@ -7,11 +7,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
       - run: pip install playwright==1.56.0 && python -m playwright install --with-deps chromium
       - name: Built files match src/
-        run: python build.py && git diff --exit-code -- elena.html sarah.html
+        run: python build.py && git diff --exit-code -- '*.html'
       - name: Content checks and full playthrough
         run: python tests/test_play.py
+      - name: Progress saved by the live version survives this build
+        run: |
+          mkdir -p /tmp/live
+          git show origin/main:elena.html > /tmp/live/elena.html
+          git show origin/main:sarah.html > /tmp/live/sarah.html
+          python tests/test_progress.py /tmp/live

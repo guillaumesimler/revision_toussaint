@@ -1,0 +1,1508 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sarah · Le Territoire de la Meute (CM2)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Spectral:wght@400;600;700&display=swap">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+html{background:var(--bg-solid)}
+body{background:var(--bg);background-attachment:fixed;color:var(--ink);font-family:var(--font-body);font-size:18px;line-height:1.5;min-height:100vh;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
+#app{max-width:760px;margin:0 auto;padding:10px 16px 48px}
+h1,h2,h3{font-family:var(--font-head);margin:.2em 0 .3em;line-height:1.15;color:var(--title)}
+h1{font-size:clamp(28px,6vw,40px)}
+h2{font-size:clamp(24px,5vw,30px)}
+h3{font-size:20px;margin-top:1.4em}
+button{font:inherit;cursor:pointer;border:var(--btn-border);border-radius:var(--radius);padding:11px 16px;background:var(--btn);color:var(--ink);transition:transform .08s,background .2s,border-color .2s,opacity .2s;touch-action:manipulation}
+button:active{transform:scale(.97)}
+button:disabled{cursor:default}
+button.primary{background:var(--accent);color:var(--on-accent);border-color:transparent;font-weight:700;box-shadow:var(--btn-shadow)}
+button.big{font-size:20px;padding:14px 22px}
+button.ghost{background:transparent;border-color:transparent;color:var(--muted)}
+button.icon{padding:6px 10px;font-size:20px}
+.muted{color:var(--muted)}.small{font-size:15px}.center{text-align:center}
+.card{background:var(--card);border:var(--card-border);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px}
+.screen{animation:fadein .35s ease}
+@keyframes fadein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* barre du haut */
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.brand{display:flex;align-items:center;gap:8px;color:var(--ink)!important;padding:6px 4px}
+.brand b{font-family:var(--font-head);font-size:20px}
+.bicon{font-size:22px}
+.lvl{font-size:12px;padding:2px 8px;border-radius:99px;background:var(--chip);color:var(--chip-ink);font-weight:700}
+.stats{display:flex;align-items:center;gap:4px;flex-wrap:nowrap;justify-content:flex-end}
+@media (max-width:420px){.stat{font-size:13px;padding:3px 8px}.brand b{font-size:18px}.lvl{display:none}}
+.stat{font-size:15px;padding:4px 10px;border-radius:99px;background:var(--chip);color:var(--chip-ink);font-weight:700;white-space:nowrap}
+
+/* carte */
+.hero{text-align:center;padding:8px 0 14px}
+.hicon{font-size:56px;animation:float 3s ease-in-out infinite}
+@keyframes float{50%{transform:translateY(-8px)}}
+.tag{color:var(--muted);margin:.2em auto .8em;max-width:520px}
+.rank{display:inline-block;margin-bottom:14px;padding:6px 14px;border-radius:99px;background:var(--chip);color:var(--chip-ink);font-size:15px}
+.allDone{padding:12px;border-radius:var(--radius);background:var(--chip);color:var(--chip-ink)}
+.menu{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:6px 0 10px}
+.menu button{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:15px;padding:10px 6px;background:var(--card);box-shadow:var(--shadow)}
+.menu button span{font-size:12px;color:var(--muted)}
+.menu button.has span{color:var(--bad);font-weight:700}
+@media (max-width:560px){.menu{grid-template-columns:repeat(2,1fr)}}
+.mapwrap{display:flex;justify-content:center}
+svg.map{width:100%;max-width:460px;height:auto;overflow:visible}
+.trail{fill:none;stroke:var(--trail);stroke-width:10;stroke-linecap:round;stroke-dasharray:2 16}
+.trail.done{stroke:var(--accent);stroke-dasharray:none;stroke-width:6;opacity:.8}
+.node .disc{fill:var(--node);stroke:var(--node-stroke);stroke-width:3}
+.node .halo{fill:transparent}
+.node .nicon{font-size:28px}
+.node .nlabel{font-size:13px;fill:var(--ink);font-family:var(--font-head);font-weight:700;paint-order:stroke;stroke:var(--label-halo);stroke-width:4px;stroke-linejoin:round}
+.node .nstars{font-size:16px;fill:var(--star);letter-spacing:2px;paint-order:stroke;stroke:var(--label-halo);stroke-width:3px}
+.node[data-act]{cursor:pointer}
+.node.done .disc{fill:var(--node-done);stroke:var(--accent)}
+.node.locked{opacity:.5}
+.node.locked .nlabel{fill:var(--muted)}
+.node.next .halo{fill:var(--accent);opacity:.25;animation:pulse 1.6s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+.node.next .disc{stroke:var(--accent);stroke-width:4}
+@keyframes pulse{50%{transform:scale(1.25);opacity:.05}}
+.deco{opacity:.55;pointer-events:none}
+
+/* intro / fin */
+.intro,.endcard{text-align:left}
+.introicon{font-size:60px;text-align:center;line-height:1.1}
+.kicker{text-align:center;text-transform:uppercase;letter-spacing:.12em;font-size:13px;color:var(--muted)}
+.intro h2,.endcard h2{text-align:center}
+.lead{font-size:19px}
+.plan{list-style:none;padding:0;margin:14px 0}
+.plan li{display:flex;justify-content:space-between;gap:10px;padding:10px 12px;border-bottom:1px solid var(--line)}
+.plan li b{font-weight:400;color:var(--muted);font-size:15px;white-space:nowrap}
+.reward{display:flex;align-items:center;gap:14px;margin:14px 0;padding:12px 16px;border-radius:var(--radius);background:var(--reward-bg);border:1px dashed var(--accent)}
+.reward .ricon{font-size:40px}
+.reward small{color:var(--muted)}
+.reward.win{animation:pop .6s ease .9s both}
+.rules{font-size:15px;padding:10px 14px;border-radius:var(--radius);background:var(--soft);margin:12px 0;color:var(--ink)}
+.btns{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:16px}
+.bigstars{text-align:center;font-size:64px;letter-spacing:8px;margin:6px 0}
+.bigstars .st{color:var(--star-off);display:inline-block}
+.bigstars .st.on{color:var(--star);animation:starin .5s cubic-bezier(.3,1.6,.5,1) both}
+@keyframes starin{from{transform:scale(0) rotate(-90deg)}to{transform:none}}
+@keyframes pop{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.05)}100%{transform:none;opacity:1}}
+table.mini{width:100%;border-collapse:collapse;margin-top:8px}
+table.mini td{padding:7px 4px;border-bottom:1px solid var(--line)}
+table.mini td:last-child{text-align:right;font-weight:700}
+.final{margin:14px 0;padding:14px;border-radius:var(--radius);background:var(--accent);color:var(--on-accent);text-align:center;font-weight:700;animation:pop .6s ease both}
+
+/* question */
+.qtop{display:flex;align-items:center;gap:10px}
+.prog{flex:1;height:12px;background:var(--track);border-radius:99px;overflow:hidden}
+.bar{height:100%;background:var(--accent);border-radius:99px;transition:width .4s}
+.qcount{font-size:15px;color:var(--muted);min-width:44px;text-align:right}
+.hud{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:10px 0}
+.chip{padding:5px 12px;border-radius:99px;background:var(--chip);color:var(--chip-ink);font-size:15px;font-weight:700}
+.combo{font-weight:700;color:var(--muted);font-size:15px}
+.combo.hot{color:var(--hot);animation:pop .4s ease}
+.pts{font-weight:700}
+.secbanner{text-align:center;font-family:var(--font-head);font-size:20px;color:var(--title);margin:4px 0 12px;animation:pop .5s ease both}
+.textcard{margin-bottom:12px;font-size:var(--text-size);line-height:1.65}
+.textcard p{margin:6px 0 0}
+.ttitle{font-family:var(--font-head);font-size:18px;color:var(--title)}
+.sent{border-radius:4px;transition:background .3s,box-shadow .3s}
+.sent.zone{background:var(--zone-bg);box-shadow:0 0 0 3px var(--zone-bg)}
+.sent.okref{background:var(--good-bg);box-shadow:0 0 0 3px var(--good-bg)}
+.qtext{font-size:20px;margin-bottom:14px}
+.qtext.small{font-size:16px;color:var(--muted);margin-bottom:6px}
+.big{display:inline-block;font-size:30px;font-weight:700;margin-top:6px;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.sentence{font-size:23px;line-height:1.7;margin:6px 0 16px}
+.blank{display:inline-block;min-width:74px;margin:0 6px;padding:0 6px;text-align:center;border-bottom:3px dashed var(--accent);color:var(--accent);font-weight:700}
+.blank.zone{background:var(--zone-bg);border-bottom-style:solid;border-color:var(--zone);animation:glow 1.2s ease-in-out 3}
+.blank.ok{color:var(--good);border-bottom:3px solid var(--good)}
+.blank.reveal{color:var(--good);border-bottom:3px solid var(--good);background:var(--good-bg)}
+@keyframes glow{50%{box-shadow:0 0 0 6px var(--zone-bg)}}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.choices.long{grid-template-columns:1fr}
+.choices.row{display:flex;flex-wrap:wrap;justify-content:center}
+.choices.row .choice{min-width:110px}
+.choice{background:var(--choice);border:2px solid var(--choice-border);min-height:58px;font-size:19px;color:var(--ink);text-align:center;line-height:1.3}
+.choice:hover:not(:disabled){border-color:var(--accent)}
+.choice.wrong{border-color:var(--bad);background:var(--bad-bg);opacity:.6;text-decoration:line-through}
+.choice.right,.choice.reveal{border-color:var(--good);background:var(--good-bg);opacity:1;text-decoration:none;font-weight:700}
+.choice:disabled:not(.wrong):not(.right):not(.reveal){opacity:.55}
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1;font-weight:700;margin:0 2px}
+.frac sup,.frac sub{font-size:.95em;vertical-align:baseline;position:static}
+.frac span{display:block;width:100%;height:2px;background:currentColor;font-size:0;margin:2px 0}
+.typeline{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:22px;margin:10px 0}
+.pre,.post{font-size:21px}
+input.ans{font:inherit;font-size:24px;padding:10px 14px;border-radius:var(--radius);border:2px solid var(--choice-border);background:var(--input);color:var(--ink);width:100%;max-width:300px;outline:none}
+input.ans.num{max-width:220px;font-variant-numeric:tabular-nums;letter-spacing:.04em}
+input.ans:focus{border-color:var(--accent)}
+input.ans.ok{border-color:var(--good);background:var(--good-bg)}
+input.ans::selection{background:var(--zone);color:#000}
+.accents{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 6px}
+.accents button{padding:6px 0;width:42px;font-size:19px;background:var(--choice);border:1px solid var(--choice-border)}
+.sayrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:6px}
+.secret{display:none;font-weight:700;padding:4px 10px;border-radius:var(--radius);background:var(--soft)}
+.secret.show{display:inline-block}
+.actions{display:flex;justify-content:center;margin-top:14px}
+.actions:empty{display:none}
+.fb .msg{margin-top:14px;padding:12px 14px;border-radius:var(--radius);animation:pop .35s ease both;font-size:18px}
+.fb .good{background:var(--good-bg);border-left:5px solid var(--good)}
+.fb .zonemsg{background:var(--zone-bg);border-left:5px solid var(--zone)}
+.fb .answer{background:var(--bad-bg);border-left:5px solid var(--bad)}
+.fb .info{background:var(--soft)}
+.exp{margin-top:6px;font-size:16px;color:var(--ink);opacity:.9}
+.hint{margin-top:6px;font-size:16px;font-style:italic}
+.yours{margin:6px 0;font-size:20px}
+.word{font-size:22px;font-weight:700;letter-spacing:.03em}
+.numshow{font-size:24px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:.05em}
+mark.err{background:var(--bad);color:#fff;padding:0 3px;border-radius:4px}
+mark.miss{background:var(--bad);color:#fff;padding:0 2px;border-radius:4px;font-size:.7em;vertical-align:super}
+mark.good{background:var(--good);color:#fff;padding:0 3px;border-radius:4px}
+.zonetag{background:var(--zone);color:#1a1a1a;padding:0 5px;border-radius:4px;font-weight:700}
+.bigans{font-size:24px}
+.shake{animation:shake .4s ease}
+@keyframes shake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+.comp{display:flex;align-items:flex-end;gap:10px;margin-top:16px}
+.avatar{font-size:46px;line-height:1;animation:float 3.5s ease-in-out infinite}
+.bubble{flex:1;background:var(--card);border:var(--card-border);border-radius:16px 16px 16px 4px;padding:10px 14px;font-size:16px;box-shadow:var(--shadow)}
+.bubble.pop{animation:pop .35s ease}
+.particle{position:fixed;z-index:60;pointer-events:none;font-size:26px;animation:fly 1.5s cubic-bezier(.2,.7,.4,1) forwards}
+@keyframes fly{0%{transform:translate(-50%,-50%) scale(.4);opacity:1}100%{transform:translate(calc(var(--dx) - 50%),calc(var(--dy) - 50%)) scale(1.15) rotate(var(--rot));opacity:0}}
+
+/* collection */
+.coll{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:16px 0}
+@media (max-width:560px){.coll{grid-template-columns:repeat(2,1fr)}}
+.item{text-align:center;padding:12px 6px;border-radius:var(--radius);background:var(--soft);border:2px dashed var(--line);opacity:.6}
+.item.got{opacity:1;border:2px solid var(--accent);background:var(--reward-bg)}
+.iicon{font-size:40px}
+.iname{font-size:14px;font-weight:700}
+.istars{color:var(--star);font-size:14px}
+.ranks{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:8px 0}
+.ranks span{padding:6px 12px;border-radius:99px;background:var(--soft);color:var(--muted);font-size:14px;display:flex;flex-direction:column;align-items:center}
+.ranks span.on{background:var(--accent);color:var(--on-accent)}
+.ranks small{font-size:11px;opacity:.8}
+
+/* éclair */
+.eclair{max-width:420px;margin:0 auto}
+.ectop{display:flex;justify-content:space-between;font-size:20px}
+.ectime{height:10px;border-radius:99px;background:var(--track);overflow:hidden;margin:8px 0 14px}
+.ectime div{height:100%;width:100%;background:var(--accent);transition:width 1s linear}
+.ecq{font-size:44px;font-weight:700;font-variant-numeric:tabular-nums}
+.ecin{font-size:40px;min-height:60px;margin:6px auto 12px;padding:4px;border-bottom:3px solid var(--accent);width:160px;font-variant-numeric:tabular-nums}
+.ecin.good{color:var(--good);border-color:var(--good)}
+.ecin.bad{color:var(--bad);border-color:var(--bad)}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.keypad button{font-size:26px;padding:14px 0;background:var(--choice);border:1px solid var(--choice-border)}
+.keypad button.primary{background:var(--accent)}
+
+/* chrono des tables, pavé numérique, lien vers l'autre jeu */
+.qtimer{position:relative;height:30px;border-radius:99px;background:var(--track);overflow:hidden;margin-bottom:14px}
+.qtbar{position:absolute;inset:0 auto 0 0;width:100%;background:var(--accent);transition:width .1s linear}
+.qtimer.low .qtbar{background:var(--bad)}
+.qtimer span{position:relative;display:block;text-align:center;line-height:30px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+.qtimer.low span{animation:pop .4s ease infinite alternate}
+.padin{font-size:40px;min-height:60px;margin:0 auto 12px;padding:4px;border-bottom:3px solid var(--accent);width:160px;text-align:center;font-variant-numeric:tabular-nums}
+.padin.good{color:var(--good);border-color:var(--good)}
+.padin.bad{color:var(--bad);border-color:var(--bad)}
+.padin.reveal{color:var(--good);border-color:var(--good);background:var(--good-bg)}
+.qpad{max-width:360px;margin:0 auto}
+.timerinfo{text-align:center;font-size:16px;padding:8px 12px;border-radius:var(--radius);background:var(--soft)}
+a.sibling{display:flex;align-items:center;gap:12px;margin:0 0 10px;padding:12px 16px;border-radius:var(--radius);background:var(--card);border:var(--card-border);box-shadow:var(--shadow);color:var(--ink);text-decoration:none}
+a.sibling b{display:block;font-family:var(--font-head)}
+a.sibling small{color:var(--muted);font-size:13px}
+a.sibling .sicon{font-size:30px}
+a.sibling .sgo{margin-left:auto;font-size:22px;color:var(--accent)}
+/* grands-parents */
+.parents p{font-size:16px}
+.tip{padding:10px 14px;border-radius:var(--radius);background:var(--soft)}
+.tblwrap{overflow-x:auto}
+table.res{width:100%;border-collapse:collapse;font-size:15px}
+table.res th,table.res td{padding:7px 6px;border-bottom:1px solid var(--line);text-align:center;vertical-align:top}
+table.res td:nth-child(2){text-align:left}
+table.res tr.off td{color:var(--muted)}
+table.res .stars{color:var(--star);white-space:nowrap}
+.aggs{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.aggs span{padding:6px 12px;border-radius:99px;background:var(--soft);font-size:15px}
+.misslist,.planlist{padding-left:18px;font-size:15px}
+.misslist li,.planlist li{margin:6px 0}
+.tagd{display:inline-block;font-size:12px;padding:1px 8px;border-radius:99px;background:var(--chip);color:var(--chip-ink);font-weight:700}
+.danger{margin-top:18px;font-size:15px}
+.danger summary{cursor:pointer;color:var(--muted)}
+.danger button{background:var(--bad);color:#fff;border-color:transparent}
+:root{
+--bg-solid:#101512;
+--bg:repeating-linear-gradient(100deg,rgba(255,255,255,.018) 0 3px,transparent 3px 26px),radial-gradient(ellipse at 50% -10%,#24302a 0%,#121814 55%,#0c100d 100%);
+--ink:#e4e9e1;--title:#eef2ea;--muted:#9eab9f;
+--card:#19211c;--card-border:1px solid #34423a;--radius:8px;--shadow:0 10px 26px rgba(0,0,0,.5);
+--accent:#5d8a5b;--on-accent:#f2f6ef;--btn:#202a24;--btn-border:1px solid #3d4c43;--btn-shadow:0 3px 0 #2f4a30;
+--chip:#25302a;--chip-ink:#d6dfd3;
+--good:#7dbb86;--good-bg:#1c3122;--bad:#d9707a;--bad-bg:#3a1f23;--zone:#d6b85a;--zone-bg:#38321f;
+--choice:#1f2823;--choice-border:#3f4e45;--input:#111612;--track:#2a352f;--trail:#4f6255;--node:#19211c;--node-stroke:#5a6e60;--node-done:#22322a;
+--star:#cfd6cc;--star-off:#36413a;--label-halo:#101512;--reward-bg:#1d2822;--soft:#212b25;--line:#303c35;--hot:#e0a040;--text-size:20px;
+--font-head:'Cinzel',Georgia,'Times New Roman',serif;--font-body:'Spectral',Georgia,'Times New Roman',serif;
+}
+body{font-size:19px}
+h1,h2,.secbanner,.brand b{letter-spacing:.06em}
+h1{text-transform:uppercase;font-size:clamp(24px,6vw,36px)}
+.hero h1::before,.hero h1::after{content:' ᚠ ';color:var(--accent);font-size:.7em;vertical-align:middle}
+.intro h2::after,.endcard h2::after{content:'🐾';display:block;font-size:16px;margin-top:4px;opacity:.8}
+.card{background-image:linear-gradient(180deg,rgba(255,255,255,.025),transparent 40%)}
+.choice{font-family:var(--font-body);font-size:20px}
+.bubble{font-style:italic}
+.bubble b{font-style:normal;font-family:var(--font-head);font-size:14px;letter-spacing:.08em}
+.node .nlabel{font-size:12px;letter-spacing:.04em}
+.hicon{filter:drop-shadow(0 0 14px rgba(160,190,150,.45))}
+.textcard{border-left:3px solid var(--accent)}
+.final{background:#0b0f0c;color:var(--star);border:1px solid var(--accent)}
+
+</style>
+</head>
+<body>
+<div id="app"></div>
+<noscript>Ce jeu a besoin de JavaScript pour fonctionner.</noscript>
+<script>
+var TAB10 = [['tabT'], ['tabT'], ['tabT'], ['tabT'], ['tabT'], ['tabT'], ['tabT'], ['tabT'], ['tabT'], ['tabT']];
+var CFG = {
+  id: 'sarah2', name: 'Sarah', level: 'CM2',
+  title: 'Le Territoire de la Meute',
+  tagline: "Au-delà des grilles du manoir commence la forêt. Une meute y garde des secrets que même Nyx ignore.",
+  homeIcon: '🌲', revIcon: '🪤', collTitle: 'La tanière aux trésors',
+  comp: { name: 'Vesper', icon: '🐺' },
+  sections: ['hist', 'geo', 'deu', 'erd', 'tab'],
+  icons: { hist: '📜', geo: '🗺️', deu: '📘', erd: '🧭', tab: '⏱️', points: '🐾' },
+  sec: { hist: 'Histoire', geo: 'Géographie', deu: 'Deutsch', erd: 'Erdkunde', tab: 'Tables chrono' },
+  showExp: ['hist', 'geo', 'deu', 'erd'],
+  timer: { start: 15, step: 1, min: 6 },
+  sibling: { href: 'sarah.html', key: 'revision-sarah-v1', icon: '🦇', label: 'Retour au Manoir des Ombres' },
+  parentsText: "Une mission par jour, 20 minutes environ : un texte d'histoire avec ses questions (Moyen Âge puis Première Guerre mondiale), de la géographie de la France, un texte en allemand avec un petit exercice d'écriture (niveau Klasse 3, soit deux classes en dessous de son niveau français), de la géographie de l'Allemagne en allemand, puis 10 multiplications chronométrées. Le chrono commence à 15 secondes par calcul le jour 1 et perd une seconde chaque jour, jusqu'à 6 secondes le jour 10. Ce jeu est indépendant du Manoir des Ombres : sa progression est enregistrée à part.",
+  ranks: [{ min: 0, name: 'Louveteau' }, { min: 3, name: 'Éclaireuse de la meute' }, { min: 6, name: 'Gardienne du territoire' }, { min: 10, name: 'Cheffe de meute' }],
+  mapX: [130, 270, 200, 115, 250, 285, 160, 115, 245, 200],
+  deco: [[340, 1100, '🌲', 30], [45, 1010, '🍄', 22], [355, 930, '🌲', 26], [40, 850, '🐾', 20], [350, 760, '🌫️', 30], [50, 680, '🌲', 32], [360, 590, '🦉', 22], [40, 510, '🌿', 24], [355, 420, '🌲', 28], [45, 330, '🪨', 22], [350, 230, '🌲', 24], [60, 150, '🦇', 18], [330, 60, '🌕', 34], [90, 50, '🌲', 26]],
+  particles: ['🐾', '🍃', '🌲', '✦', '🌙'],
+  sounds: { type: 'triangle', ok: [392, 494, 587], ok2: [349, 440], wrong: [175, 165], win: [196, 247, 294, 392, 494] },
+  lines: {
+    hello: ["Tu es revenue. La meute l'avait senti avant moi.", "Le médaillon brille ce soir. Suis-moi, sans faire craquer les branches.", "Nyx m'a dit que tu étais fiable. Pour une chauve-souris, c'est un compliment énorme."],
+    idle: ['Un loup ne se presse jamais. Il observe.', 'Prends ton temps. La forêt est patiente.', 'Renifle bien la question.', 'Je ne dirai rien. Les loups savent se taire.', 'Écoute le vent : il connaît peut-être la réponse.'],
+    sec: { geo: 'Les loups connaissent chaque sentier. Toi, tu vas apprendre ceux de la France.', deu: 'Jetzt auf Deutsch. Meine Cousine wohnt in der Lausitz, sie spricht nur Deutsch.', erd: 'Erdkunde! Welche Wege kennen die deutschen Wölfe?', tab: 'Les tables, maintenant. Le chrono tourne : pense vite, comme un loup qui chasse.' },
+    ok: ['Exact.', 'La meute approuve.', 'Juste. Vesper hoche la tête.', 'Parfait. Même le vieux loup gris est impressionné.', 'Bonne réponse. Un hurlement discret pour toi.', 'Impeccable.'],
+    ok2: ['Retrouvé la piste. Ça compte.', 'Deuxième essai, mais la bonne trace.', 'Voilà. Tu as flairé l\'erreur.'],
+    wrong1: ['Fausse piste. Regarde la zone indiquée.', 'Pas tout à fait. Renifle la partie marquée.', 'Presque. La bonne trace est tout près.'],
+    wrong2: ['Voici la réponse. Garde-la dans ta mémoire de louve.', 'Pas grave. Même les loups se trompent de piste.', 'Celle-ci rejoint les pièges à revanches.'],
+    combo: ['Série de 5. La meute hurle pour toi.', 'Tu chasses en série. Impressionnant.', 'Implacable, comme une louve en hiver.'],
+    end3: ['Trois étoiles. La meute entière s\'incline.', 'Trois étoiles. Le vieux loup gris t\'a regardée dans les yeux. C\'est un honneur.'],
+    end2: ['Deux étoiles. Une belle chasse.', 'Deux étoiles. La meute te fait confiance.'],
+    end1: ['Mission accomplie. Demain, on chasse mieux.', 'Terminé. Les pièges à revanches t\'attendent.'],
+    final: '🐺 La meute t\'entoure et hurle à la lune. Sarah devient Cheffe de meute du Territoire. Le médaillon des Ombres et le Collier de la Meute brillent ensemble.',
+    allDone: '🐺 Les dix lieux du Territoire sont explorés. Rejoue pour les trois étoiles partout, ou prends tes revanches.',
+    revIntro: 'Les questions ratées sont prises dans les pièges. Réussis-les du premier coup pour les libérer.',
+    revEmpty: 'Les pièges sont vides. La forêt est calme.',
+    record: '🏆 Nouveau record. Plus rapide qu\'un loup lancé.'
+  }
+};
+
+var DATA = { days: [
+/* ---------------- JOUR 1 ---------------- */
+{
+  place: 'La Lisière', icon: '🌲', reward: { icon: '🐾', name: "L'Empreinte de Vesper" },
+  focus: "Le Moyen Âge, repères · la France et ses mers · Deutsch : Wölfe · Berlin, die Bundesländer",
+  intro: "Le médaillon des Ombres s'est mis à briller. Derrière les grilles du manoir, une louve grise t'attend à la lisière de la forêt.",
+  parts: [
+    { dom: 'hist',
+      lect: { title: 'La tour du Loup',
+        s: ["Au milieu de la forêt se dressent les ruines d'une vieille tour de pierre que tout le monde appelle la tour du Loup.", "Elle a été construite vers l'an 1100, en plein Moyen Âge, par un seigneur nommé Guilhem.", "Avant elle, il y avait ici une simple tour en bois, posée sur une butte de terre.", "Le bois brûlait trop facilement : Guilhem la fit remplacer par des murs de pierre épais de deux mètres.", "Vesper raconte que ses ancêtres vivaient déjà dans cette forêt à l'époque.", "Et que la crypte du manoir est en réalité la cave de l'ancienne tour."] ,
+        qs: [
+          { q: 'Pourquoi le seigneur Guilhem a-t-il remplacé la tour en bois ?', c: ['Parce que le bois brûlait trop facilement', 'Parce qu\'elle était trop petite', 'Parce que les loups la grignotaient', 'Parce que le roi l\'avait ordonné'], a: 0, r: [3], e: "Le texte dit que le bois brûlait trop facilement. Les premiers châteaux étaient en bois, puis on les a reconstruits en pierre." },
+          { q: 'Quel lien le texte fait-il avec le manoir ?', c: ['La crypte du manoir est la cave de l\'ancienne tour', 'Le seigneur Guilhem a construit le beffroi', 'Agathe est née dans la tour', 'Le manoir a été construit avec les pierres du pont'], a: 0, r: [5], e: "La crypte aux échos, que tu as explorée dans le manoir, serait la cave de la tour du Loup." }
+        ] },
+      qs: [
+        { t: 'qcm', q: 'Le Moyen Âge commence vers 476. Quel événement marque sa <b>fin</b>, en 1492 ?', c: ['Christophe Colomb arrive en Amérique', 'La prise de la Bastille', 'Le couronnement de Charlemagne', 'La construction de la tour Eiffel'], a: 0, z: 'Un grand navigateur traverse l\'océan Atlantique.', e: "En 1492, Christophe Colomb arrive en Amérique : on considère que c'est la fin du Moyen Âge, qui a duré environ mille ans." },
+        { t: 'qcm', q: 'Dans quel ordre ces périodes se suivent-elles ?', c: ['Antiquité, Moyen Âge, Temps modernes', 'Moyen Âge, Antiquité, Temps modernes', 'Temps modernes, Antiquité, Moyen Âge', 'Antiquité, Temps modernes, Moyen Âge'], a: 0, z: 'Le Moyen Âge est « au milieu » : son nom le dit.', e: "Antiquité, puis Moyen Âge (476 à 1492), puis Temps modernes. « Moyen » veut dire « du milieu »." }
+      ] },
+    { dom: 'geo', qs: [
+      { t: 'qcm', q: 'On surnomme souvent la France métropolitaine « l\'Hexagone ». Pourquoi ?', c: ['Sa forme ressemble à une figure à six côtés', 'Elle a six régions', 'Elle a six voisins', 'Sa capitale a six arrondissements'], a: 0, z: 'Un hexagone est une figure géométrique.', e: "Un hexagone a six côtés, et la carte de la France ressemble à cette forme." },
+      { t: 'qcm', q: 'Quelle mer borde le <b>sud</b> de la France ?', c: ['La mer Méditerranée', 'La Manche', 'La mer du Nord', 'La mer Baltique'], a: 0, z: 'C\'est là que se trouvent Marseille et Nice.', e: "La Méditerranée borde le sud de la France, avec Marseille, Nice ou Montpellier." },
+      { t: 'qcm', q: 'Quelle mer sépare la France de l\'Angleterre ?', c: ['La Manche', 'La Méditerranée', 'La mer Noire', 'La mer Rouge'], a: 0, z: 'Son nom est aussi celui d\'une partie d\'un vêtement.', e: "La Manche sépare la France de la Grande-Bretagne. On peut la traverser en bateau ou par le tunnel." }
+    ] },
+    { dom: 'deu', lang: 'de',
+      lect: { title: 'Die Wölfe sind zurück',
+        s: ['Früher gab es in Deutschland viele Wölfe.', 'Dann waren sie mehr als hundert Jahre lang verschwunden.', 'Im Jahr 2000 kamen die ersten Wolfsbabys in der Lausitz zur Welt.', 'Die Lausitz liegt im Osten von Deutschland, nicht weit von Polen.', 'Heute leben wieder viele Wolfsrudel in Deutschland.', 'Ein Rudel ist eine Wolfsfamilie mit Eltern und Kindern.'],
+        qs: [
+          { q: 'Wo kamen im Jahr 2000 die ersten Wolfsbabys zur Welt?', c: ['In der Lausitz', 'In Berlin', 'Im Schwarzwald', 'An der Nordsee'], a: 0, r: [2], e: 'Der Text sagt: in der Lausitz, im Osten von Deutschland.' },
+          { q: 'Was ist ein Rudel?', c: ['Eine Wolfsfamilie', 'Ein großer Wald', 'Ein Wolfsbaby', 'Ein Jäger'], a: 0, r: [5], e: 'Ein Rudel ist eine Wolfsfamilie mit Eltern und Kindern.' }
+        ] },
+      qs: [
+        { t: 'fill', q: 'Welcher Artikel passt?', s: '___ Wolf heult in der Nacht.', c: ['Der', 'Die', 'Das'], a: 0, z: 'Ein Wolf ist ein Tier. Man sagt: ein Wolf, ... Wolf.', e: 'der Wolf, die Wölfe.' },
+        { t: 'dictee', cs: true, say: 'Der Wald ist dunkel.', a: ['Der Wald ist dunkel'], z: 'Nomen schreibt man groß: der Wald.', e: '„Wald“ ist ein Nomen, also groß. „dunkel“ ist ein Adjektiv, also klein.' }
+      ] },
+    { dom: 'erd', lang: 'de', qs: [
+      { t: 'qcm', q: 'Wie heißt die Hauptstadt von Deutschland?', c: ['Berlin', 'München', 'Hamburg', 'Köln'], a: 0, z: 'Dort steht das Brandenburger Tor.', e: 'Berlin ist die Hauptstadt und die größte Stadt Deutschlands.' },
+      { t: 'qcm', q: 'Wie viele Bundesländer hat Deutschland?', c: ['16', '13', '10', '20'], a: 0, z: 'Frankreich hat 13 Regionen, Deutschland hat etwas mehr Bundesländer.', e: 'Deutschland hat 16 Bundesländer, zum Beispiel Bayern, Sachsen oder Berlin.' }
+    ] },
+    { dom: 'tab', timed: true, gen: TAB10 }
+  ]
+},
+/* ---------------- JOUR 2 ---------------- */
+{
+  place: 'Le Vieux Chêne', icon: '🌳', reward: { icon: '🦷', name: "Le Croc d'argent" },
+  focus: "Seigneurs et paysans · les fleuves de France · Deutsch : im Herbst · Nordsee, Ostsee, Zugspitze",
+  intro: "Le plus vieux chêne de la forêt a vu passer mille ans d'histoire. Vesper dit qu'il se souvient de tout, mais qu'il parle lentement.",
+  parts: [
+    { dom: 'hist',
+      lect: { title: 'Le seigneur et ses paysans',
+        s: ["Autour de la tour du Loup vivaient une centaine de paysans.", "Le seigneur Guilhem leur promettait sa protection en cas d'attaque : ils pouvaient se réfugier derrière les murs.", "En échange, les paysans lui donnaient une partie de leurs récoltes.", "Plusieurs jours par an, ils devaient aussi travailler gratuitement sur ses terres : c'était la corvée.", "Certains paysans, les serfs, n'avaient même pas le droit de quitter le domaine.", "Le meunier, lui, faisait payer chaque sac de farine moulu au moulin du seigneur."],
+        qs: [
+          { q: 'Qu\'est-ce que la corvée ?', c: ['Un travail gratuit sur les terres du seigneur', 'Un impôt payé à l\'Église', 'Une fête au château', 'Une attaque contre le château'], a: 0, r: [3], e: "La corvée, c'était le travail gratuit que les paysans devaient au seigneur." },
+          { q: 'Que recevaient les paysans en échange de leurs récoltes ?', c: ['La protection du seigneur', 'De l\'argent', 'Une maison dans la tour', 'Des chevaux'], a: 0, r: [1, 2], e: "Le seigneur promettait de les protéger : en cas d'attaque, ils se réfugiaient derrière les murs." }
+        ] },
+      qs: [
+        { t: 'qcm', q: 'Au Moyen Âge, un <b>vassal</b> est...', c: ['un noble qui jure fidélité à un seigneur plus puissant', 'un paysan qui travaille au moulin', 'un moine qui copie des livres', 'un marchand qui voyage'], a: 0, z: 'Il reçoit une terre, le fief, en échange de sa fidélité.', e: "Le vassal jure fidélité à son seigneur (son suzerain) et reçoit en échange une terre : le fief." },
+        { t: 'qcm', q: 'Les serfs étaient des paysans...', c: ['qui ne pouvaient pas quitter le domaine du seigneur', 'qui possédaient un château', 'qui étaient chevaliers', 'qui vivaient en ville'], a: 0, z: 'Relis la fin du texte sur le seigneur et ses paysans.', e: "Les serfs étaient attachés à la terre du seigneur : ils n'avaient pas le droit de partir." }
+      ] },
+    { dom: 'geo', qs: [
+      { t: 'qcm', q: 'Quel est le plus long fleuve de France ?', c: ['La Loire', 'La Seine', 'Le Rhône', 'La Garonne'], a: 0, z: 'Il traverse Orléans, Tours et Nantes, et ses bords sont célèbres pour leurs châteaux.', e: "La Loire mesure environ 1 000 km. Elle se jette dans l'océan Atlantique près de Nantes." },
+      { t: 'qcm', q: 'Quel fleuve traverse <b>Paris</b> ?', c: ['La Seine', 'La Loire', 'Le Rhin', 'La Garonne'], a: 0, z: 'Il se jette dans la Manche au Havre.', e: "La Seine traverse Paris puis Rouen, et se jette dans la Manche au Havre." },
+      { t: 'qcm', q: 'Quel fleuve forme une partie de la frontière entre la France et l\'Allemagne ?', c: ['Le Rhin', 'Le Rhône', 'La Loire', 'La Seine'], a: 0, z: 'Il passe à Strasbourg. En allemand, on dit der Rhein.', e: "Le Rhin sépare l'Alsace de l'Allemagne, près de Strasbourg." }
+    ] },
+    { dom: 'deu', lang: 'de',
+      lect: { title: 'Im Herbst',
+        s: ['Im Herbst werden die Blätter gelb, rot und braun.', 'Der Wind bläst sie von den Bäumen.', 'Die Eichhörnchen sammeln Nüsse für den Winter.', 'Sarah geht mit ihrem Opa in den Wald.', 'Sie finden Pilze, Kastanien und eine große Feder.', 'Zu Hause trinken sie einen heißen Kakao.'],
+        qs: [
+          { q: 'Was sammeln die Eichhörnchen?', c: ['Nüsse', 'Pilze', 'Blätter', 'Federn'], a: 0, r: [2], e: 'Die Eichhörnchen sammeln Nüsse für den Winter.' },
+          { q: 'Mit wem geht Sarah in den Wald?', c: ['Mit ihrem Opa', 'Mit ihrer Mama', 'Mit einem Wolf', 'Mit ihrer Lehrerin'], a: 0, r: [3], e: 'Sarah geht mit ihrem Opa in den Wald.' }
+        ] },
+      qs: [
+        { t: 'type', cs: true, q: 'Schreib das Wort in der <b>Mehrzahl</b>.', pre: 'das Blatt → die', a: ['Blätter'], z: 'Aus a wird ä, und am Ende kommt -er.', e: 'das Blatt, die Blätter. Nomen schreibt man immer groß.' },
+        { t: 'fill', q: 'Welcher Artikel passt?', s: '___ Eichhörnchen sammelt Nüsse.', c: ['Das', 'Der', 'Die'], a: 0, z: 'Wörter mit -chen am Ende haben immer denselben Artikel.', e: 'Alle Wörter mit -chen sind sächlich: das Eichhörnchen, das Mädchen.' }
+      ] },
+    { dom: 'erd', lang: 'de', qs: [
+      { t: 'qcm', q: 'Welche zwei Meere liegen im Norden von Deutschland?', c: ['Die Nordsee und die Ostsee', 'Das Mittelmeer und die Nordsee', 'Die Ostsee und das Schwarze Meer', 'Der Atlantik und das Mittelmeer'], a: 0, z: 'Ein Meer liegt im Nordwesten, das andere im Nordosten.', e: 'Die Nordsee liegt im Nordwesten, die Ostsee im Nordosten.' },
+      { t: 'qcm', q: 'Wie heißt der höchste Berg Deutschlands?', c: ['Die Zugspitze', 'Der Mont Blanc', 'Der Brocken', 'Das Matterhorn'], a: 0, z: 'Er liegt in den Alpen, in Bayern.', e: 'Die Zugspitze ist fast 3 000 Meter hoch. Sie liegt in Bayern, an der Grenze zu Österreich.' }
+    ] },
+    { dom: 'tab', timed: true, gen: TAB10 }
+  ]
+},
+/* ---------------- JOUR 3 ---------------- */
+{
+  place: 'La Clairière de lune', icon: '🌕', reward: { icon: '🌙', name: 'La Pierre de lune' },
+  focus: "Chevaliers et châteaux forts · les montagnes de France · Deutsch : das Cello · Rhein, Alpen",
+  intro: "Les nuits de pleine lune, la meute se réunit dans la clairière. On dit qu'autrefois, les chevaliers de Guilhem y étaient adoubés.",
+  parts: [
+    { dom: 'hist',
+      lect: { title: "L'adoubement de Bertrand",
+        s: ["Bertrand était le neveu du seigneur Guilhem.", "Depuis l'âge de sept ans, il apprenait à monter à cheval, à manier l'épée et à servir son seigneur.", "D'abord page, puis écuyer, il portait les armes du chevalier qu'il servait.", "Le jour de ses dix-huit ans, une grande cérémonie eut lieu dans la clairière : l'adoubement.", "Guilhem lui remit son épée et lui donna un coup du plat de la main sur la nuque.", "Bertrand jura de protéger les faibles et d'être fidèle à son seigneur : il était devenu chevalier."],
+        qs: [
+          { q: 'Dans quel ordre Bertrand est-il devenu chevalier ?', c: ['Page, puis écuyer, puis chevalier', 'Écuyer, puis page, puis chevalier', 'Chevalier, puis écuyer, puis page', 'Page, puis chevalier, puis écuyer'], a: 0, r: [2, 5], e: "On commence page, puis écuyer, et l'adoubement fait de l'écuyer un chevalier." },
+          { q: 'Que promet Bertrand pendant l\'adoubement ?', c: ['De protéger les faibles et d\'être fidèle', 'De construire un château', 'De partir vivre en ville', 'De devenir moine'], a: 0, r: [5], e: "Il jure de protéger les faibles et d'être fidèle à son seigneur." }
+        ] },
+      qs: [
+        { t: 'qcm', q: 'Dans un château fort, comment s\'appelle la plus haute tour, le dernier refuge en cas d\'attaque ?', c: ['Le donjon', 'Le pont-levis', 'Les douves', 'Le chemin de ronde'], a: 0, z: 'C\'est aussi un mot de jeu vidéo : on y descend dans les « ... ».', e: "Le donjon est la tour la plus haute et la plus solide. Le seigneur y vivait souvent." },
+        { t: 'qcm', q: 'Les <b>douves</b> d\'un château, ce sont...', c: ['des fossés remplis d\'eau autour des murs', 'des fentes pour tirer à l\'arc', 'des créneaux en haut des murs', 'des chambres pour les invités'], a: 0, z: 'On les traverse grâce au pont-levis.', e: "Les douves sont des fossés pleins d'eau. Le pont-levis permet de les franchir." }
+      ] },
+    { dom: 'geo', qs: [
+      { t: 'qcm', q: 'Quel est le plus haut sommet de France (et des Alpes) ?', c: ['Le mont Blanc', 'Le puy de Dôme', 'Le mont Ventoux', 'Le Canigou'], a: 0, z: 'Il est couvert de neige toute l\'année, d\'où son nom.', e: "Le mont Blanc mesure plus de 4 800 mètres. Il se trouve dans les Alpes, à la frontière avec l'Italie." },
+      { t: 'qcm', q: 'Quelles montagnes séparent la France de l\'Espagne ?', c: ['Les Pyrénées', 'Les Alpes', 'Les Vosges', 'Le Jura'], a: 0, z: 'Elles sont au sud-ouest de la France.', e: "Les Pyrénées forment la frontière avec l'Espagne. Le petit pays d'Andorre s'y trouve." },
+      { t: 'qcm', q: 'Le Massif central est connu pour ses anciens...', c: ['volcans', 'glaciers', 'déserts', 'châteaux de sable'], a: 0, z: 'Le puy de Dôme en est un.', e: "Le Massif central compte de nombreux volcans éteints, comme le puy de Dôme, près de Clermont-Ferrand." }
+    ] },
+    { dom: 'deu', lang: 'de',
+      lect: { title: 'Das Cello',
+        s: ['Sarah spielt Cello.', 'Das Cello ist größer als eine Geige, deshalb sitzt man beim Spielen.', 'Es hat vier Saiten und einen langen Stachel, der auf dem Boden steht.', 'Sarah übt jeden Tag eine halbe Stunde.', 'Am liebsten spielt sie traurige und geheimnisvolle Melodien.', 'Ihre Lehrerin sagt, dass sie einen schönen, tiefen Klang hat.'],
+        qs: [
+          { q: 'Warum sitzt man beim Cellospielen?', c: ['Weil das Cello größer als eine Geige ist', 'Weil das Cello sehr leicht ist', 'Weil man sonst müde wird', 'Weil die Lehrerin das will'], a: 0, r: [1], e: 'Das Cello ist größer als eine Geige, deshalb sitzt man.' },
+          { q: 'Welche Melodien spielt Sarah am liebsten?', c: ['Traurige und geheimnisvolle', 'Lustige und schnelle', 'Laute und wilde', 'Kurze und einfache'], a: 0, r: [4], e: 'Am liebsten spielt sie traurige und geheimnisvolle Melodien.' }
+        ] },
+      qs: [
+        { t: 'type', cs: true, q: 'Setze das Verb ein (Gegenwart).', pre: 'Sarah (üben) →', post: 'jeden Tag.', a: ['übt'], z: 'Bei „sie“ oder „er“ endet das Verb auf -t.', e: 'ich übe, du übst, sie übt.' },
+        { t: 'dictee', cs: true, say: 'Das Cello hat vier Saiten.', a: ['Das Cello hat vier Saiten'], z: 'Saiten (beim Instrument) schreibt man mit ai.', e: '„Saiten“ mit ai sind die Saiten eines Instruments. „Seiten“ mit ei sind die Seiten eines Buches.' }
+      ] },
+    { dom: 'erd', lang: 'de', qs: [
+      { t: 'qcm', q: 'Welcher große Fluss fließt durch Köln?', c: ['Der Rhein', 'Die Elbe', 'Die Donau', 'Die Spree'], a: 0, z: 'Er fließt auch an Straßburg vorbei.', e: 'Der Rhein fließt durch Köln, Bonn und Düsseldorf.' },
+      { t: 'qcm', q: 'In welchem Teil von Deutschland liegen die Alpen?', c: ['Im Süden', 'Im Norden', 'Im Westen', 'Im Osten'], a: 0, z: 'Sie liegen an der Grenze zu Österreich.', e: 'Die Alpen liegen im Süden, in Bayern.' }
+    ] },
+    { dom: 'tab', timed: true, gen: TAB10 }
+  ]
+},
+/* ---------------- JOUR 4 ---------------- */
+{
+  place: 'Le Ruisseau gelé', icon: '❄️', reward: { icon: '💧', name: 'La Larme de givre' },
+  focus: "L'Église, moines et cathédrales · les régions de France · Deutsch : Schwimmen im Winter · Hamburg, München",
+  intro: "Au bord du ruisseau gelé, Vesper a trouvé un vieux livre enluminé, protégé par une boîte en plomb. Quelqu'un l'a caché là il y a très longtemps.",
+  parts: [
+    { dom: 'hist',
+      lect: { title: 'Le moine copiste',
+        s: ["Non loin de la tour du Loup se trouvait une abbaye où vivaient des moines.", "Frère Anselme y passait ses journées à recopier des livres à la main, lettre après lettre.", "Il écrivait avec une plume d'oie sur du parchemin, une peau d'animal très fine.", "Il décorait la première lettre de chaque page avec des couleurs et de l'or : c'est une enluminure.", "Copier un seul livre pouvait lui prendre plus d'une année.", "Le livre trouvé par Vesper au bord du ruisseau porte sa signature : « Anselme, moine ». "],
+        qs: [
+          { q: 'Sur quoi frère Anselme écrivait-il ?', c: ['Sur du parchemin, une peau d\'animal', 'Sur du papier d\'imprimerie', 'Sur des tablettes de cire', 'Sur des feuilles d\'arbre'], a: 0, r: [2], e: "Le parchemin est une peau d'animal très fine et préparée pour écrire." },
+          { q: 'Pourquoi les livres étaient-ils si rares au Moyen Âge ?', c: ['Ils étaient copiés à la main, très lentement', 'Personne n\'aimait lire', 'Le roi les interdisait', 'Ils étaient tous brûlés'], a: 0, r: [1, 4], e: "Chaque livre était recopié à la main : un seul pouvait prendre plus d'un an. L'imprimerie n'arrive qu'à la fin du Moyen Âge." }
+        ] },
+      qs: [
+        { t: 'qcm', q: 'Quelle célèbre cathédrale de style gothique a été commencée à Paris en 1163 ?', c: ['Notre-Dame de Paris', 'Le Sacré-Cœur', 'Le Panthéon', 'La tour Saint-Jacques'], a: 0, z: 'Elle a brûlé en 2019 puis a été restaurée.', e: "Notre-Dame de Paris a été commencée en 1163. Elle a rouvert en décembre 2024 après l'incendie de 2019." },
+        { t: 'qcm', q: 'Les cathédrales gothiques sont célèbres pour leurs grandes fenêtres en verre coloré. Comment les appelle-t-on ?', c: ['Les vitraux', 'Les créneaux', 'Les mosaïques', 'Les meurtrières'], a: 0, z: 'Le mot contient le mot « vitre ».', e: "Les vitraux racontaient des histoires de la Bible à ceux qui ne savaient pas lire." }
+      ] },
+    { dom: 'geo', qs: [
+      { t: 'qcm', q: 'Combien de régions compte la France métropolitaine (sans l\'outre-mer) ?', c: ['13', '22', '101', '5'], a: 0, z: '101, c\'est le nombre de départements.', e: "La France métropolitaine compte 13 régions depuis 2016. Avec les 5 régions d'outre-mer, cela fait 18." },
+      { t: 'qcm', q: 'Quelle est la capitale de la région Bretagne ?', c: ['Rennes', 'Brest', 'Nantes', 'Quimper'], a: 0, z: 'Nantes est la capitale d\'une région voisine.', e: "Rennes est le chef-lieu de la Bretagne. Nantes est celui des Pays de la Loire." },
+      { t: 'qcm', q: 'Strasbourg est la capitale de quelle région ?', c: ['Le Grand Est', 'Les Hauts-de-France', 'La Normandie', 'L\'Occitanie'], a: 0, z: 'Elle se trouve à l\'est, au bord du Rhin.', e: "Strasbourg est le chef-lieu du Grand Est, qui touche l'Allemagne, la Suisse, le Luxembourg et la Belgique." }
+    ] },
+    { dom: 'deu', lang: 'de',
+      lect: { title: 'Schwimmen im Winter',
+        s: ['Draußen ist es kalt, aber Sarah geht trotzdem schwimmen.', 'Das Schwimmbad ist warm und hell.', 'Zuerst schwimmt sie vier Bahnen Kraul.', 'Dann übt sie das Tauchen.', 'Sie holt einen roten Ring vom Boden des Beckens.', 'Nach dem Training sind ihre Haare nass, und sie setzt eine dicke Mütze auf.'],
+        qs: [
+          { q: 'Was holt Sarah vom Boden des Beckens?', c: ['Einen roten Ring', 'Eine Mütze', 'Einen Ball', 'Eine Brille'], a: 0, r: [4], e: 'Sie taucht und holt einen roten Ring.' },
+          { q: 'Warum setzt Sarah eine dicke Mütze auf?', c: ['Weil ihre Haare nass sind und es draußen kalt ist', 'Weil sie die Mütze schön findet', 'Weil das Schwimmbad kalt ist', 'Weil die Lehrerin es sagt'], a: 0, r: [0, 5], e: 'Draußen ist es kalt und ihre Haare sind nass.' }
+        ] },
+      qs: [
+        { t: 'fill', q: 'i, ie oder ei?', s: 'Sarah schw___mt jeden Mittwoch.', c: ['i', 'ie', 'ei'], a: 0, z: 'Hier hört man ein kurzes i.', e: 'schwimmen: kurzes i, danach zwei m.' },
+        { t: 'type', cs: true, q: 'Schreib das Wort mit großem oder kleinem Anfangsbuchstaben.', s: 'Sarah holt den roten (RING).', pre: '→', a: ['Ring'], z: 'Ist es ein Nomen? Kann man „der“ davor setzen?', e: 'der Ring ist ein Nomen: Man schreibt ihn groß.' }
+      ] },
+    { dom: 'erd', lang: 'de', qs: [
+      { t: 'qcm', q: 'An welchem Fluss liegt Hamburg?', c: ['An der Elbe', 'Am Rhein', 'An der Donau', 'Am Main'], a: 0, z: 'Er fließt auch durch Dresden.', e: 'Hamburg liegt an der Elbe und hat den größten Hafen Deutschlands.' },
+      { t: 'qcm', q: 'München ist die Hauptstadt von welchem Bundesland?', c: ['Bayern', 'Sachsen', 'Hessen', 'Niedersachsen'], a: 0, z: 'Es ist das größte Bundesland.', e: 'München ist die Hauptstadt von Bayern.' }
+    ] },
+    { dom: 'tab', timed: true, gen: TAB10 }
+  ]
+},
+/* ---------------- JOUR 5 ---------------- */
+{
+  place: 'Les Ruines du donjon', icon: '🏚️', reward: { icon: '🛡️', name: 'Le Blason du Loup' },
+  focus: "La guerre de Cent Ans, Jeanne d'Arc · les voisins de la France · Deutsch : Burg · die Nachbarländer",
+  intro: "Dans les ruines du donjon, sous la mousse, un blason gravé : une tête de loup. C'était celui de la famille de Guilhem.",
+  parts: [
+    { dom: 'hist',
+      lect: { title: "Jeanne et le siège d'Orléans",
+        s: ["Pendant la guerre de Cent Ans, les rois de France et d'Angleterre se disputent le royaume.", "En 1429, la ville d'Orléans est encerclée par les Anglais depuis des mois.", "Une jeune paysanne de Lorraine, Jeanne, affirme que des voix lui ont demandé de sauver le royaume.", "Elle convainc le futur roi Charles VII de lui confier des soldats.", "Avec eux, elle libère Orléans en mai 1429.", "Quelques semaines plus tard, Charles VII est sacré roi dans la cathédrale de Reims.", "Capturée l'année suivante, Jeanne est brûlée à Rouen en 1431."],
+        qs: [
+          { q: 'Que fait Jeanne d\'Arc en mai 1429 ?', c: ['Elle libère Orléans', 'Elle est sacrée reine', 'Elle signe la paix', 'Elle construit un château'], a: 0, r: [4], e: "En mai 1429, Jeanne libère Orléans, encerclée par les Anglais." },
+          { q: 'Où Charles VII est-il sacré roi ?', c: ['Dans la cathédrale de Reims', 'À Orléans', 'À Rouen', 'À Paris'], a: 0, r: [5], e: "Les rois de France étaient traditionnellement sacrés à Reims." }
+        ] },
+      qs: [
+        { t: 'qcm', q: 'La guerre de Cent Ans a opposé la France à...', c: ['l\'Angleterre', 'l\'Allemagne', 'l\'Espagne', 'l\'Italie'], a: 0, z: 'Relis la première phrase du texte.', e: "La guerre de Cent Ans (1337 à 1453) a opposé les rois de France et d'Angleterre." },
+        { t: 'qcm', q: 'La guerre de Cent Ans a duré de 1337 à 1453. Combien d\'années exactement ?', c: ['116 ans', '100 ans', '99 ans', '153 ans'], a: 0, z: 'Calcule 1453 − 1337.', e: "1453 − 1337 = 116. Elle a donc duré plus de cent ans, malgré son nom !" }
+      ] },
+    { dom: 'geo', qs: [
+      { t: 'qcm', q: 'Lequel de ces pays n\'est <b>pas</b> un voisin de la France métropolitaine ?', c: ['Le Portugal', 'La Belgique', 'La Suisse', 'L\'Italie'], a: 0, z: 'Un pays se trouve de l\'autre côté de l\'Espagne.', e: "Le Portugal touche l'Espagne, mais pas la France." },
+      { t: 'qcm', q: 'Quel très petit pays voisin se trouve au bord de la Méditerranée, près de Nice ?', c: ['Monaco', 'Andorre', 'Le Luxembourg', 'Le Liechtenstein'], a: 0, z: 'Il est célèbre pour son Grand Prix de voitures.', e: "Monaco est l'un des plus petits pays du monde, au bord de la Méditerranée." },
+      { t: 'qcm', q: 'Quel pays voisin se trouve au <b>nord-est</b> de la France, entre la Belgique et l\'Allemagne ?', c: ['Le Luxembourg', 'Monaco', 'L\'Espagne', 'Andorre'], a: 0, z: 'Sa capitale porte le même nom que le pays.', e: "Le Luxembourg est un petit pays dont la capitale s'appelle aussi Luxembourg." }
+    ] },
+    { dom: 'deu', lang: 'de',
+      lect: { title: 'Die alte Burg',
+        s: ['Auf einem Berg am Rhein steht eine alte Burg.', 'Früher wohnte dort ein Ritter mit seiner Familie.', 'Die Mauern waren dick, damit keine Feinde hineinkommen konnten.', 'Heute wohnt niemand mehr in der Burg.', 'Aber im Sommer kommen viele Kinder und spielen Ritter und Burgfräulein.', 'Von oben sieht man die Schiffe auf dem Fluss.'],
+        qs: [
+          { q: 'Warum waren die Mauern so dick?', c: ['Damit keine Feinde hineinkommen konnten', 'Damit es im Winter warm war', 'Damit die Kinder spielen konnten', 'Damit man die Schiffe sieht'], a: 0, r: [2], e: 'Die dicken Mauern schützten die Burg vor Feinden.' },
+          { q: 'Was sieht man von oben?', c: ['Die Schiffe auf dem Fluss', 'Das Meer', 'Die Alpen', 'Den Wald der Wölfe'], a: 0, r: [5], e: 'Von oben sieht man die Schiffe auf dem Rhein.' }
+        ] },
+      qs: [
+        { t: 'type', cs: true, q: 'Schreib das Verb in der <b>Vergangenheit</b> (Präteritum).', pre: 'Der Ritter (wohnen) →', post: 'in der Burg.', a: ['wohnte'], z: 'Bei regelmäßigen Verben hängt man -te an den Stamm: spielen → spielte.', e: 'wohnen → er wohnte. Wie spielen → er spielte.' },
+        { t: 'type', cs: true, q: 'Schreib das Wort in der <b>Mehrzahl</b>.', pre: 'die Burg → die', a: ['Burgen'], z: 'Viele Nomen mit „die“ bekommen in der Mehrzahl -en.', e: 'die Burg, die Burgen.' }
+      ] },
+    { dom: 'erd', lang: 'de', qs: [
+      { t: 'qcm', q: 'Welches Nachbarland liegt im <b>Westen</b> von Deutschland?', c: ['Frankreich', 'Polen', 'Österreich', 'Dänemark'], a: 0, z: 'Du kennst dieses Land sehr gut.', e: 'Frankreich ist ein Nachbarland im Westen. Deutschland hat insgesamt neun Nachbarländer.' },
+      { t: 'qcm', q: 'Welche Farben hat die deutsche Flagge?', c: ['Schwarz, Rot, Gold', 'Blau, Weiß, Rot', 'Rot, Weiß, Rot', 'Grün, Weiß, Rot'], a: 0, z: 'Blau, Weiß, Rot ist die französische Flagge.', e: 'Die deutsche Flagge ist schwarz, rot und gold.' }
+    ] },
+    { dom: 'tab', timed: true, gen: TAB10 }
+  ]
+},
+/* ---------------- JOUR 6 ---------------- */
+{
+  place: 'La Tranchée oubliée', icon: '🪖', reward: { icon: '📦', name: 'La Boîte en fer' },
+  focus: "1914, la guerre éclate · les grandes villes · Deutsch : ein Brief · Elbe, Donau",
+  intro: "Sous les fougères, un long fossé zigzague entre les arbres : une tranchée de 1914. Vesper gratte la terre au pied d'un chêne et découvre une boîte en fer rouillée, pleine de lettres. Elles sont adressées à Agathe, la violoncelliste du portrait.",
+  parts: [
+    { dom: 'hist',
+      lect: { title: 'Première lettre de Lucien',
+        s: ["« Ma chère Agathe, le 2 août 1914.", "Hier, les cloches de toutes les églises ont sonné : c'est la mobilisation générale.", "Tous les hommes en âge de se battre doivent rejoindre l'armée, et moi aussi.", "L'Allemagne et l'Autriche-Hongrie d'un côté, la France, le Royaume-Uni et la Russie de l'autre : toute l'Europe entre en guerre.", "Au village, tout le monde dit que nous serons rentrés pour Noël.", "Garde bien ton violoncelle, et joue-moi quelque chose à mon retour.", "Ton petit frère qui t'embrasse, Lucien. »"],
+        qs: [
+          { q: 'Qui est Lucien pour Agathe ?', c: ['Son petit frère', 'Son professeur de violoncelle', 'Son voisin', 'Son grand-père'], a: 0, r: [6], e: "Il signe « Ton petit frère qui t'embrasse »." },
+          { q: 'Que croient les gens du village en août 1914 ?', c: ['Que la guerre sera finie pour Noël', 'Que la guerre durera cent ans', 'Que la guerre n\'aura pas lieu', 'Que l\'Allemagne est leur alliée'], a: 0, r: [4], e: "Tout le monde pensait à une guerre courte. Elle a duré plus de quatre ans, jusqu'en novembre 1918." }
+        ] },
+      qs: [
+        { t: 'qcm', q: 'En quelle année commence la Première Guerre mondiale ?', c: ['1914', '1789', '1939', '1918'], a: 0, z: 'Regarde la date de la lettre de Lucien.', e: "La Première Guerre mondiale commence en 1914 et se termine en 1918." },
+        { t: 'qcm', q: 'Quel événement déclenche la guerre, en juin 1914 à Sarajevo ?', c: ['L\'assassinat de l\'héritier du trône d\'Autriche-Hongrie', 'La prise de la Bastille', 'Un tremblement de terre', 'Le naufrage du Titanic'], a: 0, z: 'Il s\'agit de l\'archiduc François-Ferdinand.', e: "Le 28 juin 1914, l'archiduc François-Ferdinand est assassiné à Sarajevo. Par le jeu des alliances, toute l'Europe entre en guerre en quelques semaines." }
+      ] },
+    { dom: 'geo', qs: [
+      { t: 'qcm', q: 'Après Paris, quelle est la ville la plus peuplée de France ?', c: ['Marseille', 'Lyon', 'Bordeaux', 'Lille'], a: 0, z: 'C\'est un grand port de la Méditerranée.', e: "Marseille est la deuxième ville de France, devant Lyon." },
+      { t: 'qcm', q: 'Lyon se trouve au confluent (là où deux cours d\'eau se rejoignent) du Rhône et de...', c: ['la Saône', 'la Seine', 'la Loire', 'la Garonne'], a: 0, z: 'Son nom ressemble à celui de la Seine, mais ce n\'est pas elle.', e: "À Lyon, la Saône se jette dans le Rhône." },
+      { t: 'qcm', q: 'Quelle grande ville du sud-ouest est traversée par la Garonne ?', c: ['Bordeaux', 'Nantes', 'Strasbourg', 'Lille'], a: 0, z: 'Elle est célèbre pour ses vins.', e: "La Garonne traverse Toulouse puis Bordeaux, avant de devenir l'estuaire de la Gironde." }
+    ] },
+    { dom: 'deu', lang: 'de',
+      lect: { title: 'Ein Brief aus der Lausitz',
+        s: ['Liebe Sarah,', 'ich bin Wolka, die Cousine von Vesper.', 'Ich wohne mit meinem Rudel in einem großen Wald in der Lausitz.', 'Gestern haben wir einen Fuchs gesehen, aber er ist schnell weggelaufen.', 'Im Winter liegt hier oft Schnee, und unsere Spuren sieht man überall.', 'Schreibst du mir zurück? Viele Grüße, deine Wolka'],
+        qs: [
+          { q: 'Wer schreibt den Brief?', c: ['Wolka, die Cousine von Vesper', 'Vesper', 'Sarahs Oma', 'Ein Fuchs'], a: 0, r: [1], e: 'Wolka ist die Cousine von Vesper.' },
+          { q: 'Was sieht man im Winter überall?', c: ['Die Spuren der Wölfe', 'Viele Füchse', 'Blumen', 'Schiffe'], a: 0, r: [4], e: 'Im Schnee sieht man die Spuren überall.' }
+        ] },
+      qs: [
+        { t: 'fill', q: 'Welches Wort passt?', s: 'Der Fuchs ist schnell ___.', c: ['weggelaufen', 'weggelauft', 'weglaufte'], a: 0, z: 'laufen ist ein unregelmäßiges Verb: ich bin gelaufen.', e: 'laufen, ich bin gelaufen, er ist weggelaufen.' },
+        { t: 'dictee', cs: true, say: 'Im Winter liegt Schnee.', a: ['Im Winter liegt Schnee'], z: 'Winter und Schnee sind Nomen.', e: '„Winter“ und „Schnee“ sind Nomen und werden großgeschrieben.' }
+      ] },
+    { dom: 'erd', lang: 'de', qs: [
+      { t: 'qcm', q: 'Welcher Fluss fließt durch Dresden?', c: ['Die Elbe', 'Der Rhein', 'Die Mosel', 'Der Main'], a: 0, z: 'Er fließt weiter bis Hamburg.', e: 'Die Elbe fließt durch Dresden und Hamburg in die Nordsee.' },
+      { t: 'qcm', q: 'Wo entspringt die Donau, also wo beginnt sie?', c: ['Im Schwarzwald', 'In den Alpen', 'An der Ostsee', 'In Berlin'], a: 0, z: 'Ein dunkler Wald im Südwesten Deutschlands.', e: 'Die Donau entspringt im Schwarzwald und fließt bis zum Schwarzen Meer.' }
+    ] },
+    { dom: 'tab', timed: true, gen: TAB10 }
+  ]
+},
+/* ---------------- JOUR 7 ---------------- */
+{
+  place: 'Le Ravin des brumes', icon: '🌫️', reward: { icon: '🏮', name: 'La Lanterne de tranchée' },
+  focus: "La vie dans les tranchées, Verdun · les transports · Deutsch : Nebel · Bodensee, Berlin",
+  intro: "Une brume épaisse remplit le ravin. Vesper avance lentement. Dans la boîte en fer, la deuxième lettre de Lucien est tachée de boue.",
+  parts: [
+    { dom: 'hist',
+      lect: { title: 'Lettre de Verdun',
+        s: ["« Ma chère Agathe, mars 1916.", "Je t'écris depuis une tranchée près de Verdun, où la bataille fait rage depuis février.", "Nous vivons dans la boue, avec les rats et le froid, sous le bruit des obus.", "On nous appelle les poilus, parce que nous n'avons plus le temps de nous raser.", "Le soir, un camarade joue de l'harmonica et je pense à ton violoncelle.", "J'ai fabriqué une petite bague avec un morceau de métal d'obus : elle est pour toi.", "Ton frère, Lucien. »"],
+        qs: [
+          { q: 'Pourquoi appelle-t-on les soldats français « les poilus » ?', c: ['Ils n\'ont plus le temps de se raser', 'Ils portent des manteaux en fourrure', 'Ils ont des chiens', 'Ils dorment sur de la paille'], a: 0, r: [3], e: "Les soldats avaient la barbe et la moustache : on les surnommait les poilus." },
+          { q: 'Que fabrique Lucien pour sa sœur ?', c: ['Une petite bague en métal d\'obus', 'Un violoncelle en bois', 'Un harmonica', 'Une lanterne'], a: 0, r: [5], e: "Les soldats fabriquaient souvent des objets avec les restes d'obus : on appelle cela l'artisanat de tranchée." }
+        ] },
+      qs: [
+        { t: 'qcm', q: 'En quelle année a eu lieu la bataille de Verdun ?', c: ['1916', '1914', '1918', '1940'], a: 0, z: 'Regarde la date de la lettre.', e: "La bataille de Verdun a duré de février à décembre 1916. C'est l'une des plus longues et terribles de la guerre." },
+        { t: 'qcm', q: 'Qu\'est-ce qu\'une tranchée ?', c: ['Un long fossé creusé pour s\'abriter des tirs', 'Un pont au-dessus d\'une rivière', 'Une forteresse en pierre', 'Un train de soldats'], a: 0, z: 'Tu en as vu une dans la forêt hier.', e: "Les tranchées étaient de longs fossés où les soldats vivaient et se protégeaient, face aux tranchées ennemies." }
+      ] },
+    { dom: 'geo', qs: [
+      { t: 'qcm', q: 'Quel tunnel relie la France à l\'Angleterre depuis 1994 ?', c: ['Le tunnel sous la Manche', 'Le tunnel du Mont-Blanc', 'Le tunnel de Fréjus', 'Le tunnel du Gothard'], a: 0, z: 'Il passe sous une mer.', e: "Le tunnel sous la Manche, ouvert en 1994, mesure environ 50 km. Les trains y passent sous la mer." },
+      { t: 'qcm', q: 'Quel train très rapide relie les grandes villes de France ?', c: ['Le TGV', 'Le métro', 'Le tramway', 'Le funiculaire'], a: 0, z: 'Ses trois lettres veulent dire « train à grande vitesse ».', e: "Le TGV (train à grande vitesse) roule à plus de 300 km/h sur certaines lignes." },
+      { t: 'qcm', q: 'Le Havre et Marseille sont deux grands...', c: ['ports', 'aéroports', 'volcans', 'lacs'], a: 0, z: 'Des bateaux énormes y arrivent du monde entier.', e: "Le Havre (sur la Manche) et Marseille (sur la Méditerranée) sont les plus grands ports de France." }
+    ] },
+    { dom: 'deu', lang: 'de',
+      lect: { title: 'Nebel im Wald',
+        s: ['Am Morgen ist der Wald voller Nebel.', 'Man sieht kaum die Bäume.', 'Vesper hebt die Nase und schnuppert.', 'Sie riecht einen Hasen, der sich unter einem Busch versteckt.', 'Langsam kommt die Sonne heraus, und der Nebel verschwindet.', 'Jetzt glitzern die Spinnennetze wie kleine Diamanten.'],
+        qs: [
+          { q: 'Was riecht Vesper?', c: ['Einen Hasen', 'Einen Fuchs', 'Einen Igel', 'Ein Reh'], a: 0, r: [3], e: 'Vesper riecht einen Hasen unter einem Busch.' },
+          { q: 'Womit vergleicht der Text die Spinnennetze?', c: ['Mit kleinen Diamanten', 'Mit Sternen', 'Mit Schnee', 'Mit Perlen'], a: 0, r: [5], e: 'Die Spinnennetze glitzern wie kleine Diamanten.' }
+        ] },
+      qs: [
+        { t: 'fill', q: 'Welcher Artikel passt?', s: 'Am Morgen ist ___ Nebel sehr dicht.', c: ['der', 'die', 'das'], a: 0, z: 'Man sagt: ein Nebel, ... Nebel.', e: 'der Nebel.' },
+        { t: 'type', cs: true, q: 'Schreib das Wort in der <b>Mehrzahl</b>.', pre: 'der Baum → die', a: ['Bäume'], z: 'Aus au wird äu, und am Ende kommt -e.', e: 'der Baum, die Bäume. Wie der Raum, die Räume.' }
+      ] },
+    { dom: 'erd', lang: 'de', qs: [
+      { t: 'qcm', q: 'Der Bodensee liegt zwischen drei Ländern. Welche?', c: ['Deutschland, Österreich, Schweiz', 'Deutschland, Frankreich, Belgien', 'Deutschland, Polen, Tschechien', 'Deutschland, Dänemark, Niederlande'], a: 0, z: 'Es ist ein großer See im Süden, nahe den Alpen.', e: 'Der Bodensee liegt zwischen Deutschland, Österreich und der Schweiz.' },
+      { t: 'qcm', q: 'In welcher Stadt steht das Brandenburger Tor?', c: ['In Berlin', 'In München', 'In Brandenburg', 'In Hamburg'], a: 0, z: 'Achtung, Falle: nicht in der Stadt mit dem gleichen Namen!', e: 'Das Brandenburger Tor steht in Berlin. Es ist ein Symbol für die deutsche Einheit.' }
+    ] },
+    { dom: 'tab', timed: true, gen: TAB10 }
+  ]
+},
+/* ---------------- JOUR 8 ---------------- */
+{
+  place: 'Le Rocher aux corbeaux', icon: '🪨', reward: { icon: '✉️', name: "La Lettre d'Agathe" },
+  focus: "L'arrière : les femmes et les enfants pendant la guerre · l'outre-mer · Deutsch : Nyx · Wien, Bern",
+  intro: "Sur le rocher, un corbeau garde quelque chose dans son bec. Nyx, venue du manoir, le convainc de le lâcher : c'est une lettre d'Agathe, la réponse à son frère.",
+  parts: [
+    { dom: 'hist',
+      lect: { title: 'La réponse d\'Agathe',
+        s: ["« Mon cher Lucien, juin 1917.", "Ta bague ne quitte plus mon doigt.", "Depuis que les hommes sont partis, les femmes font tourner le pays : elles labourent les champs, conduisent les tramways et fabriquent des obus dans les usines.", "Moi, je suis infirmière à l'hôpital de la ville.", "Le soir, je joue du violoncelle pour les blessés : certains pleurent, d'autres s'endorment enfin.", "Les enfants de l'école tricotent des chaussettes pour les soldats.", "Reviens-nous vite. Agathe. »"],
+        qs: [
+          { q: 'Quel métier Agathe fait-elle pendant la guerre ?', c: ['Infirmière', 'Conductrice de tramway', 'Soldate', 'Institutrice'], a: 0, r: [3], e: "Agathe est infirmière à l'hôpital, et elle joue du violoncelle pour les blessés." },
+          { q: 'Que nous apprend la lettre sur les femmes pendant la guerre ?', c: ['Elles remplacent les hommes dans de nombreux métiers', 'Elles partent toutes au front', 'Elles ne travaillent plus du tout', 'Elles quittent la France'], a: 0, r: [2], e: "Les femmes ont travaillé dans les champs, les usines et les transports pour remplacer les hommes partis au front." }
+        ] },
+      qs: [
+        { t: 'qcm', q: 'Comment appelait-on les femmes qui fabriquaient des obus dans les usines ?', c: ['Les munitionnettes', 'Les poilues', 'Les chevalières', 'Les marraines'], a: 0, z: 'Le mot vient de « munitions ».', e: "On les appelait les munitionnettes. Elles étaient des centaines de milliers." },
+        { t: 'qcm', q: 'Quel grand pays entre en guerre aux côtés de la France en 1917 ?', c: ['Les États-Unis', 'Le Japon', 'Le Brésil', 'La Chine'], a: 0, z: 'Ses soldats traversent l\'océan Atlantique.', e: "En avril 1917, les États-Unis entrent en guerre aux côtés de la France et du Royaume-Uni." }
+      ] },
+    { dom: 'geo', qs: [
+      { t: 'qcm', q: 'Laquelle de ces îles est un territoire français dans la mer des Caraïbes ?', c: ['La Martinique', 'La Corse', 'La Sicile', 'Madagascar'], a: 0, z: 'Elle fait partie des Antilles, avec la Guadeloupe.', e: "La Martinique et la Guadeloupe sont des îles françaises des Antilles, dans la mer des Caraïbes." },
+      { t: 'qcm', q: 'La Guyane française se trouve...', c: ['en Amérique du Sud', 'en Afrique', 'en Asie', 'en Océanie'], a: 0, z: 'Elle touche le Brésil.', e: "La Guyane est en Amérique du Sud, couverte de forêt amazonienne. Les fusées Ariane y décollent, à Kourou." },
+      { t: 'qcm', q: 'Dans quel océan se trouve l\'île de La Réunion ?', c: ['L\'océan Indien', 'L\'océan Atlantique', 'L\'océan Pacifique', 'L\'océan Arctique'], a: 0, z: 'Elle est près de Madagascar.', e: "La Réunion et Mayotte sont des territoires français de l'océan Indien." }
+    ] },
+    { dom: 'deu', lang: 'de',
+      lect: { title: 'Nyx und der Rabe',
+        s: ['Nyx ist eine kleine Fledermaus.', 'Am Tag schläft sie kopfüber im Glockenturm.', 'In der Nacht fliegt sie über den Wald und frisst Mücken.', 'Heute Nacht hilft sie Sarah.', 'Sie spricht mit einem alten Raben, der einen Brief im Schnabel hat.', 'Der Rabe ist zuerst böse, aber dann lässt er den Brief fallen.'],
+        qs: [
+          { q: 'Wie schläft Nyx am Tag?', c: ['Kopfüber im Glockenturm', 'In einem Nest', 'In Sarahs Bett', 'Unter einem Stein'], a: 0, r: [1], e: 'Fledermäuse schlafen kopfüber. Nyx schläft im Glockenturm.' },
+          { q: 'Was frisst Nyx in der Nacht?', c: ['Mücken', 'Nüsse', 'Fische', 'Briefe'], a: 0, r: [2], e: 'Viele Fledermäuse fressen Mücken und andere Insekten.' }
+        ] },
+      qs: [
+        { t: 'type', cs: true, q: 'Setze das Verb ein (Gegenwart).', pre: 'Die Fledermaus (fliegen) →', post: 'über den Wald.', a: ['fliegt'], z: 'Bei „sie“ endet das Verb auf -t.', e: 'ich fliege, du fliegst, sie fliegt.' },
+        { t: 'dictee', cs: true, say: 'Die Fledermaus schläft am Tag.', a: ['Die Fledermaus schläft am Tag'], z: 'Fledermaus und Tag sind Nomen. schläft schreibt man mit ä.', e: '„schläft“ kommt von „schlafen“, deshalb ä.' }
+      ] },
+    { dom: 'erd', lang: 'de', qs: [
+      { t: 'qcm', q: 'Wie heißt die Hauptstadt von Österreich?', c: ['Wien', 'Salzburg', 'Zürich', 'Innsbruck'], a: 0, z: 'Auf Französisch sagt man Vienne.', e: 'Wien ist die Hauptstadt von Österreich. Die Donau fließt durch Wien.' },
+      { t: 'qcm', q: 'In der Schweiz spricht man mehrere Sprachen. Welche gehört <b>nicht</b> dazu?', c: ['Spanisch', 'Deutsch', 'Französisch', 'Italienisch'], a: 0, z: 'Die Schweiz hat Nachbarn mit diesen Sprachen.', e: 'In der Schweiz spricht man Deutsch, Französisch, Italienisch und Rätoromanisch.' }
+    ] },
+    { dom: 'tab', timed: true, gen: TAB10 }
+  ]
+},
+/* ---------------- JOUR 9 ---------------- */
+{
+  place: 'La Colline du silence', icon: '⛰️', reward: { icon: '🕊️', name: 'La Colombe de pierre' },
+  focus: "Le 11 novembre 1918, les monuments aux morts · l'Union européenne · Deutsch : Frieden · Hamburg, Bremen, Rügen",
+  intro: "Au sommet de la colline, la forêt devient silencieuse. Dans la boîte, il reste une dernière lettre de Lucien. Elle date de novembre 1918.",
+  parts: [
+    { dom: 'hist',
+      lect: { title: 'Le 11 novembre 1918',
+        s: ["« Ma chère Agathe, le 11 novembre 1918.", "Ce matin, à 11 heures, les canons se sont tus d'un seul coup.", "L'armistice a été signé à l'aube, dans un wagon de train, en forêt de Compiègne.", "Les cloches sonnent partout, des soldats français et allemands se regardent sans tirer.", "Beaucoup de mes camarades ne rentreront jamais.", "Moi, je rentre à la maison. Prépare ton violoncelle : tu m'as promis un concert.", "Lucien. »"],
+        qs: [
+          { q: 'À quelle heure les combats s\'arrêtent-ils le 11 novembre 1918 ?', c: ['À 11 heures', 'À minuit', 'À 18 heures', 'À l\'aube'], a: 0, r: [1], e: "L'armistice a été signé à l'aube et les combats ont cessé à 11 heures." },
+          { q: 'Où l\'armistice a-t-il été signé ?', c: ['Dans un wagon de train, en forêt de Compiègne', 'À Verdun', 'Dans la tour du Loup', 'À Berlin'], a: 0, r: [2], e: "Il a été signé à Rethondes, dans un wagon, en forêt de Compiègne." }
+        ] },
+      qs: [
+        { t: 'qcm', q: 'Après la guerre, presque chaque commune de France a construit un monument pour...', c: ['honorer les soldats morts à la guerre', 'fêter la fin de l\'école', 'remercier le roi', 'décorer la place du marché'], a: 0, z: 'On y lit une longue liste de noms.', e: "Les monuments aux morts portent les noms des habitants morts à la guerre. On y fait une cérémonie chaque 11 novembre." },
+        { t: 'qcm', q: 'Environ combien de soldats français sont morts pendant la Première Guerre mondiale ?', c: ['Environ 1,4 million', 'Environ 1 400', 'Environ 14 000', 'Environ 14 millions'], a: 0, z: 'C\'est plus d\'un million.', e: "Environ 1,4 million de soldats français sont morts. Partout en Europe, des millions de familles ont été touchées." }
+      ] },
+    { dom: 'geo', qs: [
+      { t: 'qcm', q: 'Combien de pays font partie de l\'Union européenne ?', c: ['27', '12', '50', '100'], a: 0, z: 'Depuis le départ du Royaume-Uni en 2020.', e: "L'Union européenne compte 27 pays, dont la France et l'Allemagne." },
+      { t: 'qcm', q: 'Dans quelle ville française siège le Parlement européen ?', c: ['Strasbourg', 'Paris', 'Lyon', 'Marseille'], a: 0, z: 'Cette ville se trouve au bord du Rhin.', e: "Le Parlement européen siège à Strasbourg, une ville symbole de l'amitié entre la France et l'Allemagne." },
+      { t: 'qcm', q: 'Quelle monnaie utilise-t-on en France et en Allemagne ?', c: ['L\'euro', 'Le franc', 'Le mark', 'La livre'], a: 0, z: 'Le franc et le mark ont disparu en 2002.', e: "Depuis 2002, l'euro a remplacé le franc français et le mark allemand." }
+    ] },
+    { dom: 'deu', lang: 'de',
+      lect: { title: 'Ein Konzert für den Frieden',
+        s: ['Nach dem Krieg kam Lucien nach Hause.', 'Agathe spielte für ihn auf ihrem Cello.', 'Alle Nachbarn kamen, um zuzuhören.', 'Zuerst spielte sie ein trauriges Lied für die Soldaten, die nicht zurückgekommen waren.', 'Dann spielte sie ein fröhliches Lied, und die Kinder tanzten.', 'Lucien sagte: „Das ist das schönste Konzert meines Lebens.“'],
+        qs: [
+          { q: 'Für wen spielte Agathe zuerst ein trauriges Lied?', c: ['Für die Soldaten, die nicht zurückgekommen waren', 'Für die Kinder', 'Für die Nachbarn', 'Für ihren Lehrer'], a: 0, r: [3], e: 'Das traurige Lied war für die Soldaten, die nicht zurückgekommen waren.' },
+          { q: 'Was machten die Kinder beim fröhlichen Lied?', c: ['Sie tanzten', 'Sie weinten', 'Sie schliefen', 'Sie sangen'], a: 0, r: [4], e: 'Beim fröhlichen Lied tanzten die Kinder.' }
+        ] },
+      qs: [
+        { t: 'type', cs: true, q: 'Schreib das Verb in der <b>Vergangenheit</b> (Präteritum).', pre: 'Agathe (spielen) →', post: 'Cello.', a: ['spielte'], z: 'Regelmäßiges Verb: Stamm + -te.', e: 'spielen → sie spielte.' },
+        { t: 'fill', q: 'Welches Wort ist richtig geschrieben?', s: 'Die Kinder ___ fröhlich.', c: ['tanzten', 'tantzten', 'tanzden'], a: 0, z: 'Nach n schreibt man z, nicht tz.', e: 'Nach l, n, r steht nie tz: tanzen, Herz, Holz.' }
+      ] },
+    { dom: 'erd', lang: 'de', qs: [
+      { t: 'qcm', q: 'Drei Bundesländer sind nur eine Stadt. Welches gehört <b>nicht</b> dazu?', c: ['München', 'Berlin', 'Hamburg', 'Bremen'], a: 0, z: 'Diese Stadt ist die Hauptstadt eines großen Bundeslandes.', e: 'Berlin, Hamburg und Bremen sind Stadtstaaten. München ist die Hauptstadt von Bayern.' },
+      { t: 'qcm', q: 'Die größte deutsche Insel, Rügen, liegt in...', c: ['der Ostsee', 'der Nordsee', 'dem Bodensee', 'dem Mittelmeer'], a: 0, z: 'Das Meer im Nordosten.', e: 'Rügen liegt in der Ostsee und ist bekannt für ihre weißen Kreidefelsen.' }
+    ] },
+    { dom: 'tab', timed: true, gen: TAB10 }
+  ]
+},
+/* ---------------- JOUR 10 ---------------- */
+{
+  place: 'Le Cercle de la Meute', icon: '🐺', reward: { icon: '📿', name: 'Le Collier de la Meute' },
+  focus: "Grand défi : mémoire et amitié franco-allemande · révision de tout le Territoire",
+  intro: "Toute la meute s'est réunie en cercle. Vesper pose devant toi la boîte en fer, le livre du moine et le blason du Loup. Il reste une dernière épreuve pour devenir Cheffe de meute.",
+  parts: [
+    { dom: 'hist',
+      lect: { title: 'La main tendue',
+        s: ["Après deux guerres mondiales terribles, la France et l'Allemagne ont décidé de devenir amies.", "En 1963, le général de Gaulle et le chancelier Adenauer signent un traité d'amitié.", "La même année est créé l'Office franco-allemand pour la jeunesse, qui permet aux jeunes des deux pays de se rencontrer.", "En 1984, à Verdun, le président français François Mitterrand et le chancelier allemand Helmut Kohl se tiennent la main devant les tombes des soldats.", "Aujourd'hui, beaucoup d'enfants parlent les deux langues, comme toi.", "Vesper dit que Lucien et Agathe auraient aimé voir ça."],
+        qs: [
+          { q: 'Que font Mitterrand et Kohl à Verdun en 1984 ?', c: ['Ils se tiennent la main devant les tombes', 'Ils signent l\'armistice', 'Ils construisent un monument', 'Ils jouent du violoncelle'], a: 0, r: [3], e: "Ce geste, main dans la main à Verdun, est devenu un symbole de la réconciliation franco-allemande." },
+          { q: 'À quoi sert l\'Office franco-allemand pour la jeunesse ?', c: ['À faire se rencontrer les jeunes des deux pays', 'À construire des tranchées', 'À fabriquer des obus', 'À choisir le roi'], a: 0, r: [2], e: "Depuis 1963, il organise des échanges, des voyages et des rencontres entre jeunes Français et Allemands." }
+        ] },
+      qs: [
+        { t: 'qcm', q: 'Range ces événements du plus ancien au plus récent :', c: ['Jeanne d\'Arc libère Orléans, la bataille de Verdun, la main tendue de 1984', 'La bataille de Verdun, Jeanne d\'Arc libère Orléans, la main tendue de 1984', 'La main tendue de 1984, la bataille de Verdun, Jeanne d\'Arc libère Orléans', 'Jeanne d\'Arc libère Orléans, la main tendue de 1984, la bataille de Verdun'], a: 0, z: '1429, 1916, 1984.', e: "1429 (Orléans), 1916 (Verdun), 1984 (Mitterrand et Kohl)." },
+        { t: 'qcm', q: 'Quel jour férié rappelle chaque année la fin de la Première Guerre mondiale ?', c: ['Le 11 novembre', 'Le 14 juillet', 'Le 1er mai', 'Le 25 décembre'], a: 0, z: 'C\'est la date de la dernière lettre de Lucien.', e: "Le 11 novembre est un jour férié. On se réunit devant les monuments aux morts." }
+      ] },
+    { dom: 'geo', qs: [
+      { t: 'qcm', q: 'Révision : quel fleuve traverse Lyon et se jette dans la Méditerranée ?', c: ['Le Rhône', 'La Loire', 'La Seine', 'Le Rhin'], a: 0, z: 'Il prend sa source en Suisse.', e: "Le Rhône naît dans un glacier suisse, traverse Lyon et se jette dans la Méditerranée." },
+      { t: 'qcm', q: 'Révision : Toulouse est la capitale de quelle région ?', c: ['L\'Occitanie', 'La Nouvelle-Aquitaine', 'La Bretagne', 'Le Grand Est'], a: 0, z: 'Bordeaux est la capitale de la région voisine.', e: "Toulouse est le chef-lieu de l'Occitanie. Bordeaux est celui de la Nouvelle-Aquitaine." },
+      { t: 'qcm', q: 'Révision : quelles montagnes se trouvent à l\'est de la France, près de l\'Alsace ?', c: ['Les Vosges', 'Les Pyrénées', 'Le Massif central', 'Les Alpes'], a: 0, z: 'Elles sont proches de Strasbourg et de la Forêt-Noire.', e: "Les Vosges sont à l'est, face à la Forêt-Noire, de l'autre côté du Rhin." }
+    ] },
+    { dom: 'deu', lang: 'de',
+      lect: { title: 'Das Rudel',
+        s: ['Ein Wolfsrudel lebt wie eine Familie.', 'Die Eltern führen das Rudel und zeigen den jungen Wölfen, wie man jagt.', 'Die Wölfe heulen, um miteinander zu sprechen.', 'So wissen sie auch über große Entfernungen, wo die anderen sind.', 'Heute heult das ganze Rudel für Sarah.', 'Vesper sagt: „Du gehörst jetzt zu uns.“'],
+        qs: [
+          { q: 'Warum heulen die Wölfe?', c: ['Um miteinander zu sprechen', 'Weil sie traurig sind', 'Weil sie Hunger haben', 'Weil der Mond scheint'], a: 0, r: [2, 3], e: 'Wölfe heulen, um miteinander zu sprechen, auch über große Entfernungen.' },
+          { q: 'Wer führt das Rudel?', c: ['Die Eltern', 'Die jungen Wölfe', 'Sarah', 'Der Fuchs'], a: 0, r: [1], e: 'Die Eltern führen das Rudel.' }
+        ] },
+      qs: [
+        { t: 'type', cs: true, q: 'Schreib das Wort in der <b>Mehrzahl</b>.', pre: 'der Wolf → die', a: ['Wölfe'], z: 'Aus o wird ö, und am Ende kommt -e.', e: 'der Wolf, die Wölfe.' },
+        { t: 'dictee', cs: true, say: 'Das Rudel heult in der Nacht.', a: ['Das Rudel heult in der Nacht'], z: 'heult schreibt man mit eu.', e: '„heulen“ mit eu, wie „Eule“. Rudel und Nacht sind Nomen.' }
+      ] },
+    { dom: 'erd', lang: 'de', qs: [
+      { t: 'qcm', q: 'Wiederholung: Welcher Wald liegt in Deutschland, gegenüber den Vogesen?', c: ['Der Schwarzwald', 'Der Wienerwald', 'Der Thüringer Wald', 'Der Bayerische Wald'], a: 0, z: 'Hier entspringt die Donau.', e: 'Der Schwarzwald liegt im Südwesten, auf der anderen Seite des Rheins.' },
+      { t: 'qcm', q: 'Wiederholung: Wie heißt die Hauptstadt von Deutschland?', c: ['Berlin', 'Bonn', 'Frankfurt', 'Köln'], a: 0, z: 'Bonn war früher Hauptstadt, aber heute nicht mehr.', e: 'Berlin ist seit der Wiedervereinigung 1990 die Hauptstadt. Vorher war Bonn die Hauptstadt der Bundesrepublik.' }
+    ] },
+    { dom: 'tab', timed: true, gen: TAB10 }
+  ]
+}
+]};
+
+(function () {
+'use strict';
+var app = document.getElementById('app');
+var KEY = 'revision-' + CFG.id + '-v1';
+var MEM = null;
+function fresh() { return { points: 0, days: {}, missed: [], eclairBest: 0, current: null, muted: false }; }
+function load() {
+  var s = null;
+  try { s = localStorage.getItem(KEY); } catch (e) {}
+  if (!s) s = MEM;
+  if (!s) return null;
+  try { var o = JSON.parse(s), f = fresh(); for (var k in f) if (!(k in o)) o[k] = f[k]; return o; } catch (e) { return null; }
+}
+function save() { var s = JSON.stringify(S); MEM = s; try { localStorage.setItem(KEY, s); } catch (e) {} }
+var S = load() || fresh();
+var SECS = CFG.sections || ['ortho', 'calc', 'lect'];
+var UI = {
+  fr: { check: 'Valider', next: 'Suivant →', end: 'Terminer ✓', ph: 'ta réponse', notq: 'Pas tout à fait.', try_: 'Ton essai :', miss: 'Il manque quelque chose à l\'endroit marqué <b>▾</b>.', zone: 'L\'erreur se cache dans la partie <span class="zonetag">colorée</span>. Corrige-la !', whole: 'Tout le mot est à revoir : relis bien la consigne.', txt: 'La réponse se cache dans la partie <span class="zonetag">surlignée</span> du texte. Relis-la !', good: 'La bonne réponse est :', write: 'Il fallait écrire :', listen: '🔊 Écouter', slow: '🐢 Lentement', reveal: 'Pour un grand-parent : voir la dictée', dict: 'Dictée : écoute et écris ce que tu entends.', empty: 'Écris ta réponse dans la case.', fillq: 'Choisis le bon mot pour compléter la phrase :', case_: 'Attention aux <b>majuscules</b> : c\'est la seule erreur !' },
+  de: { check: 'Prüfen', next: 'Weiter →', end: 'Fertig ✓', ph: 'deine Antwort', notq: 'Fast!', try_: 'Dein Versuch:', miss: 'An der Stelle <b>▾</b> fehlt etwas.', zone: 'Der Fehler steckt im <span class="zonetag">farbigen</span> Teil. Verbessere ihn!', whole: 'Das ganze Wort stimmt noch nicht. Lies die Aufgabe noch einmal.', txt: 'Die Antwort steht im <span class="zonetag">markierten</span> Teil des Textes. Lies ihn noch einmal!', good: 'Die richtige Antwort ist:', write: 'Richtig geschrieben:', listen: '🔊 Anhören', slow: '🐢 Langsam', reveal: 'Für Oma oder Opa: Diktat zeigen', dict: 'Diktat: Hör gut zu und schreib, was du hörst.', empty: 'Schreib deine Antwort in das Feld.', fillq: 'Wähle das richtige Wort:', case_: 'Achte auf <b>Groß- und Kleinschreibung</b>: Das ist der einzige Fehler!' }
+};
+function tr(q) { return UI[(q && q.lang) === 'de' ? 'de' : 'fr']; }
+var QT = null;
+var RUN = null, EC = null;
+
+/* ---------- utilitaires ---------- */
+var NB = ' ';
+function R(a, b) { return a + Math.floor(Math.random() * (b - a + 1)); }
+function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+function fmt(n) { if (typeof n !== 'number') return String(n); return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, NB); }
+function strip(s) { return String(s).replace(/<br\s*\/?>/g, ' ').replace(/<sup>(\d+)<\/sup><span>\/<\/span><sub>(\d+)<\/sub>/g, '$1/$2').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim(); }
+function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+function today() { try { return new Date().toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' }); } catch (e) { return ''; } }
+function randN(d) { return R(Math.pow(10, d - 1), Math.pow(10, d) - 1); }
+function frac(n, d) { return '<span class="frac"><sup>' + n + '</sup><span>/</span><sub>' + d + '</sub></span>'; }
+function dec(h) { var i = Math.floor(h / 100), r = h % 100; if (r === 0) return String(i); var s = (r < 10 ? '0' : '') + r; if (s[1] === '0') s = s[0]; return i + ',' + s; }
+function big(s) { return '<span class="big">' + s + '</span>'; }
+
+/* ---------- nombres en lettres ---------- */
+var U = ['zéro', 'un', 'deux', 'trois', 'quatre', 'cinq', 'six', 'sept', 'huit', 'neuf', 'dix', 'onze', 'douze', 'treize', 'quatorze', 'quinze', 'seize', 'dix-sept', 'dix-huit', 'dix-neuf'];
+var T = ['', 'dix', 'vingt', 'trente', 'quarante', 'cinquante', 'soixante', 'soixante', 'quatre-vingt', 'quatre-vingt'];
+function w99(n, pl) {
+  if (n < 20) return U[n];
+  var t = Math.floor(n / 10), u = n % 10;
+  if (t === 7 || t === 9) { var r = n - (t === 7 ? 60 : 80); if (n === 71) return 'soixante et onze'; return T[t] + '-' + U[r]; }
+  if (u === 0) return t === 8 ? (pl ? 'quatre-vingts' : 'quatre-vingt') : T[t];
+  if (u === 1 && t !== 8) return T[t] + ' et un';
+  return T[t] + '-' + U[u];
+}
+function w999(n, pl) {
+  var c = Math.floor(n / 100), r = n % 100, s = '';
+  if (c > 0) { s = c === 1 ? 'cent' : U[c] + ' cent'; if (r === 0 && c > 1 && pl) s += 's'; }
+  if (r > 0) s += (s ? ' ' : '') + w99(r, pl);
+  return s;
+}
+function words(n) {
+  if (n === 0) return 'zéro';
+  var g = [Math.floor(n / 1e9) % 1000, Math.floor(n / 1e6) % 1000, Math.floor(n / 1e3) % 1000, n % 1000], s = [];
+  if (g[0]) s.push(w999(g[0], true) + ' milliard' + (g[0] > 1 ? 's' : ''));
+  if (g[1]) s.push(w999(g[1], true) + ' million' + (g[1] > 1 ? 's' : ''));
+  if (g[2]) s.push(g[2] === 1 ? 'mille' : w999(g[2], false) + ' mille');
+  if (g[3]) s.push(w999(g[3], true));
+  return s.join(' ');
+}
+var PLACES = ['unités', 'dizaines', 'centaines', 'unités de mille', 'dizaines de mille', 'centaines de mille', 'unités de millions', 'dizaines de millions', 'centaines de millions', 'unités de milliards'];
+
+/* ---------- générateurs de calcul ---------- */
+var POSE = "Pose l'opération en alignant bien les unités, et n'oublie pas les retenues.";
+var GEN = {
+  place: function (d) {
+    var n = randN(d), s = String(n), p = R(1, d - 1), dg = +s[s.length - 1 - p];
+    return { t: 'num', q: 'Dans le nombre <b>' + fmt(n) + '</b>, quel est le chiffre des <b>' + PLACES[p] + '</b> ?', a: dg, one: true,
+      z: 'Compte les rangs en partant de la droite : unités, dizaines, centaines, puis la classe des mille' + (d > 6 ? ', puis celle des millions' : '') + '.',
+      e: 'Dans ' + fmt(n) + ', le chiffre des ' + PLACES[p] + ' est ' + dg + '.' };
+  },
+  placeM: function () { return GEN.place(R(9, 10)); },
+  words: function (d, zeros) {
+    var s = String(randN(d)).split(''); zeros = zeros || (Math.random() < .6 ? 1 : 0);
+    for (var k = 0; k < zeros; k++) s[R(1, d - 1)] = '0';
+    var n = +s.join('');
+    return { t: 'num', q: 'Écris ce nombre en chiffres :<br>' + big(words(n)), a: n,
+      z: "Découpe le nombre par classes (millions, mille, puis le reste) et n'oublie pas les zéros.",
+      e: '« ' + words(n) + ' » s\'écrit ' + fmt(n) + '.' };
+  },
+  wordsM: function () { return GEN.words(R(7, 9), 2); },
+  add: function (da, db) { var a = randN(da), b = randN(db); return { t: 'num', q: 'Calcule (tu peux poser l\'opération) :<br>' + big(fmt(a) + ' + ' + fmt(b)), a: a + b, z: POSE, e: fmt(a) + ' + ' + fmt(b) + ' = ' + fmt(a + b) + '.' }; },
+  add3: function (d) { var a = randN(d), b = randN(d), c = randN(d); return { t: 'num', q: 'Calcule :<br>' + big(fmt(a) + ' + ' + fmt(b) + ' + ' + fmt(c)), a: a + b + c, z: POSE, e: fmt(a) + ' + ' + fmt(b) + ' + ' + fmt(c) + ' = ' + fmt(a + b + c) + '.' }; },
+  sub: function (da, db) { var a = randN(da), b = randN(db); if (b > a) { var t = a; a = b; b = t; } if (a === b) a += R(11, 99); return { t: 'num', q: 'Calcule (tu peux poser l\'opération) :<br>' + big(fmt(a) + ' − ' + fmt(b)), a: a - b, z: POSE, e: fmt(a) + ' − ' + fmt(b) + ' = ' + fmt(a - b) + '. Vérifie : ' + fmt(a - b) + ' + ' + fmt(b) + ' = ' + fmt(a) + '.' }; },
+  table: function (list) { var a = pick(list), b = R(2, 10); if (Math.random() < .5) { var t = a; a = b; b = t; } return { t: 'num', q: 'Table de multiplication :<br>' + big(a + ' × ' + b), a: a * b, z: 'Récite la table depuis le début si besoin.', e: a + ' × ' + b + ' = ' + a * b + '.' }; },
+  x10: function () { var n = R(2, 99) * (Math.random() < .5 ? 1 : R(2, 9)), m = pick([10, 100, 1000]); return { t: 'num', q: 'Calcul mental :<br>' + big(fmt(n) + ' × ' + fmt(m)), a: n * m, z: 'Multiplier par ' + fmt(m) + ', c\'est ajouter ' + (String(m).length - 1) + ' zéro' + (m > 10 ? 's' : '') + ' à droite.', e: fmt(n) + ' × ' + fmt(m) + ' = ' + fmt(n * m) + '.' }; },
+  double: function () { var n = R(13, 99); if (n % 10 === 0) n++; return { t: 'num', q: 'Quel est le <b>double</b> de ' + n + ' ?', a: 2 * n, z: 'Le double, c\'est ' + n + ' + ' + n + '.', e: 'Le double de ' + n + ' est ' + 2 * n + '.' }; },
+  half: function () { var n = 2 * R(12, 250); return { t: 'num', q: 'Quelle est la <b>moitié</b> de ' + fmt(n) + ' ?', a: n / 2, z: 'Coupe en deux : moitié des centaines, puis des dizaines, puis des unités.', e: 'La moitié de ' + fmt(n) + ' est ' + fmt(n / 2) + ' car ' + fmt(n / 2) + ' + ' + fmt(n / 2) + ' = ' + fmt(n) + '.' }; },
+  mul1: function (d) { var a = randN(d), b = R(3, 9); return { t: 'num', q: 'Calcule (pose l\'opération) :<br>' + big(fmt(a) + ' × ' + b), a: a * b, z: 'Multiplie chiffre par chiffre en partant des unités, sans oublier les retenues.', e: fmt(a) + ' × ' + b + ' = ' + fmt(a * b) + '.' }; },
+  mul2: function (da, db) { var a = randN(da), b = randN(db); if (b % 10 === 0) b++; return { t: 'num', q: 'Calcule (pose l\'opération) :<br>' + big(fmt(a) + ' × ' + b), a: a * b, z: 'Une ligne pour les unités, une ligne pour les dizaines (avec un zéro au bout), puis additionne.', e: fmt(a) + ' × ' + b + ' = ' + fmt(a * b) + '.' }; },
+  div1: function (qd) { var dv = R(3, 9), q = randN(qd || 2), n = q * dv; return { t: 'num', q: 'Calcule :<br>' + big(fmt(n) + ' ÷ ' + dv), a: q, z: 'Vérifie avec la table de ' + dv + ' : ton résultat × ' + dv + ' doit redonner ' + fmt(n) + '.', e: fmt(n) + ' ÷ ' + dv + ' = ' + fmt(q) + ' car ' + fmt(q) + ' × ' + dv + ' = ' + fmt(n) + '.' }; },
+  divTable: function () { var k = R(3, 9), m = R(3, 10); return { t: 'num', q: 'Combien de fois <b>' + k + '</b> dans <b>' + k * m + '</b> ?', a: m, one: true, z: 'Récite la table de ' + k + ' jusqu\'à trouver ' + k * m + '.', e: k + ' × ' + m + ' = ' + k * m + ', donc il y a ' + m + ' fois ' + k + ' dans ' + k * m + '.' }; },
+  compare: function (d) {
+    var base = randN(d), set = [base], digs = String(base).split(''), g = 0;
+    while (set.length < 4 && g++ < 300) { var s = digs.slice(), i = R(0, d - 1), j = R(0, d - 1), t = s[i]; s[i] = s[j]; s[j] = t; var v = +s.join(''); if (s[0] !== '0' && set.indexOf(v) < 0) set.push(v); }
+    while (set.length < 4) { var w = base + R(1, 999) * (R(0, 1) ? 1 : -1); if (set.indexOf(w) < 0 && String(w).length === d) set.push(w); }
+    var mx = Math.random() < .6, ans = mx ? Math.max.apply(null, set) : Math.min.apply(null, set);
+    return { t: 'qcm', q: 'Quel est le <b>plus ' + (mx ? 'grand' : 'petit') + '</b> nombre ?', c: set.map(fmt), a: fmt(ans),
+      z: 'Compare les chiffres un par un en partant de la gauche : le premier chiffre différent décide.', e: 'Le plus ' + (mx ? 'grand' : 'petit') + ' est ' + fmt(ans) + '.' };
+  },
+  compareM: function () { return GEN.compare(R(7, 9)); },
+  multiple: function () {
+    var k = R(3, 9), good = k * R(4, 12), o = [good], g = 0;
+    while (o.length < 4 && g++ < 200) { var x = R(good - 15, good + 15); if (x > 1 && x % k !== 0 && o.indexOf(x) < 0) o.push(x); }
+    return { t: 'qcm', q: 'Quel nombre est un <b>multiple de ' + k + '</b> ?', c: o.map(String), a: String(good), z: 'Récite la table de ' + k + ' : lequel de ces nombres y apparaît ?', e: good + ' = ' + k + ' × ' + good / k + ', c\'est donc un multiple de ' + k + '.' };
+  },
+  fracOf: function () { var den = pick([2, 3, 4, 5, 8, 10]), num = R(1, den - 1), whole = den * R(2, 9), part = whole / den; return { t: 'num', q: 'Combien font ' + frac(num, den) + ' de <b>' + whole + '</b> ?', a: part * num, z: 'Partage d\'abord ' + whole + ' en ' + den + ' parts égales, puis prends-en ' + num + '.', e: whole + ' ÷ ' + den + ' = ' + part + ', puis ' + part + ' × ' + num + ' = ' + part * num + '.' }; },
+  fracCompare: function () {
+    var den = pick([4, 5, 6, 8]), bigN = R(den + 1, 2 * den - 1), sm = [];
+    while (sm.length < 3) { var n = R(1, den - 1); if (sm.indexOf(n) < 0) sm.push(n); }
+    var c = [frac(bigN, den)].concat(sm.map(function (n) { return frac(n, den); }));
+    return { t: 'qcm', q: 'Quelle fraction est <b>plus grande que 1</b> ?', c: c, a: c[0], z: 'Une fraction est plus grande que 1 quand le nombre du haut (numérateur) est plus grand que celui du bas (dénominateur).', e: bigN + '/' + den + ' est plus grande que 1 car ' + bigN + ' > ' + den + '.' };
+  },
+  decCompare: function () {
+    var b = R(1, 9), x = R(2, 8), c = [b + ',' + x, b + ',' + (x - 1) + R(5, 9), b + ',' + (x - 1) + R(1, 9) + R(1, 9), b + ',0' + R(1, 9)];
+    return { t: 'qcm', q: 'Quel est le <b>plus grand</b> nombre ?', c: c, a: c[0], z: 'Compare d\'abord les dixièmes (le premier chiffre après la virgule). Un nombre plus long n\'est pas forcément plus grand !', e: c[0] + ' est le plus grand : son chiffre des dixièmes (' + x + ') est le plus grand.' };
+  },
+  decAdd: function () { var A = R(11, 89) * 10, B = R(105, 499); return { t: 'num', q: 'Calcule :<br>' + big(dec(A) + ' + ' + dec(B)), a: dec(A + B), z: 'Aligne bien les virgules : dixièmes sous les dixièmes, centièmes sous les centièmes.', e: dec(A) + ' + ' + dec(B) + ' = ' + dec(A + B) + '.' }; },
+  conv: function () {
+    var k = R(0, 3), a, b;
+    if (k === 0) { a = R(2, 9); b = R(1, 19) * 50; return { t: 'num', q: 'Convertis :<br>' + big(a + ' km ' + b + ' m = ? m'), a: a * 1000 + b, z: '1 km = 1 000 m.', e: a + ' km = ' + fmt(a * 1000) + ' m, donc ' + a + ' km ' + b + ' m = ' + fmt(a * 1000 + b) + ' m.' }; }
+    if (k === 1) { a = R(1, 5); b = R(1, 9) * 100; return { t: 'num', q: 'Convertis :<br>' + big(a + ' kg ' + b + ' g = ? g'), a: a * 1000 + b, z: '1 kg = 1 000 g.', e: a + ' kg = ' + fmt(a * 1000) + ' g, donc ' + a + ' kg ' + b + ' g = ' + fmt(a * 1000 + b) + ' g.' }; }
+    if (k === 2) { a = R(1, 4); b = R(1, 11) * 5; return { t: 'num', q: 'Convertis :<br>' + big(a + ' h ' + b + ' min = ? min'), a: a * 60 + b, z: '1 h = 60 min.', e: a + ' h = ' + a * 60 + ' min, donc ' + a + ' h ' + b + ' min = ' + (a * 60 + b) + ' min.' }; }
+    a = R(1, 9); b = R(1, 99); return { t: 'num', q: 'Convertis :<br>' + big(a + ' m ' + b + ' cm = ? cm'), a: a * 100 + b, z: '1 m = 100 cm.', e: a + ' m = ' + a * 100 + ' cm, donc ' + a + ' m ' + b + ' cm = ' + (a * 100 + b) + ' cm.' };
+  },
+  tabT: function () {
+    var a = R(1, 9), b = R(2, 9); if (Math.random() < .5) { var t = a; a = b; b = t; }
+    return { t: 'num', q: big(a + ' × ' + b + ' = ?'), a: a * b, one: a * b < 10, z: 'Pense à la table de ' + Math.max(a, b) + ' : ' + Math.max(a, b) + ', ' + 2 * Math.max(a, b) + ', ' + 3 * Math.max(a, b) + '...', e: a + ' × ' + b + ' = ' + a * b + '.' };
+  },
+  mental: function () {
+    var k = R(0, 4), n;
+    if (k === 0) { n = 4 * R(2, 25); return { t: 'num', q: 'Calcul mental :<br>' + big(n + ' × 25'), a: n * 25, z: 'Astuce : × 25, c\'est × 100 puis ÷ 4.', e: n + ' × 25 = ' + fmt(n * 25) + ' (' + n + ' × 100 = ' + fmt(n * 100) + ', puis ÷ 4).' }; }
+    if (k === 1) { n = R(12, 45); return { t: 'num', q: 'Calcul mental :<br>' + big(n + ' × 11'), a: n * 11, z: 'Astuce : × 11, c\'est × 10, puis on ajoute le nombre une fois.', e: n + ' × 11 = ' + n * 10 + ' + ' + n + ' = ' + n * 11 + '.' }; }
+    if (k === 2) { n = R(12, 99) * 10; return { t: 'num', q: 'Calcul mental :<br>' + big(fmt(n) + ' ÷ 10'), a: n / 10, z: 'Diviser par 10, c\'est enlever un zéro à droite.', e: fmt(n) + ' ÷ 10 = ' + n / 10 + '.' }; }
+    if (k === 3) { n = R(12, 99) * 100; return { t: 'num', q: 'Calcul mental :<br>' + big(fmt(n) + ' ÷ 100'), a: n / 100, z: 'Diviser par 100, c\'est enlever deux zéros à droite.', e: fmt(n) + ' ÷ 100 = ' + n / 100 + '.' }; }
+    n = R(12, 99); return { t: 'num', q: 'Calcul mental :<br>' + big(n + ' × 1' + NB + '000'), a: n * 1000, z: 'Multiplier par 1 000, c\'est ajouter trois zéros.', e: n + ' × 1 000 = ' + fmt(n * 1000) + '.' };
+  }
+};
+
+/* ---------- préparation des missions ---------- */
+function clone(o) { return JSON.parse(JSON.stringify(o)); }
+function prep(q, dom, id) {
+  q = clone(q); q.dom = dom; q.id = id; q.tries = 0; q.done = false;
+  if (q.c) { var corr = typeof q.a === 'number' ? q.c[q.a] : q.a; q.c = shuffle(q.c); q.a = corr; }
+  return q;
+}
+function timeLimit(d) { return CFG.timer ? Math.max(CFG.timer.min, CFG.timer.start - d * CFG.timer.step) : 0; }
+function genUnique(part, i, seen) {
+  var g = part.gen[i], q, k = 0;
+  do { q = GEN[g[0]].apply(null, g.slice(1)); k++; } while (seen[q.q] && k < 30);
+  seen[q.q] = 1; return q;
+}
+function buildParts(d, D) {
+  var qs = [], uid = Date.now().toString(36);
+  D.parts.forEach(function (P) {
+    var add = function (x) { if (P.lang) x.lang = P.lang; if (P.timed) { x.limit = timeLimit(d); x.pad = true; } qs.push(x); }, seen = {};
+    if (P.lect) P.lect.qs.forEach(function (q, i) { var x = prep(q, P.dom, d + '-' + P.dom + 'l' + i); x.t = 'qcm'; x.txt = { title: P.lect.title, s: P.lect.s }; add(x); });
+    (P.qs || []).forEach(function (q, i) { add(prep(q, P.dom, d + '-' + P.dom + i)); });
+    (P.gen || []).forEach(function (g, i) { add(prep(genUnique(P, i, seen), P.dom, d + '-' + P.dom + 'g' + i + '-' + uid)); });
+  });
+  return qs;
+}
+function partCount(D, dom) {
+  if (!D.parts) return dom === 'ortho' ? D.ortho.length : dom === 'calc' ? (D.calc.gen || []).length + (D.calc.probs || []).length : D.lect.qs.length;
+  var n = 0; D.parts.forEach(function (P) { if (P.dom === dom) n += (P.qs || []).length + (P.gen || []).length + (P.lect ? P.lect.qs.length : 0); }); return n;
+}
+function partTitle(D, dom) {
+  if (!D.parts) return dom === 'lect' ? D.lect.title : '';
+  var t = ''; D.parts.forEach(function (P) { if (P.dom === dom && P.lect) t = P.lect.title; }); return t;
+}
+function buildDay(d) {
+  var D = DATA.days[d], qs = [], uid = Date.now().toString(36);
+  if (D.parts) return buildParts(d, D);
+  D.ortho.forEach(function (q, i) { qs.push(prep(q, 'ortho', d + '-o' + i)); });
+  (D.calc.gen || []).forEach(function (g, i) { qs.push(prep(GEN[g[0]].apply(null, g.slice(1)), 'calc', d + '-g' + i + '-' + uid)); });
+  (D.calc.probs || []).forEach(function (q, i) { qs.push(prep(q, 'calc', d + '-p' + i)); });
+  D.lect.qs.forEach(function (q, i) { var x = prep(q, 'lect', d + '-l' + i); x.t = 'qcm'; x.txt = { title: D.lect.title, s: D.lect.s }; qs.push(x); });
+  return qs;
+}
+
+/* ---------- vérification ---------- */
+function norm(s, cs) { s = String(s); if (!cs) s = s.toLowerCase(); return s.replace(/[’`´ʼ]/g, "'").replace(/\s+/g, ' ').replace(/\s*'\s*/g, "'").replace(/[.!]+$/, '').trim(); }
+function numVal(s) { s = String(s).replace(/[\s  ]/g, '').replace(',', '.'); if (!/^-?\d+(\.\d+)?$/.test(s)) return null; return parseFloat(s); }
+function cleanTyped(q, val) {
+  var v = norm(val, q.cs);
+  if (q.pre) {
+    var tail = norm(strip(q.pre), q.cs).split(/[\s→]+/).pop();
+    if (tail) {
+      if (tail.slice(-1) === "'") { if (v.indexOf(tail) === 0) v = v.slice(tail.length); }
+      else if (v.indexOf(tail + ' ') === 0) v = v.slice(tail.length + 1);
+    }
+  }
+  return v.trim();
+}
+function isRight(q, val) {
+  if (q.t === 'qcm' || q.t === 'fill') return val === q.a;
+  if (q.t === 'num') { var a = numVal(val), b = numVal(q.a); return a !== null && Math.abs(a - b) < 1e-9; }
+  var v = cleanTyped(q, val);
+  return q.a.some(function (x) { return norm(x, q.cs) === v; });
+}
+function diffZone(inp, exp) {
+  var i = 0; while (i < inp.length && i < exp.length && inp[i] === exp[i]) i++;
+  var j = 0; while (j < inp.length - i && j < exp.length - i && inp[inp.length - 1 - j] === exp[exp.length - 1 - j]) j++;
+  return { i: i, j: j };
+}
+function bestTarget(q, v) {
+  var best = null, bs = -1;
+  q.a.forEach(function (x) { var e = norm(x, q.cs), z = diffZone(v, e); if (z.i + z.j > bs) { bs = z.i + z.j; best = e; } });
+  return best;
+}
+function groupMark(s, wrong) {
+  var out = '', n = s.length;
+  for (var k = 0; k < n; k++) { out += wrong.indexOf(k) >= 0 ? '<mark class="err">' + s[k] + '</mark>' : s[k]; var rem = n - 1 - k; if (rem > 0 && rem % 3 === 0) out += NB; }
+  return '<span class="numshow">' + out + '</span>';
+}
+function ansText(q) {
+  if (q.t === 'num') return typeof q.a === 'number' ? fmt(q.a) : q.a;
+  if (q.t === 'type' || q.t === 'dictee') return q.a[0];
+  return q.a;
+}
+function promptText(q) {
+  if (q.t === 'fill') return strip(q.s);
+  if (q.t === 'type') return strip((q.q || '') + ' ' + (q.s || '') + ' ' + (q.pre || '') + ' …');
+  if (q.t === 'dictee') return (q.lang === 'de' ? 'Diktat : « ' : 'Dictée : « ') + q.say + ' »';
+  return strip(q.q);
+}
+
+/* ---------- sons et effets ---------- */
+var AC = null;
+function tone(freqs, dur) {
+  if (S.muted || !freqs) return; dur = dur || 0.11;
+  try {
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    var t = AC.currentTime;
+    freqs.forEach(function (f, i) {
+      var o = AC.createOscillator(), g = AC.createGain();
+      o.type = CFG.sounds.type; o.frequency.value = f;
+      g.gain.setValueAtTime(0.0001, t + i * dur);
+      g.gain.exponentialRampToValueAtTime(0.12, t + i * dur + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + i * dur + dur * 2.2);
+      o.connect(g); g.connect(AC.destination); o.start(t + i * dur); o.stop(t + i * dur + dur * 2.4);
+    });
+  } catch (e) {}
+}
+function burst(n, el) {
+  var x = window.innerWidth / 2, y = window.innerHeight / 2;
+  if (el && el.getBoundingClientRect) { var r = el.getBoundingClientRect(); x = r.left + r.width / 2; y = r.top + r.height / 2; }
+  for (var i = 0; i < n; i++) {
+    var p = document.createElement('span'); p.className = 'particle'; p.textContent = pick(CFG.particles);
+    p.style.left = (x + R(-30, 30)) + 'px'; p.style.top = (y + R(-10, 10)) + 'px';
+    p.style.setProperty('--dx', R(-200, 200) + 'px'); p.style.setProperty('--dy', R(-260, -60) + 'px'); p.style.setProperty('--rot', R(-60, 60) + 'deg');
+    p.style.animationDelay = (i * 25) + 'ms';
+    document.body.appendChild(p);
+    (function (pp) { setTimeout(function () { if (pp.parentNode) pp.parentNode.removeChild(pp); }, 1800); })(p);
+  }
+}
+var canSpeak = 'speechSynthesis' in window;
+function say(text, rate, lang) {
+  try {
+    var L = lang === 'de' ? 'de' : 'fr';
+    var u = new SpeechSynthesisUtterance(text); u.lang = L === 'de' ? 'de-DE' : 'fr-FR'; u.rate = rate;
+    var v = speechSynthesis.getVoices().filter(function (v) { return new RegExp('^' + L, 'i').test(v.lang); })[0]; if (v) u.voice = v;
+    speechSynthesis.cancel(); speechSynthesis.speak(u);
+  } catch (e) {}
+}
+
+/* ---------- état global ---------- */
+function daysDone() { var n = 0; for (var i = 0; i < DATA.days.length; i++) if (S.days[i] && S.days[i].done) n++; return n; }
+function starsTotal() { var n = 0; for (var k in S.days) n += S.days[k].stars || 0; return n; }
+function unlocked(i) { return i === 0 || !!(S.days[i - 1] && S.days[i - 1].done); }
+function rank() { var n = daysDone(), cur = CFG.ranks[0]; CFG.ranks.forEach(function (r) { if (n >= r.min) cur = r; }); return cur.name; }
+function starsStr(n, max) { max = max || 3; var s = ''; for (var i = 0; i < max; i++) s += i < n ? '★' : '☆'; return s; }
+function stopEclair() { if (EC && EC.timer) clearInterval(EC.timer); EC = null; stopQT(); }
+
+function topbar() {
+  return '<div class="topbar"><button class="ghost brand" data-act="home"><span class="bicon">' + CFG.homeIcon + '</span><b>' + CFG.name + '</b><span class="lvl">' + CFG.level + '</span></button>' +
+    '<div class="stats"><span class="stat" title="Étoiles">★ ' + starsTotal() + '/30</span><span class="stat" title="Points">' + CFG.icons.points + ' ' + S.points + '</span>' +
+    '<button class="ghost icon" data-act="mute" title="Son">' + (S.muted ? '🔇' : '🔊') + '</button></div></div>';
+}
+
+/* ---------- carte ---------- */
+function pathD(p) {
+  var d = 'M' + p[0][0] + ',' + p[0][1];
+  for (var i = 0; i < p.length - 1; i++) {
+    var p0 = p[i - 1] || p[i], p1 = p[i], p2 = p[i + 1], p3 = p[i + 2] || p2;
+    var c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6], c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
+    d += ' C' + c1[0].toFixed(1) + ',' + c1[1].toFixed(1) + ' ' + c2[0].toFixed(1) + ',' + c2[1].toFixed(1) + ' ' + p2[0] + ',' + p2[1];
+  }
+  return d;
+}
+function renderMap() {
+  stopEclair(); RUN = null;
+  var n = DATA.days.length, xs = CFG.mapX, pts = [], nextI = -1;
+  for (var i = 0; i < n; i++) pts.push([xs[i], 60 + i * 112]);
+  for (i = 0; i < n; i++) if (unlocked(i) && !(S.days[i] && S.days[i].done)) { nextI = i; break; }
+  var reach = nextI < 0 ? n - 1 : nextI;
+  var svg = '<svg class="map" viewBox="0 0 400 1140" role="img" aria-label="Carte des missions">';
+  CFG.deco.forEach(function (d) { svg += '<text class="deco" x="' + d[0] + '" y="' + (1140 - d[1]) + '" font-size="' + d[3] + '" text-anchor="middle">' + d[2] + '</text>'; });
+  svg += '<path class="trail" d="' + pathD(pts) + '"/>';
+  if (reach > 0) svg += '<path class="trail done" d="' + pathD(pts.slice(0, reach + 1)) + '"/>';
+  for (i = 0; i < n; i++) {
+    var D = DATA.days[i], st = S.days[i], done = st && st.done, open = unlocked(i);
+    var cls = done ? 'done' : open ? 'open' : 'locked';
+    if (i === nextI) cls += ' next';
+    svg += '<g class="node ' + cls + '" ' + (open ? 'data-act="day" data-d="' + i + '" tabindex="0"' : '') + ' transform="translate(' + pts[i][0] + ',' + pts[i][1] + ')">' +
+      '<circle class="halo" r="40"/><circle class="disc" r="31"/>' +
+      '<text class="nicon" y="10" text-anchor="middle">' + (open ? (done ? D.reward.icon : D.icon) : '🔒') + '</text>' +
+      '<text class="nlabel" y="56" text-anchor="middle">J' + (i + 1) + ' · ' + D.place + '</text>' +
+      (done ? '<text class="nstars" y="76" text-anchor="middle">' + starsStr(st.stars) + '</text>' : '') + '</g>';
+  }
+  svg += '</svg>';
+  var miss = S.missed.length;
+  var cta = nextI >= 0 ? '<button class="primary big" data-act="day" data-d="' + nextI + '">Mission ' + (nextI + 1) + ' : ' + DATA.days[nextI].place + ' →</button>'
+    : '<div class="allDone">' + CFG.lines.allDone + '</div>';
+  if (S.current && S.current.mode === 'day') cta = '<button class="primary big" data-act="day" data-d="' + S.current.day + '">Reprendre la mission ' + (S.current.day + 1) + ' →</button>';
+  app.innerHTML = topbar() +
+    '<div class="screen"><header class="hero"><div class="hicon">' + CFG.comp.icon + '</div><h1>' + CFG.title + '</h1><p class="tag">' + CFG.tagline + '</p>' +
+    '<div class="rank">Rang : <b>' + rank() + '</b> · ' + daysDone() + '/10 missions</div>' + cta + '</header>' +
+    '<nav class="menu"><button data-act="coll">🎁 Collection<span>' + daysDone() + '/10</span></button>' +
+    '<button data-act="rev" class="' + (miss ? 'has' : '') + '">' + CFG.revIcon + ' Revanches<span>' + miss + '</span></button>' +
+    '<button data-act="eclair">⚡ Défi Éclair<span>record ' + S.eclairBest + '</span></button>' +
+    '<button data-act="parents">👵👴 Grands-parents<span>bilan</span></button></nav>' + siblingLink() +
+    '<div class="mapwrap">' + svg + '</div></div>';
+  setTimeout(function () { var el = document.querySelector('.node.next'); if (el && el.scrollIntoView && daysDone() > 2) el.scrollIntoView({ block: 'center', behavior: 'smooth' }); }, 60);
+}
+
+function siblingLink() {
+  if (!CFG.sibling) return '';
+  var b = CFG.sibling, st = null, txt = 'pas encore commencé';
+  try { st = JSON.parse(localStorage.getItem(b.key) || 'null'); } catch (e) {}
+  if (st && st.days) {
+    var n = 0, stars = 0; for (var k in st.days) { if (st.days[k].done) n++; stars += st.days[k].stars || 0; }
+    txt = n + '/10 missions · ★ ' + stars + '/30';
+  }
+  return '<a class="sibling" href="' + b.href + '"><span class="sicon">' + b.icon + '</span><span><b>' + b.label + '</b><small>' + txt + '</small></span><span class="sgo">→</span></a>';
+}
+
+/* ---------- intro de mission ---------- */
+function renderIntro(d) {
+  var D = DATA.days[d], st = S.days[d], resume = S.current && S.current.mode === 'day' && S.current.day === d;
+  app.innerHTML = topbar() + '<div class="screen"><div class="card intro">' +
+    '<div class="introicon">' + D.icon + '</div><div class="kicker">Mission ' + (d + 1) + ' sur 10</div><h2>' + D.place + '</h2>' +
+    '<p class="lead">' + D.intro + '</p>' +
+    '<ul class="plan">' + SECS.map(function (k) { var t = partTitle(D, k); return '<li><span>' + CFG.icons[k] + ' ' + CFG.sec[k] + (t ? ' : « ' + t + ' »' : '') + '</span><b>' + partCount(D, k) + ' questions</b></li>'; }).join('') + '</ul>' +
+    (CFG.timer ? '<p class="timerinfo">⏱️ Aujourd\'hui, tu as <b>' + timeLimit(d) + ' secondes</b> par calcul de tables.</p>' : '') +
+    '<div class="reward"><span class="ricon">' + D.reward.icon + '</span><div><small>À gagner</small><br><b>' + D.reward.name + '</b></div></div>' +
+    (st && st.done ? '<p class="muted center">Déjà réussie avec ' + starsStr(st.stars) + '. Rejoue pour gagner plus d\'étoiles !</p>' : '') +
+    '<div class="rules"><b>Règle du jeu :</b> si tu te trompes, ' + CFG.comp.name + ' te montre <i>où</i> est l\'erreur. Au deuxième essai raté, la réponse s\'affiche et la question part dans tes Revanches.</div>' +
+    '<div class="btns"><button class="primary big" data-act="start" data-d="' + d + '">' + (resume ? 'Reprendre' : 'Commencer') + '</button><button class="ghost" data-act="home">Retour à la carte</button></div>' +
+    '</div></div>';
+}
+function startDay(d) {
+  if (S.current && S.current.mode === 'day' && S.current.day === d) {
+    RUN = S.current;
+    while (RUN.i < RUN.qs.length && RUN.qs[RUN.i].done) RUN.i++;
+    if (RUN.i >= RUN.qs.length) return finishDay();
+  } else {
+    RUN = { mode: 'day', day: d, qs: buildDay(d), i: 0, res: [], pts: 0, combo: 0, maxCombo: 0 };
+    S.current = RUN;
+  }
+  save(); renderQ();
+}
+
+/* ---------- question ---------- */
+function cur() { return RUN.qs[RUN.i]; }
+var ACCENTS = ['é', 'è', 'ê', 'ë', 'à', 'â', 'ç', 'ù', 'û', 'î', 'ï', 'ô', 'œ', "'"];
+var UMLAUTS = ['ä', 'ö', 'ü', 'ß', 'Ä', 'Ö', 'Ü'];
+function accentBar(q) { return '<div class="accents">' + ((q && q.lang === 'de') ? UMLAUTS : ACCENTS).map(function (c) { return '<button data-act="acc" data-c="' + esc(c) + '" tabindex="-1">' + c + '</button>'; }).join('') + '</div>'; }
+function qBody(q) {
+  var h = '';
+  if (q.t === 'qcm') {
+    h += '<div class="qtext">' + q.q + '</div><div class="choices' + (q.c.length > 2 && q.c.some(function (c) { return strip(c).length > 24; }) ? ' long' : '') + '">' +
+      q.c.map(function (c, i) { return '<button class="choice" data-act="choice" data-i="' + i + '">' + c + '</button>'; }).join('') + '</div><div id="actions" class="actions"></div>';
+  } else if (q.t === 'fill') {
+    h += '<div class="qtext small">' + (q.q || tr(q).fillq) + '</div>' +
+      '<div class="sentence">' + q.s.replace('___', '<span class="blank" id="blank">?</span>') + '</div>' +
+      '<div class="choices row">' + q.c.map(function (c, i) { return '<button class="choice" data-act="choice" data-i="' + i + '">' + c + '</button>'; }).join('') + '</div><div id="actions" class="actions"></div>';
+  } else if (q.t === 'type' || q.t === 'dictee') {
+    if (q.t === 'dictee') {
+      h += '<div class="qtext">' + (q.q || tr(q).dict) + '</div><div class="sayrow">' +
+        (canSpeak ? '<button data-act="say">' + tr(q).listen + '</button><button data-act="sayslow">' + tr(q).slow + '</button>' : '') +
+        '<button class="ghost" data-act="reveal">' + tr(q).reveal + '</button><span class="secret" id="secret">« ' + q.say + ' »</span></div>';
+    } else {
+      h += '<div class="qtext">' + q.q + '</div>' + (q.s ? '<div class="sentence">' + q.s + '</div>' : '');
+    }
+    h += '<div class="typeline">' + (q.pre ? '<span class="pre">' + q.pre + '</span>' : '') +
+      '<input id="inp" class="ans" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="' + tr(q).ph + '">' +
+      (q.post ? '<span class="post">' + q.post + '</span>' : '') + '</div>' + accentBar(q) +
+      '<div id="actions" class="actions"><button class="primary big" data-act="check">' + tr(q).check + '</button></div>';
+  } else if (q.t === 'num' && q.pad) {
+    h += (q.limit ? '<div class="qtimer" id="qtimer"><div class="qtbar" id="qtbar"></div><span id="qtsec">' + q.limit + ' s</span></div>' : '') +
+      '<div class="qtext">' + q.q + '</div><div class="padin" id="padin">&nbsp;</div><div class="keypad qpad">' +
+      ['7', '8', '9', '4', '5', '6', '1', '2', '3', 'del', '0', 'ok'].map(function (k) { return '<button class="' + (k === 'ok' ? 'primary' : '') + '" data-act="qkey" data-k="' + k + '">' + (k === 'del' ? '⌫' : k === 'ok' ? 'OK' : k) + '</button>'; }).join('') +
+      '</div><div id="actions" class="actions"></div>';
+  } else if (q.t === 'num') {
+    h += '<div class="qtext">' + q.q + '</div><div class="typeline"><input id="inp" class="ans num" type="text" inputmode="decimal" autocomplete="off" placeholder="?">' +
+      (q.unit ? '<span class="post">' + q.unit + '</span>' : '') + '</div>' +
+      '<div id="actions" class="actions"><button class="primary big" data-act="check">Valider</button></div>';
+  }
+  return h;
+}
+function renderQ() {
+  var q = cur(), total = RUN.qs.length, prev = RUN.qs[RUN.i - 1], newSec = !prev || prev.dom !== q.dom;
+  var secN = SECS.indexOf(q.dom) + 1;
+  var h = '<div class="screen qscreen"><div class="qtop"><button class="ghost icon" data-act="quit" title="Quitter">✕</button>' +
+    '<div class="prog"><div class="bar" style="width:' + (RUN.i / total * 100) + '%"></div></div><div class="qcount">' + (RUN.i + 1) + '/' + total + '</div></div>' +
+    '<div class="hud"><span class="chip">' + CFG.icons[q.dom] + ' ' + CFG.sec[q.dom] + '</span><span class="combo' + (RUN.combo >= 3 ? ' hot' : '') + '" id="combo">' + (RUN.combo >= 2 ? '🔥 série ' + RUN.combo : '') + '</span>' +
+    '<span class="pts" id="pts">' + CFG.icons.points + ' ' + RUN.pts + '</span></div>';
+  if (newSec && RUN.mode === 'day') h += '<div class="secbanner">' + CFG.icons[q.dom] + ' Épreuve ' + secN + ' : ' + CFG.sec[q.dom] + '</div>';
+  if (RUN.mode === 'rev') h += '<div class="secbanner">' + CFG.revIcon + ' Revanche ' + (RUN.i + 1) + ' sur ' + total + '</div>';
+  if (q.txt) h += '<div class="card textcard" id="txt"' + (q.lang ? ' lang="' + q.lang + '"' : '') + '><div class="ttitle">' + (CFG.icons.lect || CFG.icons[q.dom]) + ' ' + q.txt.title + '</div><p>' +
+    q.txt.s.map(function (s, i) { return '<span class="sent" data-s="' + i + '">' + s + '</span>'; }).join(' ') + '</p></div>';
+  var tip = RUN.i === 0 && RUN.mode === 'day' ? pick(CFG.lines.hello) : newSec && CFG.lines.sec[q.dom] ? CFG.lines.sec[q.dom] : pick(CFG.lines.idle);
+  h += '<div class="card qcard"' + (q.lang ? ' lang="' + q.lang + '"' : '') + '>' + qBody(q) + '<div class="fb" id="fb"></div></div>' +
+    '<div class="comp"><div class="avatar">' + CFG.comp.icon + '</div><div class="bubble" id="bubble"><b>' + CFG.comp.name + ' :</b> <span id="btext">' + tip + '</span></div></div></div>';
+  app.innerHTML = h;
+  window.scrollTo(0, 0);
+  var inp = document.getElementById('inp');
+  if (inp && window.innerWidth > 700) inp.focus();
+  if (q.t === 'dictee' && canSpeak) setTimeout(function () { say(q.say, 0.85, q.lang); }, 400);
+  PADBUF = '';
+  if (q.limit && !q.done) startQT(q.limit);
+}
+/* ---------- chrono des tables ---------- */
+var PADBUF = '';
+function padDraw(cls) { var el = document.getElementById('padin'); if (el) { el.innerHTML = PADBUF || '&nbsp;'; el.className = 'padin ' + (cls || ''); } }
+function padKey(k) {
+  var q = cur(); if (!q || q.done) return;
+  if (k === 'del') PADBUF = PADBUF.slice(0, -1);
+  else if (k === 'ok') { if (PADBUF) { var v = PADBUF; submit(v, null); if (!cur().done) { PADBUF = ''; } } return; }
+  else if (PADBUF.length < 3) PADBUF += k;
+  padDraw();
+}
+function stopQT() { if (QT && QT.iv) clearInterval(QT.iv); QT = null; }
+function startQT(sec) {
+  stopQT(); QT = { left: sec * 1000, total: sec * 1000, last: Date.now(), iv: null };
+  QT.iv = setInterval(tickQT, 100); tickQT();
+}
+function tickQT() {
+  if (!QT) return;
+  var now = Date.now(); if (!document.hidden) QT.left -= now - QT.last; QT.last = now;
+  var b = document.getElementById('qtbar'), t = document.getElementById('qtsec'), box = document.getElementById('qtimer');
+  if (!b) { stopQT(); return; }
+  var f = Math.max(0, QT.left / QT.total); b.style.width = (f * 100) + '%';
+  if (t) t.textContent = Math.ceil(Math.max(0, QT.left) / 1000) + ' s';
+  if (box) box.classList.toggle('low', QT.left < 3000);
+  if (QT.left <= 0) { stopQT(); timeUp(); }
+}
+function timeUp() {
+  var q = cur(); if (!q || q.done) return;
+  q.tries++; RUN.combo = 0; hud(); tone(CFG.sounds.wrong, 0.16); shake(document.getElementById('padin'));
+  if (q.tries === 1) { bubble(pick(CFG.lines.wrong1)); fb('<b>⏱️ Temps écoulé !</b> Encore une chance : le chrono repart.' + (q.z ? '<div class="hint">' + q.z + '</div>' : ''), 'zonemsg'); PADBUF = ''; padDraw(); startQT(q.limit); }
+  else { q.done = true; RUN.res.push({ dom: q.dom, r: 0, id: q.id }); showAnswer(q, '', null); addMissed(q); }
+  if (RUN.mode === 'day') save();
+}
+function fb(html, cls) { var el = document.getElementById('fb'); if (el) el.innerHTML = '<div class="msg ' + cls + '">' + html + '</div>'; }
+function bubble(t) { var b = document.getElementById('btext'); if (b) { b.innerHTML = t; var p = b.parentNode; p.classList.remove('pop'); void p.offsetWidth; p.classList.add('pop'); } }
+function hud() {
+  var c = document.getElementById('combo'), p = document.getElementById('pts');
+  if (c) { c.textContent = RUN.combo >= 2 ? '🔥 série ' + RUN.combo : ''; c.className = 'combo' + (RUN.combo >= 3 ? ' hot' : ''); }
+  if (p) p.textContent = CFG.icons.points + ' ' + RUN.pts;
+}
+function showNext() {
+  var a = document.getElementById('actions'); if (!a) return;
+  var last = RUN.i === RUN.qs.length - 1;
+  stopQT();
+  a.innerHTML = '<button class="primary big" id="next" data-act="next">' + (last ? tr(cur()).end : tr(cur()).next) + '</button>';
+  var inp = document.getElementById('inp'); if (inp) inp.disabled = true;
+  document.querySelectorAll('.qpad button').forEach(function (b) { b.disabled = true; });
+  document.querySelectorAll('.accents button').forEach(function (b) { b.disabled = true; });
+  setTimeout(function () { var n = document.getElementById('next'); if (n) n.focus(); }, 30);
+}
+function lockChoices() { document.querySelectorAll('.choice').forEach(function (b) { b.disabled = true; }); }
+function markRefs(q, cls) {
+  if (!q.txt || !q.r) return;
+  q.r.forEach(function (i) { var s = document.querySelector('.sent[data-s="' + i + '"]'); if (s) s.classList.add(cls); });
+  var first = document.querySelector('.sent.' + cls); if (first && first.scrollIntoView) first.scrollIntoView({ block: 'center', behavior: 'smooth' });
+}
+function submit(val, btn) {
+  var q = cur(); if (q.done) return;
+  var inp = document.getElementById('inp');
+  if (q.t === 'num' && numVal(val) === null) { fb('Écris seulement un nombre' + (String(q.a).indexOf(',') >= 0 ? ' (avec une virgule si besoin)' : '') + '.', 'info'); return; }
+  if ((q.t === 'type' || q.t === 'dictee') && !norm(val)) { fb(tr(q).empty, 'info'); return; }
+  var ok = isRight(q, val);
+  if (ok) {
+    q.done = true; var first = q.tries === 0;
+    var gain = first ? 10 + (RUN.combo >= 4 ? 5 : 0) : 5;
+    RUN.pts += gain; RUN.res.push({ dom: q.dom, r: first ? 2 : 1, id: q.id });
+    if (first) { RUN.combo++; RUN.maxCombo = Math.max(RUN.maxCombo, RUN.combo); } else RUN.combo = 0;
+    if (btn) btn.classList.add('right');
+    if (q.t === 'qcm' || q.t === 'fill') lockChoices();
+    if (q.t === 'fill') { var bl = document.getElementById('blank'); if (bl) { bl.textContent = q.a; bl.className = 'blank ok'; } }
+    if (inp) inp.classList.add('ok');
+    if (q.pad) padDraw('good');
+    var extra = '';
+    if (!first && q.c && q.c.length === 2) addMissed(q);
+    if (RUN.mode === 'rev' && first) { S.missed = S.missed.filter(function (m) { return m.q.id !== q.id; }); extra = ' <b>Revanche gagnée !</b>'; }
+    fb('<b>+' + gain + '</b> ' + (first ? '' : '(2e essai) ') + extra + (q.e && !first ? '<div class="exp">' + q.e + '</div>' : q.e && (CFG.showExp || ['ortho']).indexOf(q.dom) >= 0 ? '<div class="exp">' + q.e + '</div>' : ''), 'good');
+    if (q.txt) markRefs(q, 'okref');
+    var line = first ? pick(CFG.lines.ok) : pick(CFG.lines.ok2);
+    if (first && (RUN.combo === 5 || RUN.combo === 10)) { line = pick(CFG.lines.combo); burst(14, btn || inp); tone(CFG.sounds.win, 0.08); }
+    else { burst(first ? 6 : 3, btn || inp); tone(first ? CFG.sounds.ok : CFG.sounds.ok2); }
+    bubble(line); hud(); showNext();
+  } else {
+    q.tries++; RUN.combo = 0; hud(); tone(CFG.sounds.wrong, 0.16);
+    if (q.tries === 1) { showZone(q, val, btn); if (q.limit) startQT(q.limit); }
+    else { q.done = true; RUN.res.push({ dom: q.dom, r: 0, id: q.id }); showAnswer(q, val, btn); addMissed(q); }
+  }
+  if (RUN.mode === 'day') save();
+}
+function shake(el) { if (!el) return; el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); }
+function showZone(q, val, btn) {
+  bubble(pick(CFG.lines.wrong1));
+  if (q.t === 'qcm' || q.t === 'fill') {
+    if (btn) { btn.classList.add('wrong'); btn.disabled = true; shake(btn); }
+    if (q.t === 'fill') { var bl = document.getElementById('blank'); if (bl) bl.classList.add('zone'); }
+    if (q.txt) { markRefs(q, 'zone'); fb('<b>' + tr(q).notq + '</b> ' + tr(q).txt, 'zonemsg'); }
+    else fb('<b>' + tr(q).notq + '</b> ' + (q.z || (q.lang === 'de' ? 'Lies die Frage noch einmal genau.' : 'Relis bien la question : un mot important t\'a peut-être échappé.')), 'zonemsg');
+    return;
+  }
+  var inp = document.getElementById('inp');
+  shake(inp || document.getElementById('padin'));
+  if (q.t === 'num') {
+    var exp = String(q.a).replace(',', '.'), got = String(val).replace(/[\s  ]/g, '').replace(',', '.'), isInt = function (s) { return /^\d+$/.test(s); }, msg, html = '';
+    if (isInt(exp) && isInt(got) && !q.one && exp.length > 1) {
+      if (got.length !== exp.length) {
+        html = groupMark(got, got.split('').map(function (_, k) { return k; }));
+        msg = (got.length > exp.length ? 'Ton résultat a <b>trop de chiffres</b>' : 'Ton résultat n\'a <b>pas assez de chiffres</b>') + ' : vérifie l\'ordre de grandeur.' + (q.z ? '<div class="hint">' + q.z + '</div>' : '');
+      } else {
+        var wrong = []; for (var k = 0; k < exp.length; k++) if (got[k] !== exp[k]) wrong.push(k);
+        var names = wrong.map(function (k) { return PLACES[exp.length - 1 - k]; });
+        html = groupMark(got, wrong);
+        msg = names.length === 1 ? 'L\'erreur est dans le chiffre des <b>' + names[0] + '</b>.' : 'Les erreurs sont dans les chiffres des <b>' + names.slice(0, -1).join('</b>, des <b>') + '</b> et des <b>' + names[names.length - 1] + '</b>.';
+        if (q.z && q.dom === 'calc' && q.id && q.id.indexOf('-p') > 0) msg += '<div class="hint">' + q.z + '</div>';
+      }
+    } else if (!isInt(exp)) {
+      msg = exp.split('.')[0] !== got.split('.')[0] ? 'La <b>partie entière</b> (avant la virgule) n\'est pas bonne.' : 'La partie entière est juste : l\'erreur est <b>après la virgule</b>.';
+      if (q.z) msg += '<div class="hint">' + q.z + '</div>';
+    } else msg = q.z || 'Vérifie ton calcul.';
+    fb('<b>Pas tout à fait.</b> ' + (html ? '<div class="yours">Tu as écrit : ' + html + '</div>' : '') + msg, 'zonemsg');
+    if (inp) { inp.select(); }
+    if (q.pad) padDraw('bad');
+    return;
+  }
+  // texte : on repère la zone fautive lettre par lettre
+  var v = cleanTyped(q, val), e = bestTarget(q, v), z = diffZone(v, e);
+  var mid = v.slice(z.i, v.length - z.j), shown;
+  if (z.i === 0 && z.j === 0) shown = '<mark class="err">' + esc(v) + '</mark>';
+  else if (!mid) shown = esc(v.slice(0, z.i)) + '<mark class="miss">▾</mark>' + esc(v.slice(z.i));
+  else shown = esc(v.slice(0, z.i)) + '<mark class="err">' + esc(mid) + '</mark>' + esc(v.slice(v.length - z.j));
+  var caseOnly = q.cs && q.a.some(function (x) { return norm(x) === norm(cleanTyped(q, val)); });
+  var m = caseOnly ? tr(q).case_ : z.i === 0 && z.j === 0 ? tr(q).whole : !mid ? tr(q).miss : tr(q).zone;
+  fb('<b>' + tr(q).notq + '</b><div class="yours">' + tr(q).try_ + ' <span class="word">' + shown + '</span></div>' + m + (q.z && !caseOnly ? '<div class="hint">' + q.z + '</div>' : ''), 'zonemsg');
+  if (inp) { inp.value = v; inp.focus(); try { inp.setSelectionRange(z.i, Math.max(z.i, v.length - z.j)); } catch (er) {} }
+}
+function showAnswer(q, val, btn) {
+  bubble(pick(CFG.lines.wrong2));
+  var ans = ansText(q);
+  if (q.t === 'qcm' || q.t === 'fill') {
+    if (btn) { btn.classList.add('wrong'); shake(btn); }
+    document.querySelectorAll('.choice').forEach(function (b, i) { if (q.c[i] === q.a) b.classList.add('reveal'); });
+    lockChoices();
+    if (q.t === 'fill') { var bl = document.getElementById('blank'); if (bl) { bl.textContent = q.a; bl.className = 'blank reveal'; } }
+    if (q.txt) markRefs(q, 'zone');
+    fb(tr(q).good + ' <b>' + ans + '</b>' + (q.e ? '<div class="exp">' + q.e + '</div>' : ''), 'answer');
+  } else if (q.t === 'num') {
+    if (q.pad) { PADBUF = String(q.a); padDraw('reveal'); }
+    fb('La bonne réponse est : <b class="bigans">' + ans + '</b>' + (q.e ? '<div class="exp">' + q.e + '</div>' : ''), 'answer');
+  } else {
+    var v = cleanTyped(q, val), e = bestTarget(q, v), z = diffZone(v, e), mid = e.slice(z.i, e.length - z.j);
+    var shown = z.i === 0 && z.j === 0 ? '<mark class="good">' + esc(e) + '</mark>' : esc(e.slice(0, z.i)) + (mid ? '<mark class="good">' + esc(mid) + '</mark>' : '') + esc(e.slice(e.length - z.j));
+    fb(tr(q).write + ' <span class="word">' + (q.pre ? strip(q.pre).split('→').pop().trim() + ' ' : '') + shown + '</span>' + (q.e ? '<div class="exp">' + q.e + '</div>' : ''), 'answer');
+  }
+  showNext();
+}
+function addMissed(q) {
+  if (RUN.mode !== 'day') return;
+  if (S.missed.some(function (m) { return m.q.id === q.id; })) return;
+  var c = clone(q); delete c.tries; delete c.done;
+  S.missed.push({ q: c, day: RUN.day, date: today() });
+}
+function next() {
+  stopQT();
+  RUN.i++;
+  if (RUN.mode === 'day') save();
+  if (RUN.i >= RUN.qs.length) return RUN.mode === 'day' ? finishDay() : finishRev();
+  renderQ();
+}
+
+/* ---------- fin de mission ---------- */
+function finishDay() {
+  var d = RUN.day, D = DATA.days[d], tot = RUN.res.length, first = RUN.res.filter(function (r) { return r.r === 2; }).length;
+  var ratio = tot ? first / tot : 0, stars = ratio >= 0.85 ? 3 : ratio >= 0.6 ? 2 : 1;
+  var by = {}; SECS.forEach(function (k) { var rs = RUN.res.filter(function (r) { return r.dom === k; }); by[k] = [rs.filter(function (r) { return r.r === 2; }).length, rs.length]; });
+  var prev = S.days[d], isFirst = !(prev && prev.done);
+  var hist = (prev && prev.hist) || []; hist.push({ date: today(), stars: stars, first: first, tot: tot, by: by });
+  S.days[d] = { done: true, stars: Math.max(stars, (prev && prev.stars) || 0), hist: hist };
+  var bonus = stars * 10; S.points += RUN.pts + bonus; S.current = null; save();
+  var pts = RUN.pts, maxC = RUN.maxCombo; RUN = null;
+  var final = d === DATA.days.length - 1 && isFirst;
+  app.innerHTML = topbar() + '<div class="screen"><div class="card endcard">' +
+    '<div class="kicker">Mission ' + (d + 1) + ' terminée</div><h2>' + D.place + '</h2>' +
+    '<div class="bigstars">' + [0, 1, 2].map(function (i) { return '<span class="st' + (i < stars ? ' on' : '') + '" style="animation-delay:' + (300 + i * 350) + 'ms">★</span>'; }).join('') + '</div>' +
+    '<p class="lead center">' + pick(CFG.lines['end' + stars]) + '</p>' +
+    '<div class="reward win"><span class="ricon">' + D.reward.icon + '</span><div><small>' + (isFirst ? 'Nouveau trésor débloqué !' : 'Déjà dans ta collection') + '</small><br><b>' + D.reward.name + '</b></div></div>' +
+    '<table class="mini">' + SECS.map(function (k) { return '<tr><td>' + CFG.icons[k] + ' ' + CFG.sec[k] + '</td><td>' + by[k][0] + '/' + by[k][1] + '</td></tr>'; }).join('') +
+    '<tr><td>🔥 Plus longue série</td><td>' + maxC + '</td></tr><tr><td>' + CFG.icons.points + ' Points gagnés</td><td>+' + pts + ' (+' + bonus + ' bonus étoiles)</td></tr></table>' +
+    '<p class="muted small center">(réponses justes du premier coup)</p>' +
+    (final ? '<div class="final">' + CFG.lines.final + '</div>' : '') +
+    '<div class="btns"><button class="primary big" data-act="home">Retour à la carte</button><button data-act="eclair">⚡ Bonus : Défi Éclair</button></div></div></div>';
+  tone(CFG.sounds.win, 0.1);
+  setTimeout(function () { burst(final ? 40 : 20, document.querySelector('.bigstars')); }, 500);
+  if (final) setTimeout(function () { burst(30); }, 1400);
+}
+
+/* ---------- revanches ---------- */
+function renderRevIntro() {
+  var n = S.missed.length;
+  app.innerHTML = topbar() + '<div class="screen"><div class="card intro center"><div class="introicon">' + CFG.revIcon + '</div><h2>Revanches</h2>' +
+    (n ? '<p class="lead">' + CFG.lines.revIntro + '</p><p>Questions à reconquérir : <b>' + n + '</b></p><p class="muted small">Une revanche réussie du premier coup disparaît de la liste et rapporte des points.</p>' +
+      '<div class="btns"><button class="primary big" data-act="revgo">Prendre ma revanche (' + Math.min(n, 10) + ' questions)</button><button class="ghost" data-act="home">Retour à la carte</button></div>'
+      : '<p class="lead">' + CFG.lines.revEmpty + '</p><div class="btns"><button class="primary big" data-act="home">Retour à la carte</button></div>') + '</div></div>';
+}
+function startRev() {
+  var list = shuffle(S.missed).slice(0, 10).map(function (m) { var q = clone(m.q); q.tries = 0; q.done = false; if (q.c) q.c = shuffle(q.c); return q; });
+  if (!list.length) return renderRevIntro();
+  RUN = { mode: 'rev', qs: list, i: 0, res: [], pts: 0, combo: 0, maxCombo: 0 };
+  renderQ();
+}
+function finishRev() {
+  var won = RUN.res.filter(function (r) { return r.r === 2; }).length, tot = RUN.res.length;
+  S.points += RUN.pts; save(); var pts = RUN.pts; RUN = null;
+  app.innerHTML = topbar() + '<div class="screen"><div class="card endcard center"><div class="introicon">' + CFG.revIcon + '</div><h2>Revanches terminées</h2>' +
+    '<p class="lead">' + won + ' revanche' + (won > 1 ? 's' : '') + ' gagnée' + (won > 1 ? 's' : '') + ' sur ' + tot + '.</p><p>' + CFG.icons.points + ' +' + pts + ' points</p>' +
+    '<p class="muted">Il reste ' + S.missed.length + ' question' + (S.missed.length > 1 ? 's' : '') + ' à reconquérir.</p>' +
+    '<div class="btns"><button class="primary big" data-act="home">Retour à la carte</button></div></div></div>';
+  if (won) burst(16);
+}
+
+/* ---------- collection ---------- */
+function renderColl() {
+  var h = '<div class="screen"><div class="card"><h2 class="center">🎁 ' + CFG.collTitle + '</h2><p class="center muted">Chaque mission terminée t\'offre un trésor.</p><div class="coll">';
+  DATA.days.forEach(function (D, i) {
+    var st = S.days[i], done = st && st.done;
+    h += '<div class="item' + (done ? ' got' : '') + '"><div class="iicon">' + (done ? D.reward.icon : '?') + '</div><div class="iname">' + (done ? D.reward.name : 'Mission ' + (i + 1)) + '</div><div class="istars">' + (done ? starsStr(st.stars) : '') + '</div></div>';
+  });
+  h += '</div><p class="center">Rang actuel : <b>' + rank() + '</b></p><div class="ranks">' + CFG.ranks.map(function (r) { return '<span class="' + (daysDone() >= r.min ? 'on' : '') + '">' + r.name + '<small>' + r.min + ' mission' + (r.min > 1 ? 's' : '') + '</small></span>'; }).join('') + '</div>' +
+    '<div class="btns"><button class="primary" data-act="home">Retour à la carte</button></div></div></div>';
+  app.innerHTML = topbar() + h;
+}
+
+/* ---------- défi éclair ---------- */
+function renderEclairIntro() {
+  stopEclair();
+  app.innerHTML = topbar() + '<div class="screen"><div class="card intro center"><div class="introicon">⚡</div><h2>Défi Éclair</h2>' +
+    '<p class="lead">60 secondes pour répondre à un maximum de ' + (CFG.level === 'CM2' ? 'multiplications et divisions' : 'tables de multiplication') + '.</p>' +
+    '<p>Record : <b>' + S.eclairBest + '</b> · chaque bonne réponse rapporte 2 ' + CFG.icons.points + '</p>' +
+    '<div class="btns"><button class="primary big" data-act="ecgo">C\'est parti !</button><button class="ghost" data-act="home">Retour à la carte</button></div></div></div>';
+}
+function eclairGo() {
+  stopEclair();
+  EC = { t: 60, score: 0, cur: null, buf: '', lock: false, timer: null };
+  var keys = ['7', '8', '9', '4', '5', '6', '1', '2', '3', 'del', '0', 'ok'];
+  app.innerHTML = topbar() + '<div class="screen"><div class="card eclair center"><div class="ectop"><span>⏳ <b id="ect">60</b> s</span><span>✔ <b id="ecs">0</b></span></div>' +
+    '<div class="ectime"><div id="ecbar"></div></div><div class="ecq" id="ecq"></div><div class="ecin" id="ecin">&nbsp;</div><div class="keypad">' +
+    keys.map(function (k) { return '<button class="' + (k === 'ok' ? 'primary' : '') + '" data-act="key" data-k="' + k + '">' + (k === 'del' ? '⌫' : k === 'ok' ? 'OK' : k) + '</button>'; }).join('') +
+    '</div><p class="muted small">Tu peux aussi taper au clavier puis Entrée.</p></div></div>';
+  ecNext();
+  EC.timer = setInterval(function () {
+    if (!EC) return; EC.t--;
+    var el = document.getElementById('ect'), b = document.getElementById('ecbar');
+    if (el) el.textContent = EC.t; if (b) b.style.width = (EC.t / 60 * 100) + '%';
+    if (EC.t <= 0) ecEnd();
+  }, 1000);
+}
+function ecNext() {
+  var a = R(2, 9), b = R(2, 10);
+  if (CFG.level === 'CM2' && Math.random() < 0.35) EC.cur = { q: (a * b) + ' ÷ ' + a, a: b };
+  else { if (Math.random() < .5) { var t = a; a = b; b = t; } EC.cur = { q: a + ' × ' + b, a: a * b }; }
+  EC.buf = ''; EC.lock = false; ecDraw();
+}
+function ecDraw(cls) {
+  var q = document.getElementById('ecq'), i = document.getElementById('ecin'), s = document.getElementById('ecs');
+  if (q) q.textContent = EC.cur.q + ' = ?'; if (i) { i.innerHTML = EC.buf || '&nbsp;'; i.className = 'ecin ' + (cls || ''); } if (s) s.textContent = EC.score;
+}
+function ecKey(k) {
+  if (!EC || EC.t <= 0 || EC.lock) return;
+  if (k === 'del') EC.buf = EC.buf.slice(0, -1);
+  else if (k === 'ok') {
+    if (!EC.buf) return;
+    if (+EC.buf === EC.cur.a) { EC.score++; tone([CFG.sounds.ok[0], CFG.sounds.ok[2]], 0.06); ecDraw('good'); EC.lock = true; setTimeout(function () { if (EC) ecNext(); }, 180); return; }
+    tone(CFG.sounds.wrong, 0.1); EC.buf = String(EC.cur.a); ecDraw('bad'); EC.lock = true; setTimeout(function () { if (EC) ecNext(); }, 900); return;
+  } else if (EC.buf.length < 3) EC.buf += k;
+  ecDraw();
+}
+function ecEnd() {
+  var sc = EC.score, rec = sc > S.eclairBest; clearInterval(EC.timer); EC = null;
+  if (rec) S.eclairBest = sc; S.points += sc * 2; save();
+  app.innerHTML = topbar() + '<div class="screen"><div class="card endcard center"><div class="introicon">⚡</div><h2>Temps écoulé !</h2>' +
+    '<p class="lead"><b>' + sc + '</b> bonne' + (sc > 1 ? 's' : '') + ' réponse' + (sc > 1 ? 's' : '') + '</p>' +
+    (rec ? '<p class="final">' + CFG.lines.record + '</p>' : '<p class="muted">Record : ' + S.eclairBest + '</p>') +
+    '<p>' + CFG.icons.points + ' +' + sc * 2 + ' points</p><div class="btns"><button class="primary big" data-act="ecgo">Rejouer</button><button class="ghost" data-act="home">Retour à la carte</button></div></div></div>';
+  tone(CFG.sounds.win, 0.09); if (rec) burst(24);
+}
+
+/* ---------- coin des grands-parents ---------- */
+function pct(a, b) { return b ? Math.round(a / b * 100) + ' %' : '-'; }
+function renderParents() {
+  var rows = '', agg = {}; SECS.forEach(function (k) { agg[k] = [0, 0]; });
+  var cell = function (L, k) { return L.by && L.by[k] ? L.by[k] : [0, 0]; };
+  DATA.days.forEach(function (D, i) {
+    var st = S.days[i];
+    if (!st || !st.done) { rows += '<tr class="off"><td>J' + (i + 1) + '</td><td>' + D.place + '</td><td colspan="' + (SECS.length + 2) + '">pas encore jouée</td></tr>'; return; }
+    var L = st.hist[st.hist.length - 1];
+    SECS.forEach(function (k) { var c = cell(L, k); agg[k][0] += c[0]; agg[k][1] += c[1]; });
+    rows += '<tr><td>J' + (i + 1) + '</td><td>' + D.place + '</td><td class="stars">' + starsStr(L.stars) + '</td>' +
+      SECS.map(function (k) { var c = cell(L, k); return '<td>' + c[0] + '/' + c[1] + '</td>'; }).join('') + '<td class="small">' + L.date + (st.hist.length > 1 ? '<br>(' + st.hist.length + ' essais)' : '') + '</td></tr>';
+  });
+  var miss = S.missed.slice().sort(function (a, b) { return a.day - b.day; }).map(function (m) {
+    return '<li><span class="tagd">J' + (m.day + 1) + ' · ' + CFG.sec[m.q.dom] + '</span> ' + esc(promptText(m.q)) + ' <b>→ ' + strip(ansText(m.q)) + '</b></li>';
+  }).join('');
+  var plan = DATA.days.map(function (D, i) { return '<li><b>J' + (i + 1) + '</b> ' + D.focus + '</li>'; }).join('');
+  app.innerHTML = topbar() + '<div class="screen"><div class="card parents"><h2>👵👴 Le coin des grands-parents</h2>' +
+    '<p>' + (CFG.parentsText || 'Une mission par jour, 15 à 20 minutes : 6 questions d\'orthographe, 5 de calcul et une lecture avec ses questions. Programme de ' + CFG.level + ', première période (septembre-octobre).') + '</p>' +
+    '<p><b>Le principe :</b> à la première erreur, le jeu montre <i>où</i> se trouve l\'erreur (lettres fautives, chiffre faux, phrase du texte, astuce de remplacement). À la deuxième, il donne la réponse et range la question dans les « Revanches » à rejouer plus tard.</p>' +
+    '<p class="tip">Le plus utile pour vous : regarder ensemble la liste des erreurs ci-dessous, et faire expliquer la règle avec ses mots plutôt que la réponse.</p>' +
+    '<h3>Résultats (réponses justes du premier coup)</h3><div class="tblwrap"><table class="res"><tr><th></th><th>Mission</th><th>Étoiles</th>' + SECS.map(function (k) { return '<th>' + CFG.icons[k] + '</th>'; }).join('') + '<th>Date</th></tr>' + rows + '</table></div>' +
+    '<div class="aggs">' + SECS.map(function (k) { return '<span>' + CFG.icons[k] + ' ' + CFG.sec[k] + ' <b>' + pct(agg[k][0], agg[k][1]) + '</b></span>'; }).join('') + '<span>⚡ Record Éclair <b>' + S.eclairBest + '</b></span></div>' +
+    '<h3>Erreurs à retravailler (' + S.missed.length + ')</h3>' + (miss ? '<ul class="misslist">' + miss + '</ul>' : '<p class="muted">Aucune pour le moment.</p>') +
+    '<h3>Le programme des 10 jours</h3><ul class="planlist">' + plan + '</ul>' +
+    '<details class="danger"><summary>Remettre le jeu à zéro</summary><p>Efface toutes les étoiles, points, trésors et erreurs enregistrés sur cet appareil.</p><button data-act="reset">Tout effacer</button></details>' +
+    '<div class="btns"><button class="primary" data-act="home">Retour à la carte</button></div></div></div>';
+}
+
+/* ---------- événements ---------- */
+document.addEventListener('click', function (ev) {
+  var b = ev.target.closest('[data-act]'); if (!b) return;
+  var act = b.getAttribute('data-act');
+  switch (act) {
+    case 'home': stopQT(); if (RUN && RUN.mode === 'rev') { S.points += RUN.pts; save(); } renderMap(); break;
+    case 'qkey': padKey(b.getAttribute('data-k')); break;
+    case 'mute': S.muted = !S.muted; save(); b.textContent = S.muted ? '🔇' : '🔊'; break;
+    case 'day': renderIntro(+b.getAttribute('data-d')); break;
+    case 'start': startDay(+b.getAttribute('data-d')); break;
+    case 'quit':
+      if (RUN && RUN.mode === 'day') { if (confirm('Faire une pause ? Ta mission est gardée, tu pourras la reprendre.')) renderMap(); }
+      else { if (RUN) { S.points += RUN.pts; save(); } renderMap(); }
+      break;
+    case 'choice': var q = cur(); if (!q.done) submit(q.c[+b.getAttribute('data-i')], b); break;
+    case 'check': var inp = document.getElementById('inp'); if (inp) submit(inp.value, null); break;
+    case 'next': next(); break;
+    case 'acc':
+      var i2 = document.getElementById('inp'); if (!i2 || i2.disabled) break;
+      var c = b.getAttribute('data-c'), s0 = i2.selectionStart != null ? i2.selectionStart : i2.value.length, s1 = i2.selectionEnd != null ? i2.selectionEnd : s0;
+      i2.value = i2.value.slice(0, s0) + c + i2.value.slice(s1); i2.focus(); try { i2.setSelectionRange(s0 + c.length, s0 + c.length); } catch (e) {}
+      break;
+    case 'say': say(cur().say, 0.85, cur().lang); break;
+    case 'sayslow': say(cur().say, 0.55, cur().lang); break;
+    case 'reveal': var sc = document.getElementById('secret'); if (sc) sc.classList.toggle('show'); break;
+    case 'coll': renderColl(); break;
+    case 'rev': renderRevIntro(); break;
+    case 'revgo': startRev(); break;
+    case 'eclair': renderEclairIntro(); break;
+    case 'ecgo': eclairGo(); break;
+    case 'key': ecKey(b.getAttribute('data-k')); break;
+    case 'parents': renderParents(); break;
+    case 'reset':
+      if (confirm('Tout effacer pour ' + CFG.name + ' ?') && confirm('Vraiment ? Cette action est définitive.')) { S = fresh(); save(); renderMap(); }
+      break;
+  }
+});
+document.addEventListener('keydown', function (ev) {
+  if (EC) {
+    if (/^[0-9]$/.test(ev.key)) { ecKey(ev.key); ev.preventDefault(); }
+    else if (ev.key === 'Backspace') { ecKey('del'); ev.preventDefault(); }
+    else if (ev.key === 'Enter') { ecKey('ok'); ev.preventDefault(); }
+    return;
+  }
+  var pq = RUN && RUN.qs && RUN.qs[RUN.i];
+  if (pq && pq.pad && !pq.done && document.getElementById('padin')) {
+    if (/^[0-9]$/.test(ev.key)) { padKey(ev.key); ev.preventDefault(); return; }
+    if (ev.key === 'Backspace') { padKey('del'); ev.preventDefault(); return; }
+    if (ev.key === 'Enter') { padKey('ok'); ev.preventDefault(); return; }
+  }
+  if (ev.key !== 'Enter') return;
+  var n = document.getElementById('next');
+  if (n) { ev.preventDefault(); n.click(); return; }
+  var inp = document.getElementById('inp');
+  if (inp && document.activeElement === inp) { ev.preventDefault(); submit(inp.value, null); return; }
+  var t = ev.target.closest && ev.target.closest('.node[data-act]'); if (t) t.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+});
+if (canSpeak) { try { speechSynthesis.getVoices(); } catch (e) {} }
+window.__TEST__ = { GEN: GEN, words: words, isRight: isRight, cleanTyped: cleanTyped, prep: prep, timeLimit: timeLimit, sections: SECS, state: function () { return S; }, run: function () { return RUN; }, expireTimer: function () { if (QT) QT.left = 1; } };
+renderMap();
+})();
+
+</script>
+</body>
+</html>
