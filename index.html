@@ -2,14 +2,34 @@
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Révisions</title>
 <style>
-body{margin:0;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px;font-family:'Trebuchet MS','Segoe UI',sans-serif;background:linear-gradient(135deg,#ffe4f2 0 50%,#131115 50% 100%);box-sizing:border-box}
-h1{margin:0 0 6px;font-size:26px;color:#4b2a5e;background:#fff;padding:8px 18px;border-radius:99px}
-a{display:block;width:100%;max-width:340px;text-align:center;text-decoration:none;font-size:22px;font-weight:700;padding:22px;border-radius:18px;box-shadow:0 8px 20px rgba(0,0,0,.25)}
-.e{background:linear-gradient(135deg,#ff6fb0,#c25cff);color:#fff}
-.s{background:#1d1a20;color:#ece6dc;border:1px solid #9e2f43;font-family:Georgia,serif;letter-spacing:.05em}
-small{display:block;font-size:14px;font-weight:400;opacity:.85;margin-top:4px}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px 16px;font-family:'Trebuchet MS','Segoe UI',sans-serif;background:linear-gradient(135deg,#ffe4f2 0 50%,#131115 50% 100%)}
+h1{margin:0 0 4px;font-size:26px;color:#4b2a5e;background:#fff;padding:8px 18px;border-radius:99px}
+.kid{width:100%;max-width:380px;display:flex;flex-direction:column;gap:10px}
+a{display:block;text-align:center;text-decoration:none;font-size:21px;font-weight:700;padding:18px;border-radius:18px;box-shadow:0 8px 20px rgba(0,0,0,.25)}
+.e1{background:linear-gradient(135deg,#ff6fb0,#c25cff);color:#fff}
+.e2{background:linear-gradient(135deg,#b06cff,#8f45e6 55%,#4f7fe8);color:#fff}
+.s1{background:#1d1a20;color:#ece6dc;border:1px solid #9e2f43;font-family:Georgia,serif;letter-spacing:.04em}
+.s2{background:#19211c;color:#e4e9e1;border:1px solid #5d8a5b;font-family:Georgia,serif;letter-spacing:.04em}
+small{display:block;font-size:14px;font-weight:400;opacity:.88;margin-top:4px}
+.p{display:block;font-size:13px;font-weight:400;opacity:.8;margin-top:2px}
 </style></head><body>
 <h1>Qui joue ?</h1>
-<a class="e" href="elena.html">🧚 Elena<small>Le Royaume des Fées · CM1</small></a>
-<a class="s" href="sarah.html">🦇 Sarah<small>Le Manoir des Ombres · CM2</small></a>
+<div class="kid">
+  <a class="e1" href="elena.html">🧚 Elena<small>Le Royaume des Fées · CM1</small><span class="p" data-key="revision-elena-v1"></span></a>
+  <a class="e2" href="elena-harmonie.html">🧜‍♀️ Elena<small>L'Harmonie des Fées et des Sirènes · nouveau</small><span class="p" data-key="revision-elena2-v1"></span></a>
+</div>
+<div class="kid">
+  <a class="s1" href="sarah.html">🦇 Sarah<small>Le Manoir des Ombres · CM2</small><span class="p" data-key="revision-sarah-v1"></span></a>
+  <a class="s2" href="sarah-meute.html">🐺 Sarah<small>Le Territoire de la Meute · nouveau</small><span class="p" data-key="revision-sarah2-v1"></span></a>
+</div>
+<script>
+document.querySelectorAll('.p').forEach(function (el) {
+  var st = null;
+  try { st = JSON.parse(localStorage.getItem(el.getAttribute('data-key')) || 'null'); } catch (e) {}
+  if (!st || !st.days) return;
+  var n = 0, stars = 0; for (var k in st.days) { if (st.days[k].done) n++; stars += st.days[k].stars || 0; }
+  el.textContent = n + '/10 missions · ★ ' + stars + '/30';
+});
+</script>
 </body></html>

@@ -4,6 +4,7 @@ var CFG = {
   tagline: 'Dix missions magiques pour devenir la gardienne du royaume',
   homeIcon: '🏰', revIcon: '🪄', collTitle: 'Le coffre à trésors',
   comp: { name: 'Pétale', icon: '🧚' },
+  sibling: { href: 'elena-harmonie.html', key: 'revision-elena2-v1', icon: '🧜‍♀️', label: "Nouveau : L'Harmonie des Fées et des Sirènes" },
   icons: { ortho: '✏️', calc: '🔢', lect: '📚', points: '💖' },
   sec: { ortho: 'Orthographe', calc: 'Calcul', lect: 'Lecture' },
   ranks: [{ min: 0, name: 'Apprentie fée' }, { min: 3, name: 'Fée des fleurs' }, { min: 6, name: 'Fée des étoiles' }, { min: 10, name: 'Gardienne du royaume' }],

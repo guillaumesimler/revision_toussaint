@@ -1,0 +1,19 @@
+:root{
+--bg-solid:#e9dcff;
+--bg:radial-gradient(circle at 15% 20%,rgba(255,255,255,.85) 0 2px,transparent 3px),radial-gradient(circle at 80% 35%,rgba(255,255,255,.7) 0 3px,transparent 4px),radial-gradient(circle at 35% 75%,rgba(255,255,255,.6) 0 2px,transparent 3px),radial-gradient(circle at 90% 88%,rgba(255,255,255,.7) 0 2.5px,transparent 3.5px),linear-gradient(180deg,#f3e8ff 0%,#e4d2ff 45%,#d3c4f7 75%,#c7bdf2 100%);
+--ink:#3b1d5e;--title:#7a2fc4;--muted:#7d64a0;
+--card:rgba(255,255,255,.94);--card-border:2px solid #dcc5fb;--radius:20px;--shadow:0 6px 18px rgba(122,47,196,.14);
+--accent:#8f45e6;--on-accent:#fff;--btn:#fff;--btn-border:2px solid #d6bdfa;--btn-shadow:0 4px 0 #6a2cb4;
+--chip:#efe2ff;--chip-ink:#6a24b0;
+--good:#1f9a72;--good-bg:#d9f6ea;--bad:#d9366d;--bad-bg:#ffe1ec;--zone:#ffc23d;--zone-bg:#fff0c2;
+--choice:#fff;--choice-border:#dcc5f5;--input:#fff;--track:#e6d6fb;--trail:#c4a9ec;--node:#fff;--node-stroke:#c9a8f3;--node-done:#f1e6ff;
+--star:#f5a800;--star-off:#e2d4f2;--label-halo:#faf5ff;--reward-bg:#f8f0ff;--soft:#f3eafe;--line:#e6d9f5;--hot:#ff5f1f;--text-size:20px;
+--font-head:'Fredoka','Baloo 2','Trebuchet MS',sans-serif;--font-body:'Nunito','Trebuchet MS','Segoe UI',sans-serif;
+}
+h1{background:linear-gradient(90deg,#8f45e6,#3f8fe0);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero h1::before{content:' 🫧 ';-webkit-text-fill-color:initial}
+button.primary{background:linear-gradient(135deg,#b06cff,#8f45e6 55%,#4f7fe8)}
+.node.done .disc{stroke-width:4}
+.choice{border-radius:16px}
+.bubble{border-radius:20px 20px 20px 4px}
+.intro h2::after,.endcard h2::after{content:'🫧 ✦ 🐚';display:block;font-size:14px;margin-top:4px;letter-spacing:4px}

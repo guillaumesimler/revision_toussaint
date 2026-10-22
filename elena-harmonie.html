@@ -1,0 +1,1502 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Elena · L'Harmonie des Fées et des Sirènes (CM1)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;700&display=swap">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+html{background:var(--bg-solid)}
+body{background:var(--bg);background-attachment:fixed;color:var(--ink);font-family:var(--font-body);font-size:18px;line-height:1.5;min-height:100vh;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
+#app{max-width:760px;margin:0 auto;padding:10px 16px 48px}
+h1,h2,h3{font-family:var(--font-head);margin:.2em 0 .3em;line-height:1.15;color:var(--title)}
+h1{font-size:clamp(28px,6vw,40px)}
+h2{font-size:clamp(24px,5vw,30px)}
+h3{font-size:20px;margin-top:1.4em}
+button{font:inherit;cursor:pointer;border:var(--btn-border);border-radius:var(--radius);padding:11px 16px;background:var(--btn);color:var(--ink);transition:transform .08s,background .2s,border-color .2s,opacity .2s;touch-action:manipulation}
+button:active{transform:scale(.97)}
+button:disabled{cursor:default}
+button.primary{background:var(--accent);color:var(--on-accent);border-color:transparent;font-weight:700;box-shadow:var(--btn-shadow)}
+button.big{font-size:20px;padding:14px 22px}
+button.ghost{background:transparent;border-color:transparent;color:var(--muted)}
+button.icon{padding:6px 10px;font-size:20px}
+.muted{color:var(--muted)}.small{font-size:15px}.center{text-align:center}
+.card{background:var(--card);border:var(--card-border);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px}
+.screen{animation:fadein .35s ease}
+@keyframes fadein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* barre du haut */
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.brand{display:flex;align-items:center;gap:8px;color:var(--ink)!important;padding:6px 4px}
+.brand b{font-family:var(--font-head);font-size:20px}
+.bicon{font-size:22px}
+.lvl{font-size:12px;padding:2px 8px;border-radius:99px;background:var(--chip);color:var(--chip-ink);font-weight:700}
+.stats{display:flex;align-items:center;gap:4px;flex-wrap:nowrap;justify-content:flex-end}
+@media (max-width:420px){.stat{font-size:13px;padding:3px 8px}.brand b{font-size:18px}.lvl{display:none}}
+.stat{font-size:15px;padding:4px 10px;border-radius:99px;background:var(--chip);color:var(--chip-ink);font-weight:700;white-space:nowrap}
+
+/* carte */
+.hero{text-align:center;padding:8px 0 14px}
+.hicon{font-size:56px;animation:float 3s ease-in-out infinite}
+@keyframes float{50%{transform:translateY(-8px)}}
+.tag{color:var(--muted);margin:.2em auto .8em;max-width:520px}
+.rank{display:inline-block;margin-bottom:14px;padding:6px 14px;border-radius:99px;background:var(--chip);color:var(--chip-ink);font-size:15px}
+.allDone{padding:12px;border-radius:var(--radius);background:var(--chip);color:var(--chip-ink)}
+.menu{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:6px 0 10px}
+.menu button{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:15px;padding:10px 6px;background:var(--card);box-shadow:var(--shadow)}
+.menu button span{font-size:12px;color:var(--muted)}
+.menu button.has span{color:var(--bad);font-weight:700}
+@media (max-width:560px){.menu{grid-template-columns:repeat(2,1fr)}}
+.mapwrap{display:flex;justify-content:center}
+svg.map{width:100%;max-width:460px;height:auto;overflow:visible}
+.trail{fill:none;stroke:var(--trail);stroke-width:10;stroke-linecap:round;stroke-dasharray:2 16}
+.trail.done{stroke:var(--accent);stroke-dasharray:none;stroke-width:6;opacity:.8}
+.node .disc{fill:var(--node);stroke:var(--node-stroke);stroke-width:3}
+.node .halo{fill:transparent}
+.node .nicon{font-size:28px}
+.node .nlabel{font-size:13px;fill:var(--ink);font-family:var(--font-head);font-weight:700;paint-order:stroke;stroke:var(--label-halo);stroke-width:4px;stroke-linejoin:round}
+.node .nstars{font-size:16px;fill:var(--star);letter-spacing:2px;paint-order:stroke;stroke:var(--label-halo);stroke-width:3px}
+.node[data-act]{cursor:pointer}
+.node.done .disc{fill:var(--node-done);stroke:var(--accent)}
+.node.locked{opacity:.5}
+.node.locked .nlabel{fill:var(--muted)}
+.node.next .halo{fill:var(--accent);opacity:.25;animation:pulse 1.6s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+.node.next .disc{stroke:var(--accent);stroke-width:4}
+@keyframes pulse{50%{transform:scale(1.25);opacity:.05}}
+.deco{opacity:.55;pointer-events:none}
+
+/* intro / fin */
+.intro,.endcard{text-align:left}
+.introicon{font-size:60px;text-align:center;line-height:1.1}
+.kicker{text-align:center;text-transform:uppercase;letter-spacing:.12em;font-size:13px;color:var(--muted)}
+.intro h2,.endcard h2{text-align:center}
+.lead{font-size:19px}
+.plan{list-style:none;padding:0;margin:14px 0}
+.plan li{display:flex;justify-content:space-between;gap:10px;padding:10px 12px;border-bottom:1px solid var(--line)}
+.plan li b{font-weight:400;color:var(--muted);font-size:15px;white-space:nowrap}
+.reward{display:flex;align-items:center;gap:14px;margin:14px 0;padding:12px 16px;border-radius:var(--radius);background:var(--reward-bg);border:1px dashed var(--accent)}
+.reward .ricon{font-size:40px}
+.reward small{color:var(--muted)}
+.reward.win{animation:pop .6s ease .9s both}
+.rules{font-size:15px;padding:10px 14px;border-radius:var(--radius);background:var(--soft);margin:12px 0;color:var(--ink)}
+.btns{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:16px}
+.bigstars{text-align:center;font-size:64px;letter-spacing:8px;margin:6px 0}
+.bigstars .st{color:var(--star-off);display:inline-block}
+.bigstars .st.on{color:var(--star);animation:starin .5s cubic-bezier(.3,1.6,.5,1) both}
+@keyframes starin{from{transform:scale(0) rotate(-90deg)}to{transform:none}}
+@keyframes pop{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.05)}100%{transform:none;opacity:1}}
+table.mini{width:100%;border-collapse:collapse;margin-top:8px}
+table.mini td{padding:7px 4px;border-bottom:1px solid var(--line)}
+table.mini td:last-child{text-align:right;font-weight:700}
+.final{margin:14px 0;padding:14px;border-radius:var(--radius);background:var(--accent);color:var(--on-accent);text-align:center;font-weight:700;animation:pop .6s ease both}
+
+/* question */
+.qtop{display:flex;align-items:center;gap:10px}
+.prog{flex:1;height:12px;background:var(--track);border-radius:99px;overflow:hidden}
+.bar{height:100%;background:var(--accent);border-radius:99px;transition:width .4s}
+.qcount{font-size:15px;color:var(--muted);min-width:44px;text-align:right}
+.hud{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:10px 0}
+.chip{padding:5px 12px;border-radius:99px;background:var(--chip);color:var(--chip-ink);font-size:15px;font-weight:700}
+.combo{font-weight:700;color:var(--muted);font-size:15px}
+.combo.hot{color:var(--hot);animation:pop .4s ease}
+.pts{font-weight:700}
+.secbanner{text-align:center;font-family:var(--font-head);font-size:20px;color:var(--title);margin:4px 0 12px;animation:pop .5s ease both}
+.textcard{margin-bottom:12px;font-size:var(--text-size);line-height:1.65}
+.textcard p{margin:6px 0 0}
+.ttitle{font-family:var(--font-head);font-size:18px;color:var(--title)}
+.sent{border-radius:4px;transition:background .3s,box-shadow .3s}
+.sent.zone{background:var(--zone-bg);box-shadow:0 0 0 3px var(--zone-bg)}
+.sent.okref{background:var(--good-bg);box-shadow:0 0 0 3px var(--good-bg)}
+.qtext{font-size:20px;margin-bottom:14px}
+.qtext.small{font-size:16px;color:var(--muted);margin-bottom:6px}
+.big{display:inline-block;font-size:30px;font-weight:700;margin-top:6px;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.sentence{font-size:23px;line-height:1.7;margin:6px 0 16px}
+.blank{display:inline-block;min-width:74px;margin:0 6px;padding:0 6px;text-align:center;border-bottom:3px dashed var(--accent);color:var(--accent);font-weight:700}
+.blank.zone{background:var(--zone-bg);border-bottom-style:solid;border-color:var(--zone);animation:glow 1.2s ease-in-out 3}
+.blank.ok{color:var(--good);border-bottom:3px solid var(--good)}
+.blank.reveal{color:var(--good);border-bottom:3px solid var(--good);background:var(--good-bg)}
+@keyframes glow{50%{box-shadow:0 0 0 6px var(--zone-bg)}}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.choices.long{grid-template-columns:1fr}
+.choices.row{display:flex;flex-wrap:wrap;justify-content:center}
+.choices.row .choice{min-width:110px}
+.choice{background:var(--choice);border:2px solid var(--choice-border);min-height:58px;font-size:19px;color:var(--ink);text-align:center;line-height:1.3}
+.choice:hover:not(:disabled){border-color:var(--accent)}
+.choice.wrong{border-color:var(--bad);background:var(--bad-bg);opacity:.6;text-decoration:line-through}
+.choice.right,.choice.reveal{border-color:var(--good);background:var(--good-bg);opacity:1;text-decoration:none;font-weight:700}
+.choice:disabled:not(.wrong):not(.right):not(.reveal){opacity:.55}
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1;font-weight:700;margin:0 2px}
+.frac sup,.frac sub{font-size:.95em;vertical-align:baseline;position:static}
+.frac span{display:block;width:100%;height:2px;background:currentColor;font-size:0;margin:2px 0}
+.typeline{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:22px;margin:10px 0}
+.pre,.post{font-size:21px}
+input.ans{font:inherit;font-size:24px;padding:10px 14px;border-radius:var(--radius);border:2px solid var(--choice-border);background:var(--input);color:var(--ink);width:100%;max-width:300px;outline:none}
+input.ans.num{max-width:220px;font-variant-numeric:tabular-nums;letter-spacing:.04em}
+input.ans:focus{border-color:var(--accent)}
+input.ans.ok{border-color:var(--good);background:var(--good-bg)}
+input.ans::selection{background:var(--zone);color:#000}
+.accents{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 6px}
+.accents button{padding:6px 0;width:42px;font-size:19px;background:var(--choice);border:1px solid var(--choice-border)}
+.sayrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:6px}
+.secret{display:none;font-weight:700;padding:4px 10px;border-radius:var(--radius);background:var(--soft)}
+.secret.show{display:inline-block}
+.actions{display:flex;justify-content:center;margin-top:14px}
+.actions:empty{display:none}
+.fb .msg{margin-top:14px;padding:12px 14px;border-radius:var(--radius);animation:pop .35s ease both;font-size:18px}
+.fb .good{background:var(--good-bg);border-left:5px solid var(--good)}
+.fb .zonemsg{background:var(--zone-bg);border-left:5px solid var(--zone)}
+.fb .answer{background:var(--bad-bg);border-left:5px solid var(--bad)}
+.fb .info{background:var(--soft)}
+.exp{margin-top:6px;font-size:16px;color:var(--ink);opacity:.9}
+.hint{margin-top:6px;font-size:16px;font-style:italic}
+.yours{margin:6px 0;font-size:20px}
+.word{font-size:22px;font-weight:700;letter-spacing:.03em}
+.numshow{font-size:24px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:.05em}
+mark.err{background:var(--bad);color:#fff;padding:0 3px;border-radius:4px}
+mark.miss{background:var(--bad);color:#fff;padding:0 2px;border-radius:4px;font-size:.7em;vertical-align:super}
+mark.good{background:var(--good);color:#fff;padding:0 3px;border-radius:4px}
+.zonetag{background:var(--zone);color:#1a1a1a;padding:0 5px;border-radius:4px;font-weight:700}
+.bigans{font-size:24px}
+.shake{animation:shake .4s ease}
+@keyframes shake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+.comp{display:flex;align-items:flex-end;gap:10px;margin-top:16px}
+.avatar{font-size:46px;line-height:1;animation:float 3.5s ease-in-out infinite}
+.bubble{flex:1;background:var(--card);border:var(--card-border);border-radius:16px 16px 16px 4px;padding:10px 14px;font-size:16px;box-shadow:var(--shadow)}
+.bubble.pop{animation:pop .35s ease}
+.particle{position:fixed;z-index:60;pointer-events:none;font-size:26px;animation:fly 1.5s cubic-bezier(.2,.7,.4,1) forwards}
+@keyframes fly{0%{transform:translate(-50%,-50%) scale(.4);opacity:1}100%{transform:translate(calc(var(--dx) - 50%),calc(var(--dy) - 50%)) scale(1.15) rotate(var(--rot));opacity:0}}
+
+/* collection */
+.coll{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:16px 0}
+@media (max-width:560px){.coll{grid-template-columns:repeat(2,1fr)}}
+.item{text-align:center;padding:12px 6px;border-radius:var(--radius);background:var(--soft);border:2px dashed var(--line);opacity:.6}
+.item.got{opacity:1;border:2px solid var(--accent);background:var(--reward-bg)}
+.iicon{font-size:40px}
+.iname{font-size:14px;font-weight:700}
+.istars{color:var(--star);font-size:14px}
+.ranks{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:8px 0}
+.ranks span{padding:6px 12px;border-radius:99px;background:var(--soft);color:var(--muted);font-size:14px;display:flex;flex-direction:column;align-items:center}
+.ranks span.on{background:var(--accent);color:var(--on-accent)}
+.ranks small{font-size:11px;opacity:.8}
+
+/* éclair */
+.eclair{max-width:420px;margin:0 auto}
+.ectop{display:flex;justify-content:space-between;font-size:20px}
+.ectime{height:10px;border-radius:99px;background:var(--track);overflow:hidden;margin:8px 0 14px}
+.ectime div{height:100%;width:100%;background:var(--accent);transition:width 1s linear}
+.ecq{font-size:44px;font-weight:700;font-variant-numeric:tabular-nums}
+.ecin{font-size:40px;min-height:60px;margin:6px auto 12px;padding:4px;border-bottom:3px solid var(--accent);width:160px;font-variant-numeric:tabular-nums}
+.ecin.good{color:var(--good);border-color:var(--good)}
+.ecin.bad{color:var(--bad);border-color:var(--bad)}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.keypad button{font-size:26px;padding:14px 0;background:var(--choice);border:1px solid var(--choice-border)}
+.keypad button.primary{background:var(--accent)}
+
+/* chrono des tables, pavé numérique, lien vers l'autre jeu */
+.qtimer{position:relative;height:30px;border-radius:99px;background:var(--track);overflow:hidden;margin-bottom:14px}
+.qtbar{position:absolute;inset:0 auto 0 0;width:100%;background:var(--accent);transition:width .1s linear}
+.qtimer.low .qtbar{background:var(--bad)}
+.qtimer span{position:relative;display:block;text-align:center;line-height:30px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+.qtimer.low span{animation:pop .4s ease infinite alternate}
+.padin{font-size:40px;min-height:60px;margin:0 auto 12px;padding:4px;border-bottom:3px solid var(--accent);width:160px;text-align:center;font-variant-numeric:tabular-nums}
+.padin.good{color:var(--good);border-color:var(--good)}
+.padin.bad{color:var(--bad);border-color:var(--bad)}
+.padin.reveal{color:var(--good);border-color:var(--good);background:var(--good-bg)}
+.qpad{max-width:360px;margin:0 auto}
+.timerinfo{text-align:center;font-size:16px;padding:8px 12px;border-radius:var(--radius);background:var(--soft)}
+a.sibling{display:flex;align-items:center;gap:12px;margin:0 0 10px;padding:12px 16px;border-radius:var(--radius);background:var(--card);border:var(--card-border);box-shadow:var(--shadow);color:var(--ink);text-decoration:none}
+a.sibling b{display:block;font-family:var(--font-head)}
+a.sibling small{color:var(--muted);font-size:13px}
+a.sibling .sicon{font-size:30px}
+a.sibling .sgo{margin-left:auto;font-size:22px;color:var(--accent)}
+/* grands-parents */
+.parents p{font-size:16px}
+.tip{padding:10px 14px;border-radius:var(--radius);background:var(--soft)}
+.tblwrap{overflow-x:auto}
+table.res{width:100%;border-collapse:collapse;font-size:15px}
+table.res th,table.res td{padding:7px 6px;border-bottom:1px solid var(--line);text-align:center;vertical-align:top}
+table.res td:nth-child(2){text-align:left}
+table.res tr.off td{color:var(--muted)}
+table.res .stars{color:var(--star);white-space:nowrap}
+.aggs{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.aggs span{padding:6px 12px;border-radius:99px;background:var(--soft);font-size:15px}
+.misslist,.planlist{padding-left:18px;font-size:15px}
+.misslist li,.planlist li{margin:6px 0}
+.tagd{display:inline-block;font-size:12px;padding:1px 8px;border-radius:99px;background:var(--chip);color:var(--chip-ink);font-weight:700}
+.danger{margin-top:18px;font-size:15px}
+.danger summary{cursor:pointer;color:var(--muted)}
+.danger button{background:var(--bad);color:#fff;border-color:transparent}
+:root{
+--bg-solid:#e9dcff;
+--bg:radial-gradient(circle at 15% 20%,rgba(255,255,255,.85) 0 2px,transparent 3px),radial-gradient(circle at 80% 35%,rgba(255,255,255,.7) 0 3px,transparent 4px),radial-gradient(circle at 35% 75%,rgba(255,255,255,.6) 0 2px,transparent 3px),radial-gradient(circle at 90% 88%,rgba(255,255,255,.7) 0 2.5px,transparent 3.5px),linear-gradient(180deg,#f3e8ff 0%,#e4d2ff 45%,#d3c4f7 75%,#c7bdf2 100%);
+--ink:#3b1d5e;--title:#7a2fc4;--muted:#7d64a0;
+--card:rgba(255,255,255,.94);--card-border:2px solid #dcc5fb;--radius:20px;--shadow:0 6px 18px rgba(122,47,196,.14);
+--accent:#8f45e6;--on-accent:#fff;--btn:#fff;--btn-border:2px solid #d6bdfa;--btn-shadow:0 4px 0 #6a2cb4;
+--chip:#efe2ff;--chip-ink:#6a24b0;
+--good:#1f9a72;--good-bg:#d9f6ea;--bad:#d9366d;--bad-bg:#ffe1ec;--zone:#ffc23d;--zone-bg:#fff0c2;
+--choice:#fff;--choice-border:#dcc5f5;--input:#fff;--track:#e6d6fb;--trail:#c4a9ec;--node:#fff;--node-stroke:#c9a8f3;--node-done:#f1e6ff;
+--star:#f5a800;--star-off:#e2d4f2;--label-halo:#faf5ff;--reward-bg:#f8f0ff;--soft:#f3eafe;--line:#e6d9f5;--hot:#ff5f1f;--text-size:20px;
+--font-head:'Fredoka','Baloo 2','Trebuchet MS',sans-serif;--font-body:'Nunito','Trebuchet MS','Segoe UI',sans-serif;
+}
+h1{background:linear-gradient(90deg,#8f45e6,#3f8fe0);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero h1::before{content:' 🫧 ';-webkit-text-fill-color:initial}
+button.primary{background:linear-gradient(135deg,#b06cff,#8f45e6 55%,#4f7fe8)}
+.node.done .disc{stroke-width:4}
+.choice{border-radius:16px}
+.bubble{border-radius:20px 20px 20px 4px}
+.intro h2::after,.endcard h2::after{content:'🫧 ✦ 🐚';display:block;font-size:14px;margin-top:4px;letter-spacing:4px}
+
+</style>
+</head>
+<body>
+<div id="app"></div>
+<noscript>Ce jeu a besoin de JavaScript pour fonctionner.</noscript>
+<script>
+var TAB10 = [['tabT'], ['tabT'], ['tabT'], ['tabT'], ['tabT'], ['tabT'], ['tabT'], ['tabT'], ['tabT'], ['tabT']];
+var CFG = {
+  id: 'elena2', name: 'Elena', level: 'CM1',
+  title: "L'Harmonie des Fées et des Sirènes",
+  tagline: "Maëlle la sirène t'appelle : fées et sirènes doivent rejouer ensemble le grand concert de l'Harmonie.",
+  homeIcon: '🫧', revIcon: '🪸', collTitle: 'Le coffre de nacre',
+  comp: { name: 'Maëlle', icon: '🧜‍♀️' },
+  sections: ['hist', 'geo', 'deu', 'erd', 'tab'],
+  icons: { hist: '📜', geo: '🗺️', deu: '📘', erd: '🧭', tab: '⏱️', points: '💜' },
+  sec: { hist: 'Histoire', geo: 'Géographie', deu: 'Deutsch', erd: 'Erdkunde', tab: 'Tables chrono' },
+  showExp: ['hist', 'geo', 'deu', 'erd'],
+  timer: { start: 15, step: 1, min: 6 },
+  sibling: { href: 'elena.html', key: 'revision-elena-v1', icon: '🏰', label: 'Retour au Royaume des Fées' },
+  parentsText: "Une mission par jour, 20 minutes environ : un texte d'histoire avec ses questions (Moyen Âge puis Révolution française), de la géographie de la France, un texte en allemand avec un petit exercice d'écriture (niveau Klasse 2, soit deux classes en dessous de son niveau français), de la géographie de l'Allemagne en allemand, puis 10 multiplications chronométrées. Le chrono commence à 15 secondes par calcul le jour 1 et perd une seconde chaque jour, jusqu'à 6 secondes le jour 10. Ce jeu est indépendant du Royaume des Fées : sa progression est enregistrée à part.",
+  ranks: [{ min: 0, name: 'Petite ondine' }, { min: 3, name: 'Fée des vagues' }, { min: 6, name: "Sirène d'améthyste" }, { min: 10, name: "Reine de l'Harmonie" }],
+  mapX: [120, 270, 200, 115, 250, 285, 160, 110, 245, 200],
+  deco: [[330, 1100, '🐚', 28], [50, 1010, '🫧', 26], [355, 940, '🐠', 26], [40, 860, '🪸', 26], [345, 760, '🫧', 30], [55, 690, '🧚', 26], [360, 600, '🌊', 32], [45, 520, '🐬', 26], [355, 420, '🐚', 24], [40, 330, '✨', 26], [350, 230, '🫧', 26], [60, 140, '🌙', 28], [330, 60, '💜', 26], [80, 40, '✨', 22]],
+  particles: ['🫧', '💜', '✨', '🐚', '🦋', '⭐'],
+  sounds: { type: 'sine', ok: [698, 880, 1175], ok2: [587, 698], wrong: [311, 247], win: [466, 587, 698, 932, 1175] },
+  lines: {
+    hello: ["Coucou Elena ! Pétale m'a dit que tu étais la Gardienne du royaume. Bienvenue dans l'océan ! 🫧", "Bonjour ! Le Miroir des Marées s'est rallumé, viens voir ce qu'il nous montre aujourd'hui.", "Te revoilà ! Le crabe Pinçou t'a gardé une place au premier rang."],
+    idle: ['Prends ton temps, comme une vague qui revient doucement 🌊', 'Tu peux y arriver !', 'Lis bien la question jusqu\'au bout.', 'Pétale te fait coucou depuis la plage ✨', 'Respire, comme avant un plongeon.'],
+    sec: { geo: 'Les sirènes connaissent toutes les côtes de France. À ton tour de les découvrir !', deu: 'Jetzt auf Deutsch! Die Fische im Meer sprechen nämlich Deutsch. 🐠', erd: 'Erdkunde! Wo liegen die Meere und Berge in Deutschland?', tab: 'Les tables chrono ! Réponds vite, avant que la bulle n\'éclate 🫧' },
+    ok: ['Bravo ! 💜', 'Magique !', 'Les sirènes chantent pour toi !', 'Parfait, comme une perle !', 'Oui ! Pétale applaudit sur la plage !', 'Exactement ! ✨', 'Quelle championne !'],
+    ok2: ['Bien rattrapé ! 🫧', 'Tu as trouvé ! Bravo de ne pas avoir abandonné.', 'Voilà ! Deuxième essai réussi.'],
+    wrong1: ['Presque ! Regarde bien la zone qui brille.', 'Oups, petite erreur. Je t\'ai montré où chercher.', 'Essaie encore : la réponse est toute proche.'],
+    wrong2: ['Pas grave ! Voici la réponse, retiens-la bien.', 'On apprend en se trompant. Regarde la bonne réponse 💜', 'Cette question ira dans tes revanches de corail.'],
+    combo: ['Série magique de 5 ! 🔥', 'Tu fais des vagues, princesse !', 'Incroyable série ! Fées et sirènes applaudissent !'],
+    end3: ['Trois étoiles ! L\'océan entier brille pour toi ! 👑', 'Trois étoiles ! Pétale et moi, on danse de joie !'],
+    end2: ['Deux étoiles, très beau travail ! 💜', 'Deux belles étoiles ! Encore un petit effort et c\'est la troisième.'],
+    end1: ['Mission réussie ! La prochaine fois, vise plus d\'étoiles ✨', 'Bravo d\'être allée jusqu\'au bout ! Les revanches t\'aideront.'],
+    final: "💠 Le grand concert de l'Harmonie a eu lieu ! Ton violon, les ailes des fées et le chant des sirènes ont joué ensemble. Elena devient Reine de l'Harmonie, avec la Couronne des Étoiles et le Diadème de l'Harmonie.",
+    allDone: "💠 Les dix lieux de l'océan sont explorés ! Rejoue pour décrocher toutes les étoiles, ou prends tes revanches.",
+    revIntro: 'Les questions ratées sont cachées dans le corail. Réussis-les du premier coup pour les libérer !',
+    revEmpty: 'Le corail est vide : tout est réussi ! ✨',
+    record: '🏆 Nouveau record ! Plus rapide qu\'un dauphin.'
+  }
+};
+
+var DATA = { days: [
+/* ---------------- JOUR 1 ---------------- */
+{
+  place: 'Le Rivage violet', icon: '🌊', reward: { icon: '💜', name: 'La Perle violette' },
+  focus: "Le Moyen Âge, repères · la France et ses mers · Deutsch: Maëlle · Berlin, die Flagge",
+  intro: "Une bouteille est arrivée au Royaume des Fées. Dedans, un message de Maëlle, la sirène du lagon : « Viens vite sur le Rivage violet, le Miroir des Marées s'est rallumé ! »",
+  parts: [
+    { dom: 'hist',
+      lect: { title: 'Le Miroir des Marées',
+        s: ["Le Miroir des Marées est un grand coquillage magique : quand on regarde dedans, on voit le passé.", "Aujourd'hui, il montre un rocher entouré par la mer : le Mont-Saint-Michel, en Normandie.", "Au Moyen Âge, des moines ont construit une abbaye tout en haut de ce rocher.", "À marée haute, la mer entourait le rocher et on ne pouvait plus y aller à pied.", "Les pèlerins devaient donc bien regarder l'heure des marées avant de traverser la baie.", "Maëlle connaît par cœur les marées : elle sait toujours quand la mer monte."],
+        qs: [
+          { q: 'Qui a construit l\'abbaye en haut du Mont-Saint-Michel ?', c: ['Des moines', 'Des sirènes', 'Des chevaliers', 'Des lutins'], a: 0, r: [2], e: "Au Moyen Âge, ce sont des moines qui ont construit l'abbaye." },
+          { q: 'Que se passe-t-il à marée haute ?', c: ['La mer entoure le rocher', 'Le rocher disparaît sous l\'eau', 'Les moines partent en bateau', 'La plage devient très grande'], a: 0, r: [3], e: "À marée haute, la mer entoure le rocher, qui devient une île." }
+        ] },
+      qs: [
+        { t: 'qcm', q: 'Le Moyen Âge a duré environ...', c: ['mille ans', 'dix ans', 'cent ans', 'un million d\'années'], a: 0, z: 'Il commence vers 476 et finit en 1492.', e: "De 476 à 1492, cela fait environ mille ans." },
+        { t: 'qcm', q: 'Quelle période vient juste <b>après</b> le Moyen Âge ?', c: ['Les Temps modernes', 'L\'Antiquité', 'La Préhistoire', 'Le temps des dinosaures'], a: 0, z: 'L\'Antiquité est avant le Moyen Âge.', e: "Préhistoire, Antiquité, Moyen Âge, puis Temps modernes." }
+      ] },
+    { dom: 'geo', qs: [
+      { t: 'qcm', q: 'Quelle est la capitale de la France ?', c: ['Paris', 'Lyon', 'Marseille', 'Bordeaux'], a: 0, z: 'La tour Eiffel s\'y trouve.', e: "Paris est la capitale de la France." },
+      { t: 'qcm', q: 'Quelle mer borde le <b>sud</b> de la France ?', c: ['La mer Méditerranée', 'La Manche', 'La mer du Nord', 'La mer Noire'], a: 0, z: 'Marseille et Nice sont au bord de cette mer.', e: "La Méditerranée borde le sud de la France." },
+      { t: 'qcm', q: 'Dans quelle région se trouve le Mont-Saint-Michel ?', c: ['En Normandie', 'En Corse', 'En Alsace', 'En Provence'], a: 0, z: 'Relis le texte du Miroir des Marées.', e: "Le Mont-Saint-Michel se trouve en Normandie, tout près de la Bretagne." }
+    ] },
+    { dom: 'deu', lang: 'de',
+      lect: { title: 'Maëlle',
+        s: ['Maëlle ist eine Meerjungfrau.', 'Sie wohnt im Meer.', 'Ihr Schwanz ist lila und glitzert.', 'Maëlle singt sehr schön.', 'Ihr Freund ist ein kleiner Krebs.'],
+        qs: [
+          { q: 'Welche Farbe hat Maëlles Schwanz?', c: ['Lila', 'Grün', 'Blau', 'Rot'], a: 0, r: [2], e: 'Ihr Schwanz ist lila und glitzert.' },
+          { q: 'Wer ist Maëlles Freund?', c: ['Ein kleiner Krebs', 'Ein großer Fisch', 'Eine Fee', 'Ein Delfin'], a: 0, r: [4], e: 'Ihr Freund ist ein kleiner Krebs.' }
+        ] },
+      qs: [
+        { t: 'fill', q: 'Welcher Artikel passt?', s: '___ Meer ist blau.', c: ['Das', 'Der', 'Die'], a: 0, z: 'Man sagt: ein Meer.', e: 'das Meer.' },
+        { t: 'dictee', cs: true, say: 'das Meer', a: ['das Meer'], z: 'Meer schreibt man mit zwei e.', e: '„Meer“ hat zwei e. Es ist ein Nomen, also groß.' }
+      ] },
+    { dom: 'erd', lang: 'de', qs: [
+      { t: 'qcm', q: 'Wie heißt die Hauptstadt von Deutschland?', c: ['Berlin', 'Paris', 'Wien', 'München'], a: 0, z: 'Paris ist die Hauptstadt von Frankreich.', e: 'Berlin ist die Hauptstadt von Deutschland.' },
+      { t: 'qcm', q: 'Welche Farben hat die deutsche Flagge?', c: ['Schwarz, Rot, Gold', 'Blau, Weiß, Rot', 'Grün, Weiß, Rot', 'Lila, Rosa, Weiß'], a: 0, z: 'Blau, Weiß, Rot ist die französische Flagge.', e: 'Die deutsche Flagge ist schwarz, rot und gold.' }
+    ] },
+    { dom: 'tab', timed: true, gen: TAB10 }
+  ]
+},
+/* ---------------- JOUR 2 ---------------- */
+{
+  place: 'Les Rochers chantants', icon: '🎶', reward: { icon: '🐚', name: 'Le Coquillage chantant' },
+  focus: "Seigneurs et paysans · la Seine, la Manche, l'Atlantique · Deutsch: im Schwimmbad · Nordsee, Ostsee",
+  intro: "Quand les vagues frappent les Rochers chantants, on entend une mélodie. Mais aujourd'hui, un rocher chante faux. Le Miroir des Marées montre un village du Moyen Âge.",
+  parts: [
+    { dom: 'hist',
+      lect: { title: 'Au village du seigneur',
+        s: ["Dans le Miroir, Elena voit un village de paysans au pied d'un château.", "Les paysans cultivent le blé, élèvent des poules et des moutons.", "Le seigneur du château les protège en cas de danger.", "En échange, ils lui donnent une partie de leurs récoltes.", "Certains jours, ils doivent aussi travailler gratuitement dans ses champs : c'est la corvée.", "Le soir, une petite fille joue de la vielle, un instrument à cordes, devant sa maison."],
+        qs: [
+          { q: 'Que fait le seigneur pour les paysans ?', c: ['Il les protège en cas de danger', 'Il leur donne de l\'argent', 'Il cultive leurs champs', 'Il leur apprend à lire'], a: 0, r: [2], e: "Le seigneur protège les paysans. En échange, ils lui donnent une partie de leurs récoltes." },
+          { q: 'Qu\'est-ce que la corvée ?', c: ['Travailler gratuitement pour le seigneur', 'Une fête au village', 'Un instrument de musique', 'Un repas au château'], a: 0, r: [4], e: "La corvée, c'est le travail gratuit que les paysans doivent au seigneur." }
+        ] },
+      qs: [
+        { t: 'qcm', q: 'Au Moyen Âge, la plupart des gens étaient...', c: ['des paysans', 'des chevaliers', 'des rois', 'des moines'], a: 0, z: 'Il fallait beaucoup de monde pour cultiver la terre.', e: "Presque tout le monde vivait à la campagne et travaillait la terre." },
+        { t: 'qcm', q: 'Où vivait le seigneur ?', c: ['Dans un château fort', 'Dans une cabane', 'Dans un bateau', 'Dans une grotte'], a: 0, z: 'Regarde le texte : le village est au pied de ...', e: "Le seigneur vivait dans un château fort, qui protégeait aussi le village." }
+      ] },
+    { dom: 'geo', qs: [
+      { t: 'qcm', q: 'Quel fleuve traverse Paris ?', c: ['La Seine', 'La Loire', 'Le Rhône', 'La Garonne'], a: 0, z: 'Des bateaux-mouches y naviguent.', e: "La Seine traverse Paris et se jette dans la Manche." },
+      { t: 'qcm', q: 'Quel océan borde l\'<b>ouest</b> de la France ?', c: ['L\'océan Atlantique', 'L\'océan Pacifique', 'L\'océan Indien', 'L\'océan Arctique'], a: 0, z: 'De l\'autre côté, il y a l\'Amérique.', e: "L'océan Atlantique borde l'ouest de la France, en Bretagne et au Pays basque par exemple." },
+      { t: 'qcm', q: 'Quelle mer sépare la France de l\'Angleterre ?', c: ['La Manche', 'La Méditerranée', 'La mer Rouge', 'La mer Baltique'], a: 0, z: 'C\'est aussi le nom d\'une partie d\'un pull.', e: "La Manche sépare la France de l'Angleterre." }
+    ] },
+    { dom: 'deu', lang: 'de',
+      lect: { title: 'Im Schwimmbad',
+        s: ['Heute ist Mittwoch.', 'Elena geht ins Schwimmbad.', 'Sie springt ins Wasser.', 'Das Wasser ist warm.', 'Elena schwimmt wie ein Fisch.'],
+        qs: [
+          { q: 'Wohin geht Elena?', c: ['Ins Schwimmbad', 'In die Schule', 'In den Wald', 'Zu Oma'], a: 0, r: [1], e: 'Elena geht ins Schwimmbad.' },
+          { q: 'Wie ist das Wasser?', c: ['Warm', 'Kalt', 'Grün', 'Salzig'], a: 0, r: [3], e: 'Das Wasser ist warm.' }
+        ] },
+      qs: [
+        { t: 'type', cs: true, q: 'Setze das Verb ein.', pre: 'ich (schwimmen) → ich', a: ['schwimme'], z: 'Bei „ich“ endet das Verb auf -e.', e: 'ich schwimme, du schwimmst, sie schwimmt.' },
+        { t: 'fill', q: 'Welcher Artikel passt?', s: '___ Fisch ist klein.', c: ['Der', 'Die', 'Das'], a: 0, z: 'Man sagt: ein Fisch.', e: 'der Fisch.' }
+      ] },
+    { dom: 'erd', lang: 'de', qs: [
+      { t: 'qcm', q: 'Wo liegt das Meer in Deutschland?', c: ['Im Norden', 'Im Süden', 'In der Mitte', 'Es gibt kein Meer'], a: 0, z: 'Im Süden sind die Berge.', e: 'Im Norden liegen die Nordsee und die Ostsee.' },
+      { t: 'qcm', q: 'Wie heißen die zwei Meere in Deutschland?', c: ['Nordsee und Ostsee', 'Südsee und Westsee', 'Mittelmeer und Nordsee', 'Rotes Meer und Ostsee'], a: 0, z: 'Ein Meer heißt wie eine Himmelsrichtung im Norden.', e: 'Die Nordsee und die Ostsee.' }
+    ] },
+    { dom: 'tab', timed: true, gen: TAB10 }
+  ]
+},
+/* ---------------- JOUR 3 ---------------- */
+{
+  place: "Le Jardin d'algues", icon: '🌿', reward: { icon: '🪸', name: 'La Branche de corail' },
+  focus: "Chevaliers et châteaux forts · les fleuves de France · Deutsch: die Geige · Alpen, Zugspitze",
+  intro: "Dans le Jardin d'algues, les poissons jouent à cache-cache. Le Miroir des Marées montre un jeune garçon qui s'entraîne avec une épée de bois.",
+  parts: [
+    { dom: 'hist',
+      lect: { title: 'Le jeune écuyer',
+        s: ["Le garçon du Miroir s'appelle Thibaut.", "Il est écuyer : il aide un chevalier à s'habiller, à porter son armure et à soigner son cheval.", "Chaque jour, il s'entraîne à l'épée et à l'équitation.", "Quand il sera grand, il deviendra chevalier lors d'une cérémonie : l'adoubement.", "Ce jour-là, son seigneur lui remettra une vraie épée.", "Thibaut a hâte, mais il a un peu peur de tomber de cheval devant tout le monde."],
+        qs: [
+          { q: 'Que fait un écuyer ?', c: ['Il aide un chevalier', 'Il construit des châteaux', 'Il cultive le blé', 'Il copie des livres'], a: 0, r: [1], e: "L'écuyer aide le chevalier : armure, cheval, armes." },
+          { q: 'Comment s\'appelle la cérémonie où l\'on devient chevalier ?', c: ['L\'adoubement', 'Le mariage', 'Le couronnement', 'La corvée'], a: 0, r: [3], e: "C'est l'adoubement. Le seigneur remet une épée au nouveau chevalier." }
+        ] },
+      qs: [
+        { t: 'qcm', q: 'Comment appelle-t-on la plus haute tour d\'un château fort ?', c: ['Le donjon', 'Le pont-levis', 'Le moulin', 'Le clocher'], a: 0, z: 'C\'était le dernier refuge en cas d\'attaque.', e: "Le donjon est la tour la plus haute et la plus solide du château." },
+        { t: 'qcm', q: 'À quoi sert le <b>pont-levis</b> ?', c: ['À entrer dans le château, et à le fermer en le relevant', 'À traverser la mer', 'À monter dans le donjon', 'À décorer la cour'], a: 0, z: 'Son nom contient le verbe « lever ».', e: "Le pont-levis passe au-dessus des douves. On le relève pour empêcher les ennemis d'entrer." }
+      ] },
+    { dom: 'geo', qs: [
+      { t: 'qcm', q: 'Quel est le plus long fleuve de France ?', c: ['La Loire', 'La Seine', 'Le Rhône', 'La Garonne'], a: 0, z: 'On trouve beaucoup de châteaux le long de ce fleuve.', e: "La Loire est le plus long fleuve de France. Elle se jette dans l'océan Atlantique." },
+      { t: 'qcm', q: 'Quel fleuve traverse Lyon et se jette dans la Méditerranée ?', c: ['Le Rhône', 'La Seine', 'La Loire', 'Le Rhin'], a: 0, z: 'Il vient de Suisse.', e: "Le Rhône vient de Suisse, traverse Lyon et se jette dans la Méditerranée." },
+      { t: 'qcm', q: 'Quel fleuve traverse Bordeaux ?', c: ['La Garonne', 'La Seine', 'Le Rhin', 'La Loire'], a: 0, z: 'Il traverse aussi Toulouse.', e: "La Garonne traverse Toulouse et Bordeaux." }
+    ] },
+    { dom: 'deu', lang: 'de',
+      lect: { title: 'Die Geige',
+        s: ['Elena spielt Geige.', 'Die Geige ist aus Holz.', 'Sie hat vier Saiten.', 'Elena übt jeden Tag.', 'Ihre Katze hört gern zu.'],
+        qs: [
+          { q: 'Woraus ist die Geige?', c: ['Aus Holz', 'Aus Glas', 'Aus Papier', 'Aus Stein'], a: 0, r: [1], e: 'Die Geige ist aus Holz.' },
+          { q: 'Wer hört Elena gern zu?', c: ['Ihre Katze', 'Ihr Hund', 'Ihre Lehrerin', 'Ein Fisch'], a: 0, r: [4], e: 'Ihre Katze hört gern zu.' }
+        ] },
+      qs: [
+        { t: 'type', cs: true, q: 'Schreib das Wort richtig: groß oder klein?', s: 'Elena spielt (GEIGE).', pre: '→', a: ['Geige'], z: 'Kann man „die“ davor sagen? Dann ist es ein Nomen.', e: 'die Geige ist ein Nomen: groß!' },
+        { t: 'dictee', cs: true, say: 'die Katze', a: ['die Katze'], z: 'Nach a hört man ein kurzes a: tz.', e: 'die Katze mit tz.' }
+      ] },
+    { dom: 'erd', lang: 'de', qs: [
+      { t: 'qcm', q: 'Wo sind die hohen Berge in Deutschland, die Alpen?', c: ['Im Süden', 'Im Norden', 'Im Westen', 'Am Meer'], a: 0, z: 'Das Meer ist im Norden.', e: 'Die Alpen sind im Süden von Deutschland.' },
+      { t: 'qcm', q: 'Wie heißt der höchste Berg in Deutschland?', c: ['Die Zugspitze', 'Der Mont Blanc', 'Der Eiffelturm', 'Der Kilimandscharo'], a: 0, z: 'Der Mont Blanc ist in Frankreich.', e: 'Die Zugspitze ist der höchste Berg Deutschlands.' }
+    ] },
+    { dom: 'tab', timed: true, gen: TAB10 }
+  ]
+},
+/* ---------------- JOUR 4 ---------------- */
+{
+  place: 'La Grotte aux perles', icon: '🦪', reward: { icon: '🎼', name: 'La Harpe de nacre' },
+  focus: "Moines et cathédrales · les montagnes de France · Deutsch: Lila und Bleuet · Rhein, Köln",
+  intro: "Dans la Grotte aux perles, Lila, la fée violoniste, a retrouvé Maëlle. Ensemble, elles regardent le Miroir : il montre des fenêtres qui brillent de toutes les couleurs.",
+  parts: [
+    { dom: 'hist',
+      lect: { title: 'Les vitraux de la cathédrale',
+        s: ["Le Miroir montre une immense église : une cathédrale.", "Au Moyen Âge, il fallait souvent plus de cent ans pour en construire une.", "Ses grandes fenêtres sont faites de morceaux de verre de couleur : ce sont des vitraux.", "Quand le soleil passe à travers, la cathédrale se remplit de lumière bleue, rouge et violette.", "Les vitraux racontent des histoires en images, car beaucoup de gens ne savaient pas lire.", "Lila trouve que les vitraux ressemblent aux ailes de Pétale."],
+        qs: [
+          { q: 'Qu\'est-ce qu\'un vitrail ?', c: ['Une fenêtre en morceaux de verre de couleur', 'Une tour très haute', 'Un livre ancien', 'Une statue en pierre'], a: 0, r: [2], e: "Un vitrail est une fenêtre faite de morceaux de verre colorés." },
+          { q: 'Pourquoi les vitraux racontent-ils des histoires en images ?', c: ['Beaucoup de gens ne savaient pas lire', 'Les moines aimaient dessiner', 'C\'était plus rapide', 'Le roi l\'avait demandé'], a: 0, r: [4], e: "Beaucoup de gens ne savaient pas lire : les images leur racontaient les histoires." }
+        ] },
+      qs: [
+        { t: 'qcm', q: 'Au Moyen Âge, que faisaient les moines dans les monastères ?', c: ['Ils priaient et recopiaient des livres à la main', 'Ils construisaient des bateaux', 'Ils allaient à la guerre', 'Ils vendaient des poissons'], a: 0, z: 'L\'imprimerie n\'existait pas encore.', e: "Les moines priaient, travaillaient et recopiaient des livres à la main." },
+        { t: 'qcm', q: 'Quelle cathédrale célèbre se trouve à Paris ?', c: ['Notre-Dame', 'La tour Eiffel', 'Le Louvre', 'L\'Arc de triomphe'], a: 0, z: 'Elle a été réparée après un grand incendie.', e: "Notre-Dame de Paris a été construite au Moyen Âge. Elle a été restaurée après l'incendie de 2019." }
+      ] },
+    { dom: 'geo', qs: [
+      { t: 'qcm', q: 'Quel est le plus haut sommet de France ?', c: ['Le mont Blanc', 'Le mont Saint-Michel', 'Le puy de Dôme', 'La tour Eiffel'], a: 0, z: 'Il est blanc de neige toute l\'année.', e: "Le mont Blanc, dans les Alpes, est le plus haut sommet de France." },
+      { t: 'qcm', q: 'Quelles montagnes se trouvent entre la France et l\'Espagne ?', c: ['Les Pyrénées', 'Les Alpes', 'Les Vosges', 'Le Jura'], a: 0, z: 'Elles sont au sud-ouest.', e: "Les Pyrénées séparent la France de l'Espagne." },
+      { t: 'qcm', q: 'Dans quelles montagnes se trouve le mont Blanc ?', c: ['Les Alpes', 'Les Pyrénées', 'Le Massif central', 'Les Vosges'], a: 0, z: 'Ces montagnes touchent la Suisse et l\'Italie.', e: "Le mont Blanc est dans les Alpes, à l'est de la France." }
+    ] },
+    { dom: 'deu', lang: 'de',
+      lect: { title: 'Lila und Bleuet',
+        s: ['Lila ist eine Fee.', 'Sie spielt Geige im Garten.', 'Bleuet ist ein kleiner Schmetterling.', 'Er tanzt zur Musik.', 'Dann schlafen beide unter einer Blume.'],
+        qs: [
+          { q: 'Wer ist Bleuet?', c: ['Ein kleiner Schmetterling', 'Eine Fee', 'Ein Fisch', 'Eine Katze'], a: 0, r: [2], e: 'Bleuet ist ein kleiner Schmetterling.' },
+          { q: 'Wo schlafen Lila und Bleuet?', c: ['Unter einer Blume', 'Im Meer', 'In einem Schloss', 'Auf einem Baum'], a: 0, r: [4], e: 'Sie schlafen unter einer Blume.' }
+        ] },
+      qs: [
+        { t: 'type', cs: true, q: 'Schreib das Wort in der <b>Mehrzahl</b>.', pre: 'die Blume → die', a: ['Blumen'], z: 'Man hängt -n an.', e: 'die Blume, die Blumen.' },
+        { t: 'fill', q: 'Welcher Artikel passt?', s: '___ Fee spielt Geige.', c: ['Die', 'Der', 'Das'], a: 0, z: 'Man sagt: eine Fee.', e: 'die Fee.' }
+      ] },
+    { dom: 'erd', lang: 'de', qs: [
+      { t: 'qcm', q: 'Welcher große Fluss fließt durch Köln?', c: ['Der Rhein', 'Die Seine', 'Die Loire', 'Die Elbe'], a: 0, z: 'Er fließt auch an Straßburg vorbei.', e: 'Der Rhein fließt durch Köln.' },
+      { t: 'qcm', q: 'Was ist der Kölner Dom?', c: ['Eine sehr große Kirche', 'Ein Berg', 'Ein Schiff', 'Ein Zoo'], a: 0, z: 'Er sieht aus wie die Kathedrale im Zauberspiegel.', e: 'Der Kölner Dom ist eine riesige Kirche mit zwei Türmen.' }
+    ] },
+    { dom: 'tab', timed: true, gen: TAB10 }
+  ]
+},
+/* ---------------- JOUR 5 ---------------- */
+{
+  place: 'Le Phare des fées', icon: '🗼', reward: { icon: '🏮', name: 'La Lanterne du phare' },
+  focus: "Jeanne d'Arc · les îles et les côtes · Deutsch: der Leuchtturm · Hamburg, Bayern",
+  intro: "Le Phare des fées s'est éteint et les bateaux se perdent. Pendant que les lucioles le rallument, le Miroir montre une jeune fille très courageuse.",
+  parts: [
+    { dom: 'hist',
+      lect: { title: "Jeanne d'Arc",
+        s: ["Il y a presque six cents ans, la France et l'Angleterre étaient en guerre depuis très longtemps.", "Une jeune paysanne, Jeanne, disait entendre des voix qui lui demandaient de sauver le royaume.", "Elle est allée voir le futur roi, Charles VII, pour lui demander une armée.", "En 1429, à la tête des soldats, elle a libéré la ville d'Orléans.", "Ensuite, Charles VII a été couronné roi dans la cathédrale de Reims.", "Maëlle trouve que Jeanne était aussi courageuse qu'Elena dans la Grotte de Cristal."],
+        qs: [
+          { q: 'Quelle ville Jeanne d\'Arc a-t-elle libérée en 1429 ?', c: ['Orléans', 'Paris', 'Marseille', 'Lyon'], a: 0, r: [3], e: "En 1429, Jeanne a libéré Orléans." },
+          { q: 'Contre quel pays la France était-elle en guerre ?', c: ['L\'Angleterre', 'L\'Allemagne', 'L\'Espagne', 'L\'Italie'], a: 0, r: [0], e: "C'était la guerre de Cent Ans, entre la France et l'Angleterre." }
+        ] },
+      qs: [
+        { t: 'qcm', q: 'Comment s\'appelle la longue guerre entre la France et l\'Angleterre au Moyen Âge ?', c: ['La guerre de Cent Ans', 'La guerre des Étoiles', 'La guerre de Troie', 'La guerre des Fées'], a: 0, z: 'Son nom parle d\'un nombre d\'années.', e: "La guerre de Cent Ans a duré de 1337 à 1453, en fait 116 ans !" },
+        { t: 'qcm', q: 'Où le roi Charles VII a-t-il été couronné ?', c: ['À Reims', 'À Orléans', 'Au Mont-Saint-Michel', 'À Versailles'], a: 0, z: 'Relis le texte : dans quelle cathédrale ?', e: "Les rois de France étaient couronnés (sacrés) dans la cathédrale de Reims." }
+      ] },
+    { dom: 'geo', qs: [
+      { t: 'qcm', q: 'Quelle grande île française se trouve dans la mer Méditerranée ?', c: ['La Corse', 'La Martinique', 'La Réunion', 'La Sicile'], a: 0, z: 'On l\'appelle « l\'île de Beauté ».', e: "La Corse est une île française de la Méditerranée." },
+      { t: 'qcm', q: 'À quoi sert un phare ?', c: ['À guider les bateaux la nuit', 'À stocker les poissons', 'À regarder les étoiles', 'À faire de la musique'], a: 0, z: 'Il lance une grande lumière tournante.', e: "La lumière du phare indique la côte aux bateaux pour qu'ils ne heurtent pas les rochers." },
+      { t: 'qcm', q: 'La Bretagne est entourée par...', c: ['la mer et l\'océan sur trois côtés', 'des montagnes très hautes', 'un grand désert', 'la Suisse et l\'Italie'], a: 0, z: 'Elle ressemble à une pointe qui avance dans l\'eau.', e: "La Bretagne est une presqu'île : la Manche au nord, l'Atlantique à l'ouest et au sud." }
+    ] },
+    { dom: 'deu', lang: 'de',
+      lect: { title: 'Der Leuchtturm',
+        s: ['Am Meer steht ein Leuchtturm.', 'Er ist rot und weiß.', 'In der Nacht leuchtet er hell.', 'So sehen die Schiffe die Felsen.', 'Die Glühwürmchen helfen heute mit.'],
+        qs: [
+          { q: 'Welche Farben hat der Leuchtturm?', c: ['Rot und weiß', 'Blau und gelb', 'Grün und lila', 'Schwarz'], a: 0, r: [1], e: 'Der Leuchtturm ist rot und weiß.' },
+          { q: 'Warum leuchtet der Leuchtturm?', c: ['Damit die Schiffe die Felsen sehen', 'Damit die Fische schlafen', 'Weil es Geburtstag ist', 'Damit es warm wird'], a: 0, r: [3], e: 'So sehen die Schiffe die Felsen.' }
+        ] },
+      qs: [
+        { t: 'fill', q: 'Welcher Artikel passt?', s: '___ Schiff fährt auf dem Meer.', c: ['Das', 'Der', 'Die'], a: 0, z: 'Man sagt: ein Schiff.', e: 'das Schiff.' },
+        { t: 'dictee', cs: true, say: 'Das Schiff ist groß.', a: ['Das Schiff ist groß'], z: 'groß schreibt man mit ß.', e: '„Schiff“ ist ein Nomen (groß). „groß“ schreibt man mit ß.' }
+      ] },
+    { dom: 'erd', lang: 'de', qs: [
+      { t: 'qcm', q: 'Hamburg hat einen großen...', c: ['Hafen für Schiffe', 'Berg', 'Vulkan', 'Strand am Mittelmeer'], a: 0, z: 'Viele große Schiffe kommen dorthin.', e: 'Hamburg hat den größten Hafen Deutschlands, an der Elbe.' },
+      { t: 'qcm', q: 'Welches Bundesland ist das größte?', c: ['Bayern', 'Berlin', 'Bremen', 'Hamburg'], a: 0, z: 'Seine Hauptstadt ist München.', e: 'Bayern ist das größte Bundesland. Die Hauptstadt ist München.' }
+    ] },
+    { dom: 'tab', timed: true, gen: TAB10 }
+  ]
+},
+/* ---------------- JOUR 6 ---------------- */
+{
+  place: 'Le Pont de nacre', icon: '🌉', reward: { icon: '⭐', name: "L'Étoile de mer dorée" },
+  focus: "1789 : le roi, les trois ordres, les cahiers de doléances · les grandes villes · Deutsch: Oma und Opa · Nachbarländer",
+  intro: "Le Pont de nacre relie la plage des fées au palais des sirènes. Le Miroir des Marées fait un grand saut dans le temps : nous voilà en 1789.",
+  parts: [
+    { dom: 'hist',
+      lect: { title: 'Le cahier du village',
+        s: ["En 1789, la France est gouvernée par un roi, Louis XVI.", "La société est divisée en trois groupes : le clergé, la noblesse et le tiers état.", "Le tiers état, ce sont presque tous les Français : paysans, artisans, marchands.", "C'est lui qui paie le plus d'impôts.", "Le roi demande aux habitants d'écrire leurs plaintes dans des cahiers : les cahiers de doléances.", "Dans le Miroir, Elena voit une paysanne qui écrit : « Nous voulons payer moins d'impôts et manger à notre faim. »"],
+        qs: [
+          { q: 'Qui est le roi de France en 1789 ?', c: ['Louis XVI', 'Charlemagne', 'Charles VII', 'Napoléon'], a: 0, r: [0], e: "En 1789, le roi est Louis XVI." },
+          { q: 'Qu\'écrit-on dans les cahiers de doléances ?', c: ['Les plaintes des habitants', 'Des recettes de cuisine', 'Des partitions de musique', 'Les noms des chevaliers'], a: 0, r: [4], e: "Une doléance est une plainte. Les Français y écrivent ce qu'ils veulent changer." }
+        ] },
+      qs: [
+        { t: 'qcm', q: 'Quel groupe paie le plus d\'impôts avant la Révolution ?', c: ['Le tiers état', 'La noblesse', 'Le clergé', 'Le roi'], a: 0, z: 'C\'est le groupe le plus nombreux.', e: "Le tiers état paie presque tous les impôts. La noblesse et le clergé ont des privilèges." },
+        { t: 'qcm', q: 'Le clergé, ce sont...', c: ['les hommes et les femmes d\'Église', 'les chevaliers', 'les paysans', 'les marchands'], a: 0, z: 'Les prêtres, les moines et les religieuses.', e: "Le clergé regroupe les prêtres, les moines et les religieuses." }
+      ] },
+    { dom: 'geo', qs: [
+      { t: 'qcm', q: 'Quelle grande ville est un port au bord de la Méditerranée ?', c: ['Marseille', 'Lille', 'Strasbourg', 'Paris'], a: 0, z: 'C\'est la deuxième ville de France.', e: "Marseille est un grand port de la Méditerranée." },
+      { t: 'qcm', q: 'Quelle ville se trouve au bord du Rhin, tout près de l\'Allemagne ?', c: ['Strasbourg', 'Bordeaux', 'Nice', 'Brest'], a: 0, z: 'Le Parlement européen s\'y trouve.', e: "Strasbourg est au bord du Rhin, face à l'Allemagne." },
+      { t: 'qcm', q: 'Laquelle de ces villes est au <b>nord</b> de la France ?', c: ['Lille', 'Marseille', 'Toulouse', 'Nice'], a: 0, z: 'Elle est proche de la Belgique.', e: "Lille est au nord, près de la Belgique." }
+    ] },
+    { dom: 'deu', lang: 'de',
+      lect: { title: 'Bei Oma und Opa',
+        s: ['Elena ist bei Oma und Opa.', 'Oma backt einen Kuchen.', 'Opa liest eine Geschichte vor.', 'Elena malt eine Fee.', 'Am Abend essen alle zusammen.'],
+        qs: [
+          { q: 'Was macht Oma?', c: ['Sie backt einen Kuchen', 'Sie liest', 'Sie malt', 'Sie schwimmt'], a: 0, r: [1], e: 'Oma backt einen Kuchen.' },
+          { q: 'Was malt Elena?', c: ['Eine Fee', 'Ein Haus', 'Einen Hund', 'Das Meer'], a: 0, r: [3], e: 'Elena malt eine Fee.' }
+        ] },
+      qs: [
+        { t: 'type', cs: true, q: 'Setze das Verb ein.', pre: 'du (malen) → du', a: ['malst'], z: 'Bei „du“ endet das Verb auf -st.', e: 'ich male, du malst, sie malt.' },
+        { t: 'type', cs: true, q: 'Schreib das Wort richtig: groß oder klein?', s: 'Oma backt einen (KUCHEN).', pre: '→', a: ['Kuchen'], z: 'Kann man „der“ davor sagen?', e: 'der Kuchen ist ein Nomen: groß!' }
+      ] },
+    { dom: 'erd', lang: 'de', qs: [
+      { t: 'qcm', q: 'Welches Land ist ein Nachbar von Deutschland?', c: ['Frankreich', 'Spanien', 'Portugal', 'Griechenland'], a: 0, z: 'Du wohnst dort.', e: 'Frankreich ist ein Nachbarland von Deutschland, im Westen.' },
+      { t: 'qcm', q: 'Wie heißt die Hauptstadt von Österreich?', c: ['Wien', 'Berlin', 'Rom', 'Madrid'], a: 0, z: 'Auf Französisch: Vienne.', e: 'Wien ist die Hauptstadt von Österreich. Dort spricht man auch Deutsch.' }
+    ] },
+    { dom: 'tab', timed: true, gen: TAB10 }
+  ]
+},
+/* ---------------- JOUR 7 ---------------- */
+{
+  place: 'Le Lagon des méduses', icon: '🪼', reward: { icon: '🪼', name: 'La Méduse lumineuse' },
+  focus: "Le 14 juillet 1789 · lire une carte, les points cardinaux · Deutsch: Quallen · Bodensee, Schwarzwald",
+  intro: "Les méduses du lagon brillent comme des lanternes. Le Miroir montre une foule en colère devant une grande forteresse, à Paris.",
+  parts: [
+    { dom: 'hist',
+      lect: { title: 'La prise de la Bastille',
+        s: ["Le 14 juillet 1789, à Paris, les habitants ont peur que le roi envoie ses soldats contre eux.", "Ils cherchent des armes et de la poudre.", "Ils se rendent à la Bastille, une vieille forteresse qui sert de prison.", "Après plusieurs heures de combat, ils prennent la Bastille.", "Pour beaucoup de Français, c'est le début de la Révolution.", "Aujourd'hui, le 14 juillet est la fête nationale : il y a un défilé et des feux d'artifice."],
+        qs: [
+          { q: 'Qu\'était la Bastille ?', c: ['Une forteresse qui servait de prison', 'Le palais du roi', 'Une cathédrale', 'Un phare'], a: 0, r: [2], e: "La Bastille était une vieille forteresse transformée en prison." },
+          { q: 'Que se passe-t-il chaque 14 juillet aujourd\'hui ?', c: ['La fête nationale, avec défilé et feux d\'artifice', 'La rentrée des classes', 'Noël', 'Le premier jour de l\'été'], a: 0, r: [5], e: "Le 14 juillet est la fête nationale française." }
+        ] },
+      qs: [
+        { t: 'qcm', q: 'En quelle année la Bastille a-t-elle été prise ?', c: ['1789', '1429', '1914', '2024'], a: 0, z: 'C\'est l\'année des cahiers de doléances.', e: "La Bastille a été prise le 14 juillet 1789." },
+        { t: 'qcm', q: 'Dans quelle ville se trouvait la Bastille ?', c: ['Paris', 'Versailles', 'Orléans', 'Reims'], a: 0, z: 'Relis la première phrase du texte.', e: "La Bastille était à Paris. Aujourd'hui, il reste une grande place de la Bastille." }
+      ] },
+    { dom: 'geo', qs: [
+      { t: 'qcm', q: 'Sur une carte, le <b>nord</b> est en général...', c: ['en haut', 'en bas', 'à gauche', 'à droite'], a: 0, z: 'La rose des vents l\'indique avec la lettre N.', e: "Sur la plupart des cartes, le nord est en haut, le sud en bas, l'ouest à gauche et l'est à droite." },
+      { t: 'qcm', q: 'Sur une carte, à quoi sert la <b>légende</b> ?', c: ['À expliquer ce que veulent dire les couleurs et les symboles', 'À raconter une histoire de fées', 'À donner la date', 'À écrire le nom de l\'auteur'], a: 0, z: 'Elle se trouve souvent dans un petit cadre, dans un coin.', e: "La légende explique les couleurs et les symboles : bleu pour l'eau, points pour les villes..." },
+      { t: 'qcm', q: 'L\'Espagne se trouve au... de la France.', c: ['sud', 'nord', 'est', 'ouest'], a: 0, z: 'Les Pyrénées sont entre les deux pays.', e: "L'Espagne est au sud (sud-ouest) de la France." }
+    ] },
+    { dom: 'deu', lang: 'de',
+      lect: { title: 'Die Quallen',
+        s: ['Im Meer schwimmen viele Quallen.', 'Sie sind fast durchsichtig.', 'In der Nacht leuchten sie lila.', 'Maëlle passt gut auf.', 'Manche Quallen brennen auf der Haut.'],
+        qs: [
+          { q: 'Welche Farbe haben die Quallen in der Nacht?', c: ['Lila', 'Rot', 'Grün', 'Schwarz'], a: 0, r: [2], e: 'In der Nacht leuchten sie lila.' },
+          { q: 'Warum passt Maëlle gut auf?', c: ['Manche Quallen brennen auf der Haut', 'Sie hat Angst vor der Nacht', 'Das Wasser ist kalt', 'Sie sucht ihren Krebs'], a: 0, r: [4], e: 'Manche Quallen brennen auf der Haut.' }
+        ] },
+      qs: [
+        { t: 'type', cs: true, q: 'Schreib das Wort in der <b>Mehrzahl</b>.', pre: 'die Qualle → die', a: ['Quallen'], z: 'Man hängt -n an.', e: 'die Qualle, die Quallen.' },
+        { t: 'dictee', cs: true, say: 'Die Qualle leuchtet.', a: ['Die Qualle leuchtet'], z: 'Qualle schreibt man mit Qu und zwei l.', e: '„Qualle“: Qu am Anfang und ll in der Mitte.' }
+      ] },
+    { dom: 'erd', lang: 'de', qs: [
+      { t: 'qcm', q: 'Der Bodensee ist...', c: ['ein großer See', 'ein Berg', 'ein Meer', 'eine Stadt'], a: 0, z: 'Das Wort „See“ steckt darin.', e: 'Der Bodensee ist ein großer See im Süden, an der Grenze zu Österreich und der Schweiz.' },
+      { t: 'qcm', q: 'Der Schwarzwald ist...', c: ['ein großer Wald', 'ein schwarzes Meer', 'eine Wüste', 'ein Fluss'], a: 0, z: 'Das Wort „Wald“ steckt darin.', e: 'Der Schwarzwald ist ein großer Wald im Südwesten. Dort gibt es Kuckucksuhren.' }
+    ] },
+    { dom: 'tab', timed: true, gen: TAB10 }
+  ]
+},
+/* ---------------- JOUR 8 ---------------- */
+{
+  place: 'La Cité engloutie', icon: '🏛️', reward: { icon: '📜', name: 'Le Parchemin des Droits' },
+  focus: "Les droits de l'homme, la devise de la République · l'outre-mer · Deutsch: Pinçou · Donau, Wien",
+  intro: "Au fond de l'océan dort une cité engloutie. Sur une colonne, Maëlle a trouvé un parchemin que l'eau n'a jamais effacé. Le Miroir explique ce qu'il contient.",
+  parts: [
+    { dom: 'hist',
+      lect: { title: 'Les droits de l\'homme',
+        s: ["En août 1789, les députés réunis à Versailles prennent de grandes décisions.", "Le 4 août, ils suppriment les privilèges : la noblesse et le clergé devront payer des impôts comme tout le monde.", "Le 26 août, ils écrivent la Déclaration des droits de l'homme et du citoyen.", "Sa première idée est : « Les hommes naissent et demeurent libres et égaux en droits. »", "Plus tard, la France choisit une devise : Liberté, Égalité, Fraternité.", "Maëlle dit que les sirènes et les fées aussi devraient avoir les mêmes droits."],
+        qs: [
+          { q: 'Que décident les députés le 4 août 1789 ?', c: ['Ils suppriment les privilèges', 'Ils prennent la Bastille', 'Ils choisissent un nouveau roi', 'Ils construisent une cathédrale'], a: 0, r: [1], e: "Le 4 août, les privilèges sont supprimés : tout le monde devra payer des impôts." },
+          { q: 'Que dit la première idée de la Déclaration ?', c: ['Les hommes naissent libres et égaux en droits', 'Le roi décide de tout', 'Seuls les nobles sont libres', 'Il faut payer plus d\'impôts'], a: 0, r: [3], e: "« Les hommes naissent et demeurent libres et égaux en droits. »" }
+        ] },
+      qs: [
+        { t: 'qcm', q: 'Quelle est la devise de la France ?', c: ['Liberté, Égalité, Fraternité', 'Courage, Patience, Magie', 'Un pour tous, tous pour un', 'Paix, Amour, Joie'], a: 0, z: 'Elle est écrite sur les mairies et les écoles.', e: "Liberté, Égalité, Fraternité est écrit sur le fronton des mairies et des écoles." },
+        { t: 'qcm', q: 'Où étaient réunis les députés en 1789 ?', c: ['À Versailles', 'À Orléans', 'À Reims', 'Au Mont-Saint-Michel'], a: 0, z: 'C\'est là que se trouvait le château du roi.', e: "Les députés se réunissaient à Versailles, près du château du roi." }
+      ] },
+    { dom: 'geo', qs: [
+      { t: 'qcm', q: 'La Guadeloupe et la Martinique sont des îles françaises situées...', c: ['dans la mer des Caraïbes', 'dans la Manche', 'au milieu des Alpes', 'dans la mer du Nord'], a: 0, z: 'Il y fait chaud toute l\'année.', e: "La Guadeloupe et la Martinique sont aux Antilles, dans la mer des Caraïbes." },
+      { t: 'qcm', q: 'Quelle île française se trouve dans l\'océan Indien ?', c: ['La Réunion', 'La Corse', 'La Guadeloupe', 'La Martinique'], a: 0, z: 'Elle a un volcan très actif, le piton de la Fournaise.', e: "La Réunion est dans l'océan Indien, près de Madagascar." },
+      { t: 'qcm', q: 'La Guyane française se trouve en...', c: ['Amérique du Sud', 'Afrique', 'Asie', 'Europe'], a: 0, z: 'Elle est couverte d\'une immense forêt, l\'Amazonie.', e: "La Guyane est en Amérique du Sud, à côté du Brésil." }
+    ] },
+    { dom: 'deu', lang: 'de',
+      lect: { title: 'Pinçou',
+        s: ['Pinçou ist ein kleiner Krebs.', 'Er hat zwei große Scheren.', 'Er wohnt in einer Muschel.', 'Pinçou sammelt glänzende Steine.', 'Er schenkt Maëlle den schönsten Stein.'],
+        qs: [
+          { q: 'Wo wohnt Pinçou?', c: ['In einer Muschel', 'In einem Schloss', 'In einem Baum', 'In einem Schiff'], a: 0, r: [2], e: 'Pinçou wohnt in einer Muschel.' },
+          { q: 'Was sammelt Pinçou?', c: ['Glänzende Steine', 'Blumen', 'Federn', 'Briefe'], a: 0, r: [3], e: 'Er sammelt glänzende Steine.' }
+        ] },
+      qs: [
+        { t: 'fill', q: 'Welcher Artikel passt?', s: '___ Muschel ist rosa.', c: ['Die', 'Der', 'Das'], a: 0, z: 'Man sagt: eine Muschel.', e: 'die Muschel.' },
+        { t: 'type', cs: true, q: 'Setze das Verb ein.', pre: 'er (wohnen) → er', a: ['wohnt'], z: 'Bei „er“ endet das Verb auf -t.', e: 'ich wohne, du wohnst, er wohnt.' }
+      ] },
+    { dom: 'erd', lang: 'de', qs: [
+      { t: 'qcm', q: 'Die Donau ist...', c: ['ein langer Fluss', 'ein hoher Berg', 'eine Insel', 'ein See'], a: 0, z: 'Sie fließt durch Wien.', e: 'Die Donau ist ein langer Fluss. Sie beginnt im Schwarzwald und fließt durch Wien.' },
+      { t: 'qcm', q: 'Durch welche Hauptstadt fließt die Donau?', c: ['Wien', 'Berlin', 'Paris', 'London'], a: 0, z: 'Die Hauptstadt von Österreich.', e: 'Die Donau fließt durch Wien, die Hauptstadt von Österreich.' }
+    ] },
+    { dom: 'tab', timed: true, gen: TAB10 }
+  ]
+},
+/* ---------------- JOUR 9 ---------------- */
+{
+  place: "Le Récif d'améthyste", icon: '💎', reward: { icon: '🔮', name: "L'Orbe d'améthyste" },
+  focus: "La République, la Marseillaise, les symboles · les paysages · Deutsch: das Lied · Elbe, Neuschwanstein",
+  intro: "Le Récif d'améthyste brille de mille violets. Pour le grand concert de demain, il faut un chant puissant. Le Miroir en connaît un très célèbre.",
+  parts: [
+    { dom: 'hist',
+      lect: { title: 'La Marseillaise',
+        s: ["En 1792, la France est en guerre contre l'Autriche.", "À Strasbourg, un officier, Rouget de Lisle, écrit un chant pour donner du courage aux soldats.", "Des soldats venus de Marseille le chantent en arrivant à Paris : on l'appelle alors la Marseillaise.", "La même année, le roi perd son pouvoir et la France devient une République.", "Aujourd'hui, la Marseillaise est l'hymne national de la France.", "Maëlle veut que les sirènes apprennent un chant aussi puissant pour le concert."],
+        qs: [
+          { q: 'Pourquoi ce chant s\'appelle-t-il la Marseillaise ?', c: ['Des soldats venus de Marseille l\'ont chanté à Paris', 'Il a été écrit à Marseille', 'Il parle de la mer', 'Le roi habitait à Marseille'], a: 0, r: [2], e: "Il a été écrit à Strasbourg, mais ce sont des soldats marseillais qui l'ont fait connaître à Paris." },
+          { q: 'Que devient la France en 1792 ?', c: ['Une République', 'Un royaume des fées', 'Un empire', 'Une île'], a: 0, r: [3], e: "En 1792, la royauté est abolie : la France devient une République." }
+        ] },
+      qs: [
+        { t: 'qcm', q: 'Quelles sont les couleurs du drapeau français ?', c: ['Bleu, blanc, rouge', 'Noir, rouge, or', 'Vert, blanc, rouge', 'Violet, rose, blanc'], a: 0, z: 'Noir, rouge, or, c\'est le drapeau allemand.', e: "Le drapeau tricolore bleu, blanc, rouge date de la Révolution." },
+        { t: 'qcm', q: 'Comment s\'appelle la femme qui représente la République française ?', c: ['Marianne', 'Jeanne', 'Maëlle', 'Agathe'], a: 0, z: 'Son buste est dans toutes les mairies.', e: "Marianne représente la République. On la voit sur les timbres et dans les mairies." }
+      ] },
+    { dom: 'geo', qs: [
+      { t: 'qcm', q: 'Comment s\'appelle le paysage au bord de la mer ?', c: ['Le littoral', 'La montagne', 'La forêt', 'Le désert'], a: 0, z: 'On y trouve des plages, des ports et des falaises.', e: "Le littoral, c'est le bord de mer : plages, ports, falaises." },
+      { t: 'qcm', q: 'Un village entouré de champs et de prés se trouve...', c: ['à la campagne', 'en ville', 'sur le littoral', 'sous la mer'], a: 0, z: 'C\'est le contraire de la ville.', e: "À la campagne, il y a des champs, des prés, des fermes et des villages." },
+      { t: 'qcm', q: 'En ville, on trouve surtout...', c: ['des immeubles, des rues et des magasins', 'des champs de blé', 'des troupeaux de vaches', 'des glaciers'], a: 0, z: 'Pense à Paris ou à Lyon.', e: "En ville, il y a beaucoup d'immeubles, de rues, de magasins et d'habitants." }
+    ] },
+    { dom: 'deu', lang: 'de',
+      lect: { title: 'Das Lied',
+        s: ['Die Meerjungfrauen üben ein Lied.', 'Sie singen laut und schön.', 'Die Fische hören zu.', 'Ein Delfin springt aus dem Wasser.', 'Morgen ist das große Konzert.'],
+        qs: [
+          { q: 'Was üben die Meerjungfrauen?', c: ['Ein Lied', 'Einen Tanz', 'Ein Spiel', 'Ein Bild'], a: 0, r: [0], e: 'Die Meerjungfrauen üben ein Lied.' },
+          { q: 'Wann ist das Konzert?', c: ['Morgen', 'Heute', 'Gestern', 'Im Sommer'], a: 0, r: [4], e: 'Morgen ist das große Konzert.' }
+        ] },
+      qs: [
+        { t: 'type', cs: true, q: 'Setze das Verb ein.', pre: 'wir (singen) → wir', a: ['singen'], z: 'Bei „wir“ endet das Verb auf -en.', e: 'ich singe, du singst, wir singen.' },
+        { t: 'dictee', cs: true, say: 'der Delfin', a: ['der Delfin', 'der Delphin'], z: 'Delfin schreibt man mit f.', e: '„Delfin“ mit f (man darf auch „Delphin“ schreiben, aber Delfin ist heute üblich).' }
+      ] },
+    { dom: 'erd', lang: 'de', qs: [
+      { t: 'qcm', q: 'Welcher Fluss fließt durch Hamburg?', c: ['Die Elbe', 'Der Rhein', 'Die Donau', 'Die Seine'], a: 0, z: 'Sie fließt auch durch Dresden.', e: 'Die Elbe fließt durch Hamburg in die Nordsee.' },
+      { t: 'qcm', q: 'Das Schloss Neuschwanstein sieht aus wie ein Märchenschloss. In welchem Bundesland steht es?', c: ['In Bayern', 'In Berlin', 'In Hamburg', 'In Bremen'], a: 0, z: 'Im Süden, bei den Alpen.', e: 'Neuschwanstein steht in Bayern, vor den Alpen.' }
+    ] },
+    { dom: 'tab', timed: true, gen: TAB10 }
+  ]
+},
+/* ---------------- JOUR 10 ---------------- */
+{
+  place: "Le Palais de l'Harmonie", icon: '🎻', reward: { icon: '💠', name: "Le Diadème de l'Harmonie" },
+  focus: "Grand défi : Napoléon et révision de toute l'histoire · révision de géographie · Deutsch: das Konzert",
+  intro: "Le grand soir est arrivé. Fées et sirènes attendent dans le Palais de l'Harmonie. Le concert commencera quand Elena aura réussi l'épreuve finale.",
+  parts: [
+    { dom: 'hist',
+      lect: { title: 'Napoléon Bonaparte',
+        s: ["Après la Révolution, un jeune général devient très célèbre : Napoléon Bonaparte.", "En 1799, il prend le pouvoir.", "En 1804, il se fait couronner empereur des Français.", "Il crée le Code civil, un grand livre de lois que la France utilise encore aujourd'hui.", "Il fait aussi ouvrir des lycées pour former les élèves.", "Mais il fait beaucoup de guerres en Europe, et il finit sa vie prisonnier sur une île très lointaine."],
+        qs: [
+          { q: 'En quelle année Napoléon devient-il empereur ?', c: ['1804', '1789', '1429', '1792'], a: 0, r: [2], e: "Napoléon est couronné empereur des Français en 1804." },
+          { q: 'Qu\'est-ce que le Code civil ?', c: ['Un grand livre de lois', 'Un code secret', 'Un château', 'Une armée'], a: 0, r: [3], e: "Le Code civil rassemble les lois. On l'utilise encore aujourd'hui." }
+        ] },
+      qs: [
+        { t: 'qcm', q: 'Range dans l\'ordre, du plus ancien au plus récent :', c: ['Jeanne d\'Arc, la prise de la Bastille, Napoléon empereur', 'La prise de la Bastille, Jeanne d\'Arc, Napoléon empereur', 'Napoléon empereur, Jeanne d\'Arc, la prise de la Bastille', 'Jeanne d\'Arc, Napoléon empereur, la prise de la Bastille'], a: 0, z: '1429, 1789, 1804.', e: "1429 (Jeanne d'Arc), 1789 (la Bastille), 1804 (Napoléon empereur)." },
+        { t: 'qcm', q: 'Révision : comment s\'appelle la plus haute tour d\'un château fort ?', c: ['Le donjon', 'Le phare', 'Le vitrail', 'Le pont-levis'], a: 0, z: 'Thibaut l\'écuyer pourrait te le dire.', e: "Le donjon est la tour la plus haute du château fort." }
+      ] },
+    { dom: 'geo', qs: [
+      { t: 'qcm', q: 'Révision : quel fleuve traverse Paris ?', c: ['La Seine', 'La Loire', 'Le Rhône', 'La Garonne'], a: 0, z: 'Il se jette dans la Manche.', e: "La Seine traverse Paris." },
+      { t: 'qcm', q: 'Révision : dans quelles montagnes est le mont Blanc ?', c: ['Les Alpes', 'Les Pyrénées', 'Les Vosges', 'Le Massif central'], a: 0, z: 'À l\'est, vers l\'Italie et la Suisse.', e: "Le mont Blanc est dans les Alpes." },
+      { t: 'qcm', q: 'Révision : quelle île est en Méditerranée ?', c: ['La Corse', 'La Réunion', 'La Martinique', 'La Guadeloupe'], a: 0, z: 'Les autres sont très loin de la France métropolitaine.', e: "La Corse est en Méditerranée. Les autres îles sont en outre-mer." }
+    ] },
+    { dom: 'deu', lang: 'de',
+      lect: { title: 'Das Konzert',
+        s: ['Heute ist das große Konzert.', 'Elena spielt Geige.', 'Lila spielt auch Geige.', 'Die Meerjungfrauen singen.', 'Alle Feen und Fische tanzen.', 'Das ist die Harmonie!'],
+        qs: [
+          { q: 'Wer spielt Geige?', c: ['Elena und Lila', 'Nur Maëlle', 'Die Fische', 'Pinçou'], a: 0, r: [1, 2], e: 'Elena und Lila spielen Geige.' },
+          { q: 'Was machen die Meerjungfrauen?', c: ['Sie singen', 'Sie schlafen', 'Sie malen', 'Sie backen'], a: 0, r: [3], e: 'Die Meerjungfrauen singen.' }
+        ] },
+      qs: [
+        { t: 'type', cs: true, q: 'Schreib das Wort in der <b>Mehrzahl</b>.', pre: 'die Fee → die', a: ['Feen'], z: 'Man hängt -n an.', e: 'die Fee, die Feen.' },
+        { t: 'dictee', cs: true, say: 'Alle tanzen.', a: ['Alle tanzen'], z: 'tanzen schreibt man mit nz.', e: '„tanzen“ mit z nach dem n.' }
+      ] },
+    { dom: 'erd', lang: 'de', qs: [
+      { t: 'qcm', q: 'Wiederholung: Wie viele Bundesländer hat Deutschland?', c: ['16', '2', '100', '5'], a: 0, z: 'Mehr als zehn, weniger als zwanzig.', e: 'Deutschland hat 16 Bundesländer.' },
+      { t: 'qcm', q: 'Wiederholung: Wo liegen die Nordsee und die Ostsee?', c: ['Im Norden', 'Im Süden', 'Im Osten', 'In Bayern'], a: 0, z: 'Das Wort „Nord“ hilft dir.', e: 'Die Nordsee und die Ostsee liegen im Norden von Deutschland.' }
+    ] },
+    { dom: 'tab', timed: true, gen: TAB10 }
+  ]
+}
+]};
+
+(function () {
+'use strict';
+var app = document.getElementById('app');
+var KEY = 'revision-' + CFG.id + '-v1';
+var MEM = null;
+function fresh() { return { points: 0, days: {}, missed: [], eclairBest: 0, current: null, muted: false }; }
+function load() {
+  var s = null;
+  try { s = localStorage.getItem(KEY); } catch (e) {}
+  if (!s) s = MEM;
+  if (!s) return null;
+  try { var o = JSON.parse(s), f = fresh(); for (var k in f) if (!(k in o)) o[k] = f[k]; return o; } catch (e) { return null; }
+}
+function save() { var s = JSON.stringify(S); MEM = s; try { localStorage.setItem(KEY, s); } catch (e) {} }
+var S = load() || fresh();
+var SECS = CFG.sections || ['ortho', 'calc', 'lect'];
+var UI = {
+  fr: { check: 'Valider', next: 'Suivant →', end: 'Terminer ✓', ph: 'ta réponse', notq: 'Pas tout à fait.', try_: 'Ton essai :', miss: 'Il manque quelque chose à l\'endroit marqué <b>▾</b>.', zone: 'L\'erreur se cache dans la partie <span class="zonetag">colorée</span>. Corrige-la !', whole: 'Tout le mot est à revoir : relis bien la consigne.', txt: 'La réponse se cache dans la partie <span class="zonetag">surlignée</span> du texte. Relis-la !', good: 'La bonne réponse est :', write: 'Il fallait écrire :', listen: '🔊 Écouter', slow: '🐢 Lentement', reveal: 'Pour un grand-parent : voir la dictée', dict: 'Dictée : écoute et écris ce que tu entends.', empty: 'Écris ta réponse dans la case.', fillq: 'Choisis le bon mot pour compléter la phrase :', case_: 'Attention aux <b>majuscules</b> : c\'est la seule erreur !' },
+  de: { check: 'Prüfen', next: 'Weiter →', end: 'Fertig ✓', ph: 'deine Antwort', notq: 'Fast!', try_: 'Dein Versuch:', miss: 'An der Stelle <b>▾</b> fehlt etwas.', zone: 'Der Fehler steckt im <span class="zonetag">farbigen</span> Teil. Verbessere ihn!', whole: 'Das ganze Wort stimmt noch nicht. Lies die Aufgabe noch einmal.', txt: 'Die Antwort steht im <span class="zonetag">markierten</span> Teil des Textes. Lies ihn noch einmal!', good: 'Die richtige Antwort ist:', write: 'Richtig geschrieben:', listen: '🔊 Anhören', slow: '🐢 Langsam', reveal: 'Für Oma oder Opa: Diktat zeigen', dict: 'Diktat: Hör gut zu und schreib, was du hörst.', empty: 'Schreib deine Antwort in das Feld.', fillq: 'Wähle das richtige Wort:', case_: 'Achte auf <b>Groß- und Kleinschreibung</b>: Das ist der einzige Fehler!' }
+};
+function tr(q) { return UI[(q && q.lang) === 'de' ? 'de' : 'fr']; }
+var QT = null;
+var RUN = null, EC = null;
+
+/* ---------- utilitaires ---------- */
+var NB = ' ';
+function R(a, b) { return a + Math.floor(Math.random() * (b - a + 1)); }
+function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+function fmt(n) { if (typeof n !== 'number') return String(n); return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, NB); }
+function strip(s) { return String(s).replace(/<br\s*\/?>/g, ' ').replace(/<sup>(\d+)<\/sup><span>\/<\/span><sub>(\d+)<\/sub>/g, '$1/$2').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim(); }
+function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+function today() { try { return new Date().toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' }); } catch (e) { return ''; } }
+function randN(d) { return R(Math.pow(10, d - 1), Math.pow(10, d) - 1); }
+function frac(n, d) { return '<span class="frac"><sup>' + n + '</sup><span>/</span><sub>' + d + '</sub></span>'; }
+function dec(h) { var i = Math.floor(h / 100), r = h % 100; if (r === 0) return String(i); var s = (r < 10 ? '0' : '') + r; if (s[1] === '0') s = s[0]; return i + ',' + s; }
+function big(s) { return '<span class="big">' + s + '</span>'; }
+
+/* ---------- nombres en lettres ---------- */
+var U = ['zéro', 'un', 'deux', 'trois', 'quatre', 'cinq', 'six', 'sept', 'huit', 'neuf', 'dix', 'onze', 'douze', 'treize', 'quatorze', 'quinze', 'seize', 'dix-sept', 'dix-huit', 'dix-neuf'];
+var T = ['', 'dix', 'vingt', 'trente', 'quarante', 'cinquante', 'soixante', 'soixante', 'quatre-vingt', 'quatre-vingt'];
+function w99(n, pl) {
+  if (n < 20) return U[n];
+  var t = Math.floor(n / 10), u = n % 10;
+  if (t === 7 || t === 9) { var r = n - (t === 7 ? 60 : 80); if (n === 71) return 'soixante et onze'; return T[t] + '-' + U[r]; }
+  if (u === 0) return t === 8 ? (pl ? 'quatre-vingts' : 'quatre-vingt') : T[t];
+  if (u === 1 && t !== 8) return T[t] + ' et un';
+  return T[t] + '-' + U[u];
+}
+function w999(n, pl) {
+  var c = Math.floor(n / 100), r = n % 100, s = '';
+  if (c > 0) { s = c === 1 ? 'cent' : U[c] + ' cent'; if (r === 0 && c > 1 && pl) s += 's'; }
+  if (r > 0) s += (s ? ' ' : '') + w99(r, pl);
+  return s;
+}
+function words(n) {
+  if (n === 0) return 'zéro';
+  var g = [Math.floor(n / 1e9) % 1000, Math.floor(n / 1e6) % 1000, Math.floor(n / 1e3) % 1000, n % 1000], s = [];
+  if (g[0]) s.push(w999(g[0], true) + ' milliard' + (g[0] > 1 ? 's' : ''));
+  if (g[1]) s.push(w999(g[1], true) + ' million' + (g[1] > 1 ? 's' : ''));
+  if (g[2]) s.push(g[2] === 1 ? 'mille' : w999(g[2], false) + ' mille');
+  if (g[3]) s.push(w999(g[3], true));
+  return s.join(' ');
+}
+var PLACES = ['unités', 'dizaines', 'centaines', 'unités de mille', 'dizaines de mille', 'centaines de mille', 'unités de millions', 'dizaines de millions', 'centaines de millions', 'unités de milliards'];
+
+/* ---------- générateurs de calcul ---------- */
+var POSE = "Pose l'opération en alignant bien les unités, et n'oublie pas les retenues.";
+var GEN = {
+  place: function (d) {
+    var n = randN(d), s = String(n), p = R(1, d - 1), dg = +s[s.length - 1 - p];
+    return { t: 'num', q: 'Dans le nombre <b>' + fmt(n) + '</b>, quel est le chiffre des <b>' + PLACES[p] + '</b> ?', a: dg, one: true,
+      z: 'Compte les rangs en partant de la droite : unités, dizaines, centaines, puis la classe des mille' + (d > 6 ? ', puis celle des millions' : '') + '.',
+      e: 'Dans ' + fmt(n) + ', le chiffre des ' + PLACES[p] + ' est ' + dg + '.' };
+  },
+  placeM: function () { return GEN.place(R(9, 10)); },
+  words: function (d, zeros) {
+    var s = String(randN(d)).split(''); zeros = zeros || (Math.random() < .6 ? 1 : 0);
+    for (var k = 0; k < zeros; k++) s[R(1, d - 1)] = '0';
+    var n = +s.join('');
+    return { t: 'num', q: 'Écris ce nombre en chiffres :<br>' + big(words(n)), a: n,
+      z: "Découpe le nombre par classes (millions, mille, puis le reste) et n'oublie pas les zéros.",
+      e: '« ' + words(n) + ' » s\'écrit ' + fmt(n) + '.' };
+  },
+  wordsM: function () { return GEN.words(R(7, 9), 2); },
+  add: function (da, db) { var a = randN(da), b = randN(db); return { t: 'num', q: 'Calcule (tu peux poser l\'opération) :<br>' + big(fmt(a) + ' + ' + fmt(b)), a: a + b, z: POSE, e: fmt(a) + ' + ' + fmt(b) + ' = ' + fmt(a + b) + '.' }; },
+  add3: function (d) { var a = randN(d), b = randN(d), c = randN(d); return { t: 'num', q: 'Calcule :<br>' + big(fmt(a) + ' + ' + fmt(b) + ' + ' + fmt(c)), a: a + b + c, z: POSE, e: fmt(a) + ' + ' + fmt(b) + ' + ' + fmt(c) + ' = ' + fmt(a + b + c) + '.' }; },
+  sub: function (da, db) { var a = randN(da), b = randN(db); if (b > a) { var t = a; a = b; b = t; } if (a === b) a += R(11, 99); return { t: 'num', q: 'Calcule (tu peux poser l\'opération) :<br>' + big(fmt(a) + ' − ' + fmt(b)), a: a - b, z: POSE, e: fmt(a) + ' − ' + fmt(b) + ' = ' + fmt(a - b) + '. Vérifie : ' + fmt(a - b) + ' + ' + fmt(b) + ' = ' + fmt(a) + '.' }; },
+  table: function (list) { var a = pick(list), b = R(2, 10); if (Math.random() < .5) { var t = a; a = b; b = t; } return { t: 'num', q: 'Table de multiplication :<br>' + big(a + ' × ' + b), a: a * b, z: 'Récite la table depuis le début si besoin.', e: a + ' × ' + b + ' = ' + a * b + '.' }; },
+  x10: function () { var n = R(2, 99) * (Math.random() < .5 ? 1 : R(2, 9)), m = pick([10, 100, 1000]); return { t: 'num', q: 'Calcul mental :<br>' + big(fmt(n) + ' × ' + fmt(m)), a: n * m, z: 'Multiplier par ' + fmt(m) + ', c\'est ajouter ' + (String(m).length - 1) + ' zéro' + (m > 10 ? 's' : '') + ' à droite.', e: fmt(n) + ' × ' + fmt(m) + ' = ' + fmt(n * m) + '.' }; },
+  double: function () { var n = R(13, 99); if (n % 10 === 0) n++; return { t: 'num', q: 'Quel est le <b>double</b> de ' + n + ' ?', a: 2 * n, z: 'Le double, c\'est ' + n + ' + ' + n + '.', e: 'Le double de ' + n + ' est ' + 2 * n + '.' }; },
+  half: function () { var n = 2 * R(12, 250); return { t: 'num', q: 'Quelle est la <b>moitié</b> de ' + fmt(n) + ' ?', a: n / 2, z: 'Coupe en deux : moitié des centaines, puis des dizaines, puis des unités.', e: 'La moitié de ' + fmt(n) + ' est ' + fmt(n / 2) + ' car ' + fmt(n / 2) + ' + ' + fmt(n / 2) + ' = ' + fmt(n) + '.' }; },
+  mul1: function (d) { var a = randN(d), b = R(3, 9); return { t: 'num', q: 'Calcule (pose l\'opération) :<br>' + big(fmt(a) + ' × ' + b), a: a * b, z: 'Multiplie chiffre par chiffre en partant des unités, sans oublier les retenues.', e: fmt(a) + ' × ' + b + ' = ' + fmt(a * b) + '.' }; },
+  mul2: function (da, db) { var a = randN(da), b = randN(db); if (b % 10 === 0) b++; return { t: 'num', q: 'Calcule (pose l\'opération) :<br>' + big(fmt(a) + ' × ' + b), a: a * b, z: 'Une ligne pour les unités, une ligne pour les dizaines (avec un zéro au bout), puis additionne.', e: fmt(a) + ' × ' + b + ' = ' + fmt(a * b) + '.' }; },
+  div1: function (qd) { var dv = R(3, 9), q = randN(qd || 2), n = q * dv; return { t: 'num', q: 'Calcule :<br>' + big(fmt(n) + ' ÷ ' + dv), a: q, z: 'Vérifie avec la table de ' + dv + ' : ton résultat × ' + dv + ' doit redonner ' + fmt(n) + '.', e: fmt(n) + ' ÷ ' + dv + ' = ' + fmt(q) + ' car ' + fmt(q) + ' × ' + dv + ' = ' + fmt(n) + '.' }; },
+  divTable: function () { var k = R(3, 9), m = R(3, 10); return { t: 'num', q: 'Combien de fois <b>' + k + '</b> dans <b>' + k * m + '</b> ?', a: m, one: true, z: 'Récite la table de ' + k + ' jusqu\'à trouver ' + k * m + '.', e: k + ' × ' + m + ' = ' + k * m + ', donc il y a ' + m + ' fois ' + k + ' dans ' + k * m + '.' }; },
+  compare: function (d) {
+    var base = randN(d), set = [base], digs = String(base).split(''), g = 0;
+    while (set.length < 4 && g++ < 300) { var s = digs.slice(), i = R(0, d - 1), j = R(0, d - 1), t = s[i]; s[i] = s[j]; s[j] = t; var v = +s.join(''); if (s[0] !== '0' && set.indexOf(v) < 0) set.push(v); }
+    while (set.length < 4) { var w = base + R(1, 999) * (R(0, 1) ? 1 : -1); if (set.indexOf(w) < 0 && String(w).length === d) set.push(w); }
+    var mx = Math.random() < .6, ans = mx ? Math.max.apply(null, set) : Math.min.apply(null, set);
+    return { t: 'qcm', q: 'Quel est le <b>plus ' + (mx ? 'grand' : 'petit') + '</b> nombre ?', c: set.map(fmt), a: fmt(ans),
+      z: 'Compare les chiffres un par un en partant de la gauche : le premier chiffre différent décide.', e: 'Le plus ' + (mx ? 'grand' : 'petit') + ' est ' + fmt(ans) + '.' };
+  },
+  compareM: function () { return GEN.compare(R(7, 9)); },
+  multiple: function () {
+    var k = R(3, 9), good = k * R(4, 12), o = [good], g = 0;
+    while (o.length < 4 && g++ < 200) { var x = R(good - 15, good + 15); if (x > 1 && x % k !== 0 && o.indexOf(x) < 0) o.push(x); }
+    return { t: 'qcm', q: 'Quel nombre est un <b>multiple de ' + k + '</b> ?', c: o.map(String), a: String(good), z: 'Récite la table de ' + k + ' : lequel de ces nombres y apparaît ?', e: good + ' = ' + k + ' × ' + good / k + ', c\'est donc un multiple de ' + k + '.' };
+  },
+  fracOf: function () { var den = pick([2, 3, 4, 5, 8, 10]), num = R(1, den - 1), whole = den * R(2, 9), part = whole / den; return { t: 'num', q: 'Combien font ' + frac(num, den) + ' de <b>' + whole + '</b> ?', a: part * num, z: 'Partage d\'abord ' + whole + ' en ' + den + ' parts égales, puis prends-en ' + num + '.', e: whole + ' ÷ ' + den + ' = ' + part + ', puis ' + part + ' × ' + num + ' = ' + part * num + '.' }; },
+  fracCompare: function () {
+    var den = pick([4, 5, 6, 8]), bigN = R(den + 1, 2 * den - 1), sm = [];
+    while (sm.length < 3) { var n = R(1, den - 1); if (sm.indexOf(n) < 0) sm.push(n); }
+    var c = [frac(bigN, den)].concat(sm.map(function (n) { return frac(n, den); }));
+    return { t: 'qcm', q: 'Quelle fraction est <b>plus grande que 1</b> ?', c: c, a: c[0], z: 'Une fraction est plus grande que 1 quand le nombre du haut (numérateur) est plus grand que celui du bas (dénominateur).', e: bigN + '/' + den + ' est plus grande que 1 car ' + bigN + ' > ' + den + '.' };
+  },
+  decCompare: function () {
+    var b = R(1, 9), x = R(2, 8), c = [b + ',' + x, b + ',' + (x - 1) + R(5, 9), b + ',' + (x - 1) + R(1, 9) + R(1, 9), b + ',0' + R(1, 9)];
+    return { t: 'qcm', q: 'Quel est le <b>plus grand</b> nombre ?', c: c, a: c[0], z: 'Compare d\'abord les dixièmes (le premier chiffre après la virgule). Un nombre plus long n\'est pas forcément plus grand !', e: c[0] + ' est le plus grand : son chiffre des dixièmes (' + x + ') est le plus grand.' };
+  },
+  decAdd: function () { var A = R(11, 89) * 10, B = R(105, 499); return { t: 'num', q: 'Calcule :<br>' + big(dec(A) + ' + ' + dec(B)), a: dec(A + B), z: 'Aligne bien les virgules : dixièmes sous les dixièmes, centièmes sous les centièmes.', e: dec(A) + ' + ' + dec(B) + ' = ' + dec(A + B) + '.' }; },
+  conv: function () {
+    var k = R(0, 3), a, b;
+    if (k === 0) { a = R(2, 9); b = R(1, 19) * 50; return { t: 'num', q: 'Convertis :<br>' + big(a + ' km ' + b + ' m = ? m'), a: a * 1000 + b, z: '1 km = 1 000 m.', e: a + ' km = ' + fmt(a * 1000) + ' m, donc ' + a + ' km ' + b + ' m = ' + fmt(a * 1000 + b) + ' m.' }; }
+    if (k === 1) { a = R(1, 5); b = R(1, 9) * 100; return { t: 'num', q: 'Convertis :<br>' + big(a + ' kg ' + b + ' g = ? g'), a: a * 1000 + b, z: '1 kg = 1 000 g.', e: a + ' kg = ' + fmt(a * 1000) + ' g, donc ' + a + ' kg ' + b + ' g = ' + fmt(a * 1000 + b) + ' g.' }; }
+    if (k === 2) { a = R(1, 4); b = R(1, 11) * 5; return { t: 'num', q: 'Convertis :<br>' + big(a + ' h ' + b + ' min = ? min'), a: a * 60 + b, z: '1 h = 60 min.', e: a + ' h = ' + a * 60 + ' min, donc ' + a + ' h ' + b + ' min = ' + (a * 60 + b) + ' min.' }; }
+    a = R(1, 9); b = R(1, 99); return { t: 'num', q: 'Convertis :<br>' + big(a + ' m ' + b + ' cm = ? cm'), a: a * 100 + b, z: '1 m = 100 cm.', e: a + ' m = ' + a * 100 + ' cm, donc ' + a + ' m ' + b + ' cm = ' + (a * 100 + b) + ' cm.' };
+  },
+  tabT: function () {
+    var a = R(1, 9), b = R(2, 9); if (Math.random() < .5) { var t = a; a = b; b = t; }
+    return { t: 'num', q: big(a + ' × ' + b + ' = ?'), a: a * b, one: a * b < 10, z: 'Pense à la table de ' + Math.max(a, b) + ' : ' + Math.max(a, b) + ', ' + 2 * Math.max(a, b) + ', ' + 3 * Math.max(a, b) + '...', e: a + ' × ' + b + ' = ' + a * b + '.' };
+  },
+  mental: function () {
+    var k = R(0, 4), n;
+    if (k === 0) { n = 4 * R(2, 25); return { t: 'num', q: 'Calcul mental :<br>' + big(n + ' × 25'), a: n * 25, z: 'Astuce : × 25, c\'est × 100 puis ÷ 4.', e: n + ' × 25 = ' + fmt(n * 25) + ' (' + n + ' × 100 = ' + fmt(n * 100) + ', puis ÷ 4).' }; }
+    if (k === 1) { n = R(12, 45); return { t: 'num', q: 'Calcul mental :<br>' + big(n + ' × 11'), a: n * 11, z: 'Astuce : × 11, c\'est × 10, puis on ajoute le nombre une fois.', e: n + ' × 11 = ' + n * 10 + ' + ' + n + ' = ' + n * 11 + '.' }; }
+    if (k === 2) { n = R(12, 99) * 10; return { t: 'num', q: 'Calcul mental :<br>' + big(fmt(n) + ' ÷ 10'), a: n / 10, z: 'Diviser par 10, c\'est enlever un zéro à droite.', e: fmt(n) + ' ÷ 10 = ' + n / 10 + '.' }; }
+    if (k === 3) { n = R(12, 99) * 100; return { t: 'num', q: 'Calcul mental :<br>' + big(fmt(n) + ' ÷ 100'), a: n / 100, z: 'Diviser par 100, c\'est enlever deux zéros à droite.', e: fmt(n) + ' ÷ 100 = ' + n / 100 + '.' }; }
+    n = R(12, 99); return { t: 'num', q: 'Calcul mental :<br>' + big(n + ' × 1' + NB + '000'), a: n * 1000, z: 'Multiplier par 1 000, c\'est ajouter trois zéros.', e: n + ' × 1 000 = ' + fmt(n * 1000) + '.' };
+  }
+};
+
+/* ---------- préparation des missions ---------- */
+function clone(o) { return JSON.parse(JSON.stringify(o)); }
+function prep(q, dom, id) {
+  q = clone(q); q.dom = dom; q.id = id; q.tries = 0; q.done = false;
+  if (q.c) { var corr = typeof q.a === 'number' ? q.c[q.a] : q.a; q.c = shuffle(q.c); q.a = corr; }
+  return q;
+}
+function timeLimit(d) { return CFG.timer ? Math.max(CFG.timer.min, CFG.timer.start - d * CFG.timer.step) : 0; }
+function genUnique(part, i, seen) {
+  var g = part.gen[i], q, k = 0;
+  do { q = GEN[g[0]].apply(null, g.slice(1)); k++; } while (seen[q.q] && k < 30);
+  seen[q.q] = 1; return q;
+}
+function buildParts(d, D) {
+  var qs = [], uid = Date.now().toString(36);
+  D.parts.forEach(function (P) {
+    var add = function (x) { if (P.lang) x.lang = P.lang; if (P.timed) { x.limit = timeLimit(d); x.pad = true; } qs.push(x); }, seen = {};
+    if (P.lect) P.lect.qs.forEach(function (q, i) { var x = prep(q, P.dom, d + '-' + P.dom + 'l' + i); x.t = 'qcm'; x.txt = { title: P.lect.title, s: P.lect.s }; add(x); });
+    (P.qs || []).forEach(function (q, i) { add(prep(q, P.dom, d + '-' + P.dom + i)); });
+    (P.gen || []).forEach(function (g, i) { add(prep(genUnique(P, i, seen), P.dom, d + '-' + P.dom + 'g' + i + '-' + uid)); });
+  });
+  return qs;
+}
+function partCount(D, dom) {
+  if (!D.parts) return dom === 'ortho' ? D.ortho.length : dom === 'calc' ? (D.calc.gen || []).length + (D.calc.probs || []).length : D.lect.qs.length;
+  var n = 0; D.parts.forEach(function (P) { if (P.dom === dom) n += (P.qs || []).length + (P.gen || []).length + (P.lect ? P.lect.qs.length : 0); }); return n;
+}
+function partTitle(D, dom) {
+  if (!D.parts) return dom === 'lect' ? D.lect.title : '';
+  var t = ''; D.parts.forEach(function (P) { if (P.dom === dom && P.lect) t = P.lect.title; }); return t;
+}
+function buildDay(d) {
+  var D = DATA.days[d], qs = [], uid = Date.now().toString(36);
+  if (D.parts) return buildParts(d, D);
+  D.ortho.forEach(function (q, i) { qs.push(prep(q, 'ortho', d + '-o' + i)); });
+  (D.calc.gen || []).forEach(function (g, i) { qs.push(prep(GEN[g[0]].apply(null, g.slice(1)), 'calc', d + '-g' + i + '-' + uid)); });
+  (D.calc.probs || []).forEach(function (q, i) { qs.push(prep(q, 'calc', d + '-p' + i)); });
+  D.lect.qs.forEach(function (q, i) { var x = prep(q, 'lect', d + '-l' + i); x.t = 'qcm'; x.txt = { title: D.lect.title, s: D.lect.s }; qs.push(x); });
+  return qs;
+}
+
+/* ---------- vérification ---------- */
+function norm(s, cs) { s = String(s); if (!cs) s = s.toLowerCase(); return s.replace(/[’`´ʼ]/g, "'").replace(/\s+/g, ' ').replace(/\s*'\s*/g, "'").replace(/[.!]+$/, '').trim(); }
+function numVal(s) { s = String(s).replace(/[\s  ]/g, '').replace(',', '.'); if (!/^-?\d+(\.\d+)?$/.test(s)) return null; return parseFloat(s); }
+function cleanTyped(q, val) {
+  var v = norm(val, q.cs);
+  if (q.pre) {
+    var tail = norm(strip(q.pre), q.cs).split(/[\s→]+/).pop();
+    if (tail) {
+      if (tail.slice(-1) === "'") { if (v.indexOf(tail) === 0) v = v.slice(tail.length); }
+      else if (v.indexOf(tail + ' ') === 0) v = v.slice(tail.length + 1);
+    }
+  }
+  return v.trim();
+}
+function isRight(q, val) {
+  if (q.t === 'qcm' || q.t === 'fill') return val === q.a;
+  if (q.t === 'num') { var a = numVal(val), b = numVal(q.a); return a !== null && Math.abs(a - b) < 1e-9; }
+  var v = cleanTyped(q, val);
+  return q.a.some(function (x) { return norm(x, q.cs) === v; });
+}
+function diffZone(inp, exp) {
+  var i = 0; while (i < inp.length && i < exp.length && inp[i] === exp[i]) i++;
+  var j = 0; while (j < inp.length - i && j < exp.length - i && inp[inp.length - 1 - j] === exp[exp.length - 1 - j]) j++;
+  return { i: i, j: j };
+}
+function bestTarget(q, v) {
+  var best = null, bs = -1;
+  q.a.forEach(function (x) { var e = norm(x, q.cs), z = diffZone(v, e); if (z.i + z.j > bs) { bs = z.i + z.j; best = e; } });
+  return best;
+}
+function groupMark(s, wrong) {
+  var out = '', n = s.length;
+  for (var k = 0; k < n; k++) { out += wrong.indexOf(k) >= 0 ? '<mark class="err">' + s[k] + '</mark>' : s[k]; var rem = n - 1 - k; if (rem > 0 && rem % 3 === 0) out += NB; }
+  return '<span class="numshow">' + out + '</span>';
+}
+function ansText(q) {
+  if (q.t === 'num') return typeof q.a === 'number' ? fmt(q.a) : q.a;
+  if (q.t === 'type' || q.t === 'dictee') return q.a[0];
+  return q.a;
+}
+function promptText(q) {
+  if (q.t === 'fill') return strip(q.s);
+  if (q.t === 'type') return strip((q.q || '') + ' ' + (q.s || '') + ' ' + (q.pre || '') + ' …');
+  if (q.t === 'dictee') return (q.lang === 'de' ? 'Diktat : « ' : 'Dictée : « ') + q.say + ' »';
+  return strip(q.q);
+}
+
+/* ---------- sons et effets ---------- */
+var AC = null;
+function tone(freqs, dur) {
+  if (S.muted || !freqs) return; dur = dur || 0.11;
+  try {
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    var t = AC.currentTime;
+    freqs.forEach(function (f, i) {
+      var o = AC.createOscillator(), g = AC.createGain();
+      o.type = CFG.sounds.type; o.frequency.value = f;
+      g.gain.setValueAtTime(0.0001, t + i * dur);
+      g.gain.exponentialRampToValueAtTime(0.12, t + i * dur + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + i * dur + dur * 2.2);
+      o.connect(g); g.connect(AC.destination); o.start(t + i * dur); o.stop(t + i * dur + dur * 2.4);
+    });
+  } catch (e) {}
+}
+function burst(n, el) {
+  var x = window.innerWidth / 2, y = window.innerHeight / 2;
+  if (el && el.getBoundingClientRect) { var r = el.getBoundingClientRect(); x = r.left + r.width / 2; y = r.top + r.height / 2; }
+  for (var i = 0; i < n; i++) {
+    var p = document.createElement('span'); p.className = 'particle'; p.textContent = pick(CFG.particles);
+    p.style.left = (x + R(-30, 30)) + 'px'; p.style.top = (y + R(-10, 10)) + 'px';
+    p.style.setProperty('--dx', R(-200, 200) + 'px'); p.style.setProperty('--dy', R(-260, -60) + 'px'); p.style.setProperty('--rot', R(-60, 60) + 'deg');
+    p.style.animationDelay = (i * 25) + 'ms';
+    document.body.appendChild(p);
+    (function (pp) { setTimeout(function () { if (pp.parentNode) pp.parentNode.removeChild(pp); }, 1800); })(p);
+  }
+}
+var canSpeak = 'speechSynthesis' in window;
+function say(text, rate, lang) {
+  try {
+    var L = lang === 'de' ? 'de' : 'fr';
+    var u = new SpeechSynthesisUtterance(text); u.lang = L === 'de' ? 'de-DE' : 'fr-FR'; u.rate = rate;
+    var v = speechSynthesis.getVoices().filter(function (v) { return new RegExp('^' + L, 'i').test(v.lang); })[0]; if (v) u.voice = v;
+    speechSynthesis.cancel(); speechSynthesis.speak(u);
+  } catch (e) {}
+}
+
+/* ---------- état global ---------- */
+function daysDone() { var n = 0; for (var i = 0; i < DATA.days.length; i++) if (S.days[i] && S.days[i].done) n++; return n; }
+function starsTotal() { var n = 0; for (var k in S.days) n += S.days[k].stars || 0; return n; }
+function unlocked(i) { return i === 0 || !!(S.days[i - 1] && S.days[i - 1].done); }
+function rank() { var n = daysDone(), cur = CFG.ranks[0]; CFG.ranks.forEach(function (r) { if (n >= r.min) cur = r; }); return cur.name; }
+function starsStr(n, max) { max = max || 3; var s = ''; for (var i = 0; i < max; i++) s += i < n ? '★' : '☆'; return s; }
+function stopEclair() { if (EC && EC.timer) clearInterval(EC.timer); EC = null; stopQT(); }
+
+function topbar() {
+  return '<div class="topbar"><button class="ghost brand" data-act="home"><span class="bicon">' + CFG.homeIcon + '</span><b>' + CFG.name + '</b><span class="lvl">' + CFG.level + '</span></button>' +
+    '<div class="stats"><span class="stat" title="Étoiles">★ ' + starsTotal() + '/30</span><span class="stat" title="Points">' + CFG.icons.points + ' ' + S.points + '</span>' +
+    '<button class="ghost icon" data-act="mute" title="Son">' + (S.muted ? '🔇' : '🔊') + '</button></div></div>';
+}
+
+/* ---------- carte ---------- */
+function pathD(p) {
+  var d = 'M' + p[0][0] + ',' + p[0][1];
+  for (var i = 0; i < p.length - 1; i++) {
+    var p0 = p[i - 1] || p[i], p1 = p[i], p2 = p[i + 1], p3 = p[i + 2] || p2;
+    var c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6], c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
+    d += ' C' + c1[0].toFixed(1) + ',' + c1[1].toFixed(1) + ' ' + c2[0].toFixed(1) + ',' + c2[1].toFixed(1) + ' ' + p2[0] + ',' + p2[1];
+  }
+  return d;
+}
+function renderMap() {
+  stopEclair(); RUN = null;
+  var n = DATA.days.length, xs = CFG.mapX, pts = [], nextI = -1;
+  for (var i = 0; i < n; i++) pts.push([xs[i], 60 + i * 112]);
+  for (i = 0; i < n; i++) if (unlocked(i) && !(S.days[i] && S.days[i].done)) { nextI = i; break; }
+  var reach = nextI < 0 ? n - 1 : nextI;
+  var svg = '<svg class="map" viewBox="0 0 400 1140" role="img" aria-label="Carte des missions">';
+  CFG.deco.forEach(function (d) { svg += '<text class="deco" x="' + d[0] + '" y="' + (1140 - d[1]) + '" font-size="' + d[3] + '" text-anchor="middle">' + d[2] + '</text>'; });
+  svg += '<path class="trail" d="' + pathD(pts) + '"/>';
+  if (reach > 0) svg += '<path class="trail done" d="' + pathD(pts.slice(0, reach + 1)) + '"/>';
+  for (i = 0; i < n; i++) {
+    var D = DATA.days[i], st = S.days[i], done = st && st.done, open = unlocked(i);
+    var cls = done ? 'done' : open ? 'open' : 'locked';
+    if (i === nextI) cls += ' next';
+    svg += '<g class="node ' + cls + '" ' + (open ? 'data-act="day" data-d="' + i + '" tabindex="0"' : '') + ' transform="translate(' + pts[i][0] + ',' + pts[i][1] + ')">' +
+      '<circle class="halo" r="40"/><circle class="disc" r="31"/>' +
+      '<text class="nicon" y="10" text-anchor="middle">' + (open ? (done ? D.reward.icon : D.icon) : '🔒') + '</text>' +
+      '<text class="nlabel" y="56" text-anchor="middle">J' + (i + 1) + ' · ' + D.place + '</text>' +
+      (done ? '<text class="nstars" y="76" text-anchor="middle">' + starsStr(st.stars) + '</text>' : '') + '</g>';
+  }
+  svg += '</svg>';
+  var miss = S.missed.length;
+  var cta = nextI >= 0 ? '<button class="primary big" data-act="day" data-d="' + nextI + '">Mission ' + (nextI + 1) + ' : ' + DATA.days[nextI].place + ' →</button>'
+    : '<div class="allDone">' + CFG.lines.allDone + '</div>';
+  if (S.current && S.current.mode === 'day') cta = '<button class="primary big" data-act="day" data-d="' + S.current.day + '">Reprendre la mission ' + (S.current.day + 1) + ' →</button>';
+  app.innerHTML = topbar() +
+    '<div class="screen"><header class="hero"><div class="hicon">' + CFG.comp.icon + '</div><h1>' + CFG.title + '</h1><p class="tag">' + CFG.tagline + '</p>' +
+    '<div class="rank">Rang : <b>' + rank() + '</b> · ' + daysDone() + '/10 missions</div>' + cta + '</header>' +
+    '<nav class="menu"><button data-act="coll">🎁 Collection<span>' + daysDone() + '/10</span></button>' +
+    '<button data-act="rev" class="' + (miss ? 'has' : '') + '">' + CFG.revIcon + ' Revanches<span>' + miss + '</span></button>' +
+    '<button data-act="eclair">⚡ Défi Éclair<span>record ' + S.eclairBest + '</span></button>' +
+    '<button data-act="parents">👵👴 Grands-parents<span>bilan</span></button></nav>' + siblingLink() +
+    '<div class="mapwrap">' + svg + '</div></div>';
+  setTimeout(function () { var el = document.querySelector('.node.next'); if (el && el.scrollIntoView && daysDone() > 2) el.scrollIntoView({ block: 'center', behavior: 'smooth' }); }, 60);
+}
+
+function siblingLink() {
+  if (!CFG.sibling) return '';
+  var b = CFG.sibling, st = null, txt = 'pas encore commencé';
+  try { st = JSON.parse(localStorage.getItem(b.key) || 'null'); } catch (e) {}
+  if (st && st.days) {
+    var n = 0, stars = 0; for (var k in st.days) { if (st.days[k].done) n++; stars += st.days[k].stars || 0; }
+    txt = n + '/10 missions · ★ ' + stars + '/30';
+  }
+  return '<a class="sibling" href="' + b.href + '"><span class="sicon">' + b.icon + '</span><span><b>' + b.label + '</b><small>' + txt + '</small></span><span class="sgo">→</span></a>';
+}
+
+/* ---------- intro de mission ---------- */
+function renderIntro(d) {
+  var D = DATA.days[d], st = S.days[d], resume = S.current && S.current.mode === 'day' && S.current.day === d;
+  app.innerHTML = topbar() + '<div class="screen"><div class="card intro">' +
+    '<div class="introicon">' + D.icon + '</div><div class="kicker">Mission ' + (d + 1) + ' sur 10</div><h2>' + D.place + '</h2>' +
+    '<p class="lead">' + D.intro + '</p>' +
+    '<ul class="plan">' + SECS.map(function (k) { var t = partTitle(D, k); return '<li><span>' + CFG.icons[k] + ' ' + CFG.sec[k] + (t ? ' : « ' + t + ' »' : '') + '</span><b>' + partCount(D, k) + ' questions</b></li>'; }).join('') + '</ul>' +
+    (CFG.timer ? '<p class="timerinfo">⏱️ Aujourd\'hui, tu as <b>' + timeLimit(d) + ' secondes</b> par calcul de tables.</p>' : '') +
+    '<div class="reward"><span class="ricon">' + D.reward.icon + '</span><div><small>À gagner</small><br><b>' + D.reward.name + '</b></div></div>' +
+    (st && st.done ? '<p class="muted center">Déjà réussie avec ' + starsStr(st.stars) + '. Rejoue pour gagner plus d\'étoiles !</p>' : '') +
+    '<div class="rules"><b>Règle du jeu :</b> si tu te trompes, ' + CFG.comp.name + ' te montre <i>où</i> est l\'erreur. Au deuxième essai raté, la réponse s\'affiche et la question part dans tes Revanches.</div>' +
+    '<div class="btns"><button class="primary big" data-act="start" data-d="' + d + '">' + (resume ? 'Reprendre' : 'Commencer') + '</button><button class="ghost" data-act="home">Retour à la carte</button></div>' +
+    '</div></div>';
+}
+function startDay(d) {
+  if (S.current && S.current.mode === 'day' && S.current.day === d) {
+    RUN = S.current;
+    while (RUN.i < RUN.qs.length && RUN.qs[RUN.i].done) RUN.i++;
+    if (RUN.i >= RUN.qs.length) return finishDay();
+  } else {
+    RUN = { mode: 'day', day: d, qs: buildDay(d), i: 0, res: [], pts: 0, combo: 0, maxCombo: 0 };
+    S.current = RUN;
+  }
+  save(); renderQ();
+}
+
+/* ---------- question ---------- */
+function cur() { return RUN.qs[RUN.i]; }
+var ACCENTS = ['é', 'è', 'ê', 'ë', 'à', 'â', 'ç', 'ù', 'û', 'î', 'ï', 'ô', 'œ', "'"];
+var UMLAUTS = ['ä', 'ö', 'ü', 'ß', 'Ä', 'Ö', 'Ü'];
+function accentBar(q) { return '<div class="accents">' + ((q && q.lang === 'de') ? UMLAUTS : ACCENTS).map(function (c) { return '<button data-act="acc" data-c="' + esc(c) + '" tabindex="-1">' + c + '</button>'; }).join('') + '</div>'; }
+function qBody(q) {
+  var h = '';
+  if (q.t === 'qcm') {
+    h += '<div class="qtext">' + q.q + '</div><div class="choices' + (q.c.length > 2 && q.c.some(function (c) { return strip(c).length > 24; }) ? ' long' : '') + '">' +
+      q.c.map(function (c, i) { return '<button class="choice" data-act="choice" data-i="' + i + '">' + c + '</button>'; }).join('') + '</div><div id="actions" class="actions"></div>';
+  } else if (q.t === 'fill') {
+    h += '<div class="qtext small">' + (q.q || tr(q).fillq) + '</div>' +
+      '<div class="sentence">' + q.s.replace('___', '<span class="blank" id="blank">?</span>') + '</div>' +
+      '<div class="choices row">' + q.c.map(function (c, i) { return '<button class="choice" data-act="choice" data-i="' + i + '">' + c + '</button>'; }).join('') + '</div><div id="actions" class="actions"></div>';
+  } else if (q.t === 'type' || q.t === 'dictee') {
+    if (q.t === 'dictee') {
+      h += '<div class="qtext">' + (q.q || tr(q).dict) + '</div><div class="sayrow">' +
+        (canSpeak ? '<button data-act="say">' + tr(q).listen + '</button><button data-act="sayslow">' + tr(q).slow + '</button>' : '') +
+        '<button class="ghost" data-act="reveal">' + tr(q).reveal + '</button><span class="secret" id="secret">« ' + q.say + ' »</span></div>';
+    } else {
+      h += '<div class="qtext">' + q.q + '</div>' + (q.s ? '<div class="sentence">' + q.s + '</div>' : '');
+    }
+    h += '<div class="typeline">' + (q.pre ? '<span class="pre">' + q.pre + '</span>' : '') +
+      '<input id="inp" class="ans" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="' + tr(q).ph + '">' +
+      (q.post ? '<span class="post">' + q.post + '</span>' : '') + '</div>' + accentBar(q) +
+      '<div id="actions" class="actions"><button class="primary big" data-act="check">' + tr(q).check + '</button></div>';
+  } else if (q.t === 'num' && q.pad) {
+    h += (q.limit ? '<div class="qtimer" id="qtimer"><div class="qtbar" id="qtbar"></div><span id="qtsec">' + q.limit + ' s</span></div>' : '') +
+      '<div class="qtext">' + q.q + '</div><div class="padin" id="padin">&nbsp;</div><div class="keypad qpad">' +
+      ['7', '8', '9', '4', '5', '6', '1', '2', '3', 'del', '0', 'ok'].map(function (k) { return '<button class="' + (k === 'ok' ? 'primary' : '') + '" data-act="qkey" data-k="' + k + '">' + (k === 'del' ? '⌫' : k === 'ok' ? 'OK' : k) + '</button>'; }).join('') +
+      '</div><div id="actions" class="actions"></div>';
+  } else if (q.t === 'num') {
+    h += '<div class="qtext">' + q.q + '</div><div class="typeline"><input id="inp" class="ans num" type="text" inputmode="decimal" autocomplete="off" placeholder="?">' +
+      (q.unit ? '<span class="post">' + q.unit + '</span>' : '') + '</div>' +
+      '<div id="actions" class="actions"><button class="primary big" data-act="check">Valider</button></div>';
+  }
+  return h;
+}
+function renderQ() {
+  var q = cur(), total = RUN.qs.length, prev = RUN.qs[RUN.i - 1], newSec = !prev || prev.dom !== q.dom;
+  var secN = SECS.indexOf(q.dom) + 1;
+  var h = '<div class="screen qscreen"><div class="qtop"><button class="ghost icon" data-act="quit" title="Quitter">✕</button>' +
+    '<div class="prog"><div class="bar" style="width:' + (RUN.i / total * 100) + '%"></div></div><div class="qcount">' + (RUN.i + 1) + '/' + total + '</div></div>' +
+    '<div class="hud"><span class="chip">' + CFG.icons[q.dom] + ' ' + CFG.sec[q.dom] + '</span><span class="combo' + (RUN.combo >= 3 ? ' hot' : '') + '" id="combo">' + (RUN.combo >= 2 ? '🔥 série ' + RUN.combo : '') + '</span>' +
+    '<span class="pts" id="pts">' + CFG.icons.points + ' ' + RUN.pts + '</span></div>';
+  if (newSec && RUN.mode === 'day') h += '<div class="secbanner">' + CFG.icons[q.dom] + ' Épreuve ' + secN + ' : ' + CFG.sec[q.dom] + '</div>';
+  if (RUN.mode === 'rev') h += '<div class="secbanner">' + CFG.revIcon + ' Revanche ' + (RUN.i + 1) + ' sur ' + total + '</div>';
+  if (q.txt) h += '<div class="card textcard" id="txt"' + (q.lang ? ' lang="' + q.lang + '"' : '') + '><div class="ttitle">' + (CFG.icons.lect || CFG.icons[q.dom]) + ' ' + q.txt.title + '</div><p>' +
+    q.txt.s.map(function (s, i) { return '<span class="sent" data-s="' + i + '">' + s + '</span>'; }).join(' ') + '</p></div>';
+  var tip = RUN.i === 0 && RUN.mode === 'day' ? pick(CFG.lines.hello) : newSec && CFG.lines.sec[q.dom] ? CFG.lines.sec[q.dom] : pick(CFG.lines.idle);
+  h += '<div class="card qcard"' + (q.lang ? ' lang="' + q.lang + '"' : '') + '>' + qBody(q) + '<div class="fb" id="fb"></div></div>' +
+    '<div class="comp"><div class="avatar">' + CFG.comp.icon + '</div><div class="bubble" id="bubble"><b>' + CFG.comp.name + ' :</b> <span id="btext">' + tip + '</span></div></div></div>';
+  app.innerHTML = h;
+  window.scrollTo(0, 0);
+  var inp = document.getElementById('inp');
+  if (inp && window.innerWidth > 700) inp.focus();
+  if (q.t === 'dictee' && canSpeak) setTimeout(function () { say(q.say, 0.85, q.lang); }, 400);
+  PADBUF = '';
+  if (q.limit && !q.done) startQT(q.limit);
+}
+/* ---------- chrono des tables ---------- */
+var PADBUF = '';
+function padDraw(cls) { var el = document.getElementById('padin'); if (el) { el.innerHTML = PADBUF || '&nbsp;'; el.className = 'padin ' + (cls || ''); } }
+function padKey(k) {
+  var q = cur(); if (!q || q.done) return;
+  if (k === 'del') PADBUF = PADBUF.slice(0, -1);
+  else if (k === 'ok') { if (PADBUF) { var v = PADBUF; submit(v, null); if (!cur().done) { PADBUF = ''; } } return; }
+  else if (PADBUF.length < 3) PADBUF += k;
+  padDraw();
+}
+function stopQT() { if (QT && QT.iv) clearInterval(QT.iv); QT = null; }
+function startQT(sec) {
+  stopQT(); QT = { left: sec * 1000, total: sec * 1000, last: Date.now(), iv: null };
+  QT.iv = setInterval(tickQT, 100); tickQT();
+}
+function tickQT() {
+  if (!QT) return;
+  var now = Date.now(); if (!document.hidden) QT.left -= now - QT.last; QT.last = now;
+  var b = document.getElementById('qtbar'), t = document.getElementById('qtsec'), box = document.getElementById('qtimer');
+  if (!b) { stopQT(); return; }
+  var f = Math.max(0, QT.left / QT.total); b.style.width = (f * 100) + '%';
+  if (t) t.textContent = Math.ceil(Math.max(0, QT.left) / 1000) + ' s';
+  if (box) box.classList.toggle('low', QT.left < 3000);
+  if (QT.left <= 0) { stopQT(); timeUp(); }
+}
+function timeUp() {
+  var q = cur(); if (!q || q.done) return;
+  q.tries++; RUN.combo = 0; hud(); tone(CFG.sounds.wrong, 0.16); shake(document.getElementById('padin'));
+  if (q.tries === 1) { bubble(pick(CFG.lines.wrong1)); fb('<b>⏱️ Temps écoulé !</b> Encore une chance : le chrono repart.' + (q.z ? '<div class="hint">' + q.z + '</div>' : ''), 'zonemsg'); PADBUF = ''; padDraw(); startQT(q.limit); }
+  else { q.done = true; RUN.res.push({ dom: q.dom, r: 0, id: q.id }); showAnswer(q, '', null); addMissed(q); }
+  if (RUN.mode === 'day') save();
+}
+function fb(html, cls) { var el = document.getElementById('fb'); if (el) el.innerHTML = '<div class="msg ' + cls + '">' + html + '</div>'; }
+function bubble(t) { var b = document.getElementById('btext'); if (b) { b.innerHTML = t; var p = b.parentNode; p.classList.remove('pop'); void p.offsetWidth; p.classList.add('pop'); } }
+function hud() {
+  var c = document.getElementById('combo'), p = document.getElementById('pts');
+  if (c) { c.textContent = RUN.combo >= 2 ? '🔥 série ' + RUN.combo : ''; c.className = 'combo' + (RUN.combo >= 3 ? ' hot' : ''); }
+  if (p) p.textContent = CFG.icons.points + ' ' + RUN.pts;
+}
+function showNext() {
+  var a = document.getElementById('actions'); if (!a) return;
+  var last = RUN.i === RUN.qs.length - 1;
+  stopQT();
+  a.innerHTML = '<button class="primary big" id="next" data-act="next">' + (last ? tr(cur()).end : tr(cur()).next) + '</button>';
+  var inp = document.getElementById('inp'); if (inp) inp.disabled = true;
+  document.querySelectorAll('.qpad button').forEach(function (b) { b.disabled = true; });
+  document.querySelectorAll('.accents button').forEach(function (b) { b.disabled = true; });
+  setTimeout(function () { var n = document.getElementById('next'); if (n) n.focus(); }, 30);
+}
+function lockChoices() { document.querySelectorAll('.choice').forEach(function (b) { b.disabled = true; }); }
+function markRefs(q, cls) {
+  if (!q.txt || !q.r) return;
+  q.r.forEach(function (i) { var s = document.querySelector('.sent[data-s="' + i + '"]'); if (s) s.classList.add(cls); });
+  var first = document.querySelector('.sent.' + cls); if (first && first.scrollIntoView) first.scrollIntoView({ block: 'center', behavior: 'smooth' });
+}
+function submit(val, btn) {
+  var q = cur(); if (q.done) return;
+  var inp = document.getElementById('inp');
+  if (q.t === 'num' && numVal(val) === null) { fb('Écris seulement un nombre' + (String(q.a).indexOf(',') >= 0 ? ' (avec une virgule si besoin)' : '') + '.', 'info'); return; }
+  if ((q.t === 'type' || q.t === 'dictee') && !norm(val)) { fb(tr(q).empty, 'info'); return; }
+  var ok = isRight(q, val);
+  if (ok) {
+    q.done = true; var first = q.tries === 0;
+    var gain = first ? 10 + (RUN.combo >= 4 ? 5 : 0) : 5;
+    RUN.pts += gain; RUN.res.push({ dom: q.dom, r: first ? 2 : 1, id: q.id });
+    if (first) { RUN.combo++; RUN.maxCombo = Math.max(RUN.maxCombo, RUN.combo); } else RUN.combo = 0;
+    if (btn) btn.classList.add('right');
+    if (q.t === 'qcm' || q.t === 'fill') lockChoices();
+    if (q.t === 'fill') { var bl = document.getElementById('blank'); if (bl) { bl.textContent = q.a; bl.className = 'blank ok'; } }
+    if (inp) inp.classList.add('ok');
+    if (q.pad) padDraw('good');
+    var extra = '';
+    if (!first && q.c && q.c.length === 2) addMissed(q);
+    if (RUN.mode === 'rev' && first) { S.missed = S.missed.filter(function (m) { return m.q.id !== q.id; }); extra = ' <b>Revanche gagnée !</b>'; }
+    fb('<b>+' + gain + '</b> ' + (first ? '' : '(2e essai) ') + extra + (q.e && !first ? '<div class="exp">' + q.e + '</div>' : q.e && (CFG.showExp || ['ortho']).indexOf(q.dom) >= 0 ? '<div class="exp">' + q.e + '</div>' : ''), 'good');
+    if (q.txt) markRefs(q, 'okref');
+    var line = first ? pick(CFG.lines.ok) : pick(CFG.lines.ok2);
+    if (first && (RUN.combo === 5 || RUN.combo === 10)) { line = pick(CFG.lines.combo); burst(14, btn || inp); tone(CFG.sounds.win, 0.08); }
+    else { burst(first ? 6 : 3, btn || inp); tone(first ? CFG.sounds.ok : CFG.sounds.ok2); }
+    bubble(line); hud(); showNext();
+  } else {
+    q.tries++; RUN.combo = 0; hud(); tone(CFG.sounds.wrong, 0.16);
+    if (q.tries === 1) { showZone(q, val, btn); if (q.limit) startQT(q.limit); }
+    else { q.done = true; RUN.res.push({ dom: q.dom, r: 0, id: q.id }); showAnswer(q, val, btn); addMissed(q); }
+  }
+  if (RUN.mode === 'day') save();
+}
+function shake(el) { if (!el) return; el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); }
+function showZone(q, val, btn) {
+  bubble(pick(CFG.lines.wrong1));
+  if (q.t === 'qcm' || q.t === 'fill') {
+    if (btn) { btn.classList.add('wrong'); btn.disabled = true; shake(btn); }
+    if (q.t === 'fill') { var bl = document.getElementById('blank'); if (bl) bl.classList.add('zone'); }
+    if (q.txt) { markRefs(q, 'zone'); fb('<b>' + tr(q).notq + '</b> ' + tr(q).txt, 'zonemsg'); }
+    else fb('<b>' + tr(q).notq + '</b> ' + (q.z || (q.lang === 'de' ? 'Lies die Frage noch einmal genau.' : 'Relis bien la question : un mot important t\'a peut-être échappé.')), 'zonemsg');
+    return;
+  }
+  var inp = document.getElementById('inp');
+  shake(inp || document.getElementById('padin'));
+  if (q.t === 'num') {
+    var exp = String(q.a).replace(',', '.'), got = String(val).replace(/[\s  ]/g, '').replace(',', '.'), isInt = function (s) { return /^\d+$/.test(s); }, msg, html = '';
+    if (isInt(exp) && isInt(got) && !q.one && exp.length > 1) {
+      if (got.length !== exp.length) {
+        html = groupMark(got, got.split('').map(function (_, k) { return k; }));
+        msg = (got.length > exp.length ? 'Ton résultat a <b>trop de chiffres</b>' : 'Ton résultat n\'a <b>pas assez de chiffres</b>') + ' : vérifie l\'ordre de grandeur.' + (q.z ? '<div class="hint">' + q.z + '</div>' : '');
+      } else {
+        var wrong = []; for (var k = 0; k < exp.length; k++) if (got[k] !== exp[k]) wrong.push(k);
+        var names = wrong.map(function (k) { return PLACES[exp.length - 1 - k]; });
+        html = groupMark(got, wrong);
+        msg = names.length === 1 ? 'L\'erreur est dans le chiffre des <b>' + names[0] + '</b>.' : 'Les erreurs sont dans les chiffres des <b>' + names.slice(0, -1).join('</b>, des <b>') + '</b> et des <b>' + names[names.length - 1] + '</b>.';
+        if (q.z && q.dom === 'calc' && q.id && q.id.indexOf('-p') > 0) msg += '<div class="hint">' + q.z + '</div>';
+      }
+    } else if (!isInt(exp)) {
+      msg = exp.split('.')[0] !== got.split('.')[0] ? 'La <b>partie entière</b> (avant la virgule) n\'est pas bonne.' : 'La partie entière est juste : l\'erreur est <b>après la virgule</b>.';
+      if (q.z) msg += '<div class="hint">' + q.z + '</div>';
+    } else msg = q.z || 'Vérifie ton calcul.';
+    fb('<b>Pas tout à fait.</b> ' + (html ? '<div class="yours">Tu as écrit : ' + html + '</div>' : '') + msg, 'zonemsg');
+    if (inp) { inp.select(); }
+    if (q.pad) padDraw('bad');
+    return;
+  }
+  // texte : on repère la zone fautive lettre par lettre
+  var v = cleanTyped(q, val), e = bestTarget(q, v), z = diffZone(v, e);
+  var mid = v.slice(z.i, v.length - z.j), shown;
+  if (z.i === 0 && z.j === 0) shown = '<mark class="err">' + esc(v) + '</mark>';
+  else if (!mid) shown = esc(v.slice(0, z.i)) + '<mark class="miss">▾</mark>' + esc(v.slice(z.i));
+  else shown = esc(v.slice(0, z.i)) + '<mark class="err">' + esc(mid) + '</mark>' + esc(v.slice(v.length - z.j));
+  var caseOnly = q.cs && q.a.some(function (x) { return norm(x) === norm(cleanTyped(q, val)); });
+  var m = caseOnly ? tr(q).case_ : z.i === 0 && z.j === 0 ? tr(q).whole : !mid ? tr(q).miss : tr(q).zone;
+  fb('<b>' + tr(q).notq + '</b><div class="yours">' + tr(q).try_ + ' <span class="word">' + shown + '</span></div>' + m + (q.z && !caseOnly ? '<div class="hint">' + q.z + '</div>' : ''), 'zonemsg');
+  if (inp) { inp.value = v; inp.focus(); try { inp.setSelectionRange(z.i, Math.max(z.i, v.length - z.j)); } catch (er) {} }
+}
+function showAnswer(q, val, btn) {
+  bubble(pick(CFG.lines.wrong2));
+  var ans = ansText(q);
+  if (q.t === 'qcm' || q.t === 'fill') {
+    if (btn) { btn.classList.add('wrong'); shake(btn); }
+    document.querySelectorAll('.choice').forEach(function (b, i) { if (q.c[i] === q.a) b.classList.add('reveal'); });
+    lockChoices();
+    if (q.t === 'fill') { var bl = document.getElementById('blank'); if (bl) { bl.textContent = q.a; bl.className = 'blank reveal'; } }
+    if (q.txt) markRefs(q, 'zone');
+    fb(tr(q).good + ' <b>' + ans + '</b>' + (q.e ? '<div class="exp">' + q.e + '</div>' : ''), 'answer');
+  } else if (q.t === 'num') {
+    if (q.pad) { PADBUF = String(q.a); padDraw('reveal'); }
+    fb('La bonne réponse est : <b class="bigans">' + ans + '</b>' + (q.e ? '<div class="exp">' + q.e + '</div>' : ''), 'answer');
+  } else {
+    var v = cleanTyped(q, val), e = bestTarget(q, v), z = diffZone(v, e), mid = e.slice(z.i, e.length - z.j);
+    var shown = z.i === 0 && z.j === 0 ? '<mark class="good">' + esc(e) + '</mark>' : esc(e.slice(0, z.i)) + (mid ? '<mark class="good">' + esc(mid) + '</mark>' : '') + esc(e.slice(e.length - z.j));
+    fb(tr(q).write + ' <span class="word">' + (q.pre ? strip(q.pre).split('→').pop().trim() + ' ' : '') + shown + '</span>' + (q.e ? '<div class="exp">' + q.e + '</div>' : ''), 'answer');
+  }
+  showNext();
+}
+function addMissed(q) {
+  if (RUN.mode !== 'day') return;
+  if (S.missed.some(function (m) { return m.q.id === q.id; })) return;
+  var c = clone(q); delete c.tries; delete c.done;
+  S.missed.push({ q: c, day: RUN.day, date: today() });
+}
+function next() {
+  stopQT();
+  RUN.i++;
+  if (RUN.mode === 'day') save();
+  if (RUN.i >= RUN.qs.length) return RUN.mode === 'day' ? finishDay() : finishRev();
+  renderQ();
+}
+
+/* ---------- fin de mission ---------- */
+function finishDay() {
+  var d = RUN.day, D = DATA.days[d], tot = RUN.res.length, first = RUN.res.filter(function (r) { return r.r === 2; }).length;
+  var ratio = tot ? first / tot : 0, stars = ratio >= 0.85 ? 3 : ratio >= 0.6 ? 2 : 1;
+  var by = {}; SECS.forEach(function (k) { var rs = RUN.res.filter(function (r) { return r.dom === k; }); by[k] = [rs.filter(function (r) { return r.r === 2; }).length, rs.length]; });
+  var prev = S.days[d], isFirst = !(prev && prev.done);
+  var hist = (prev && prev.hist) || []; hist.push({ date: today(), stars: stars, first: first, tot: tot, by: by });
+  S.days[d] = { done: true, stars: Math.max(stars, (prev && prev.stars) || 0), hist: hist };
+  var bonus = stars * 10; S.points += RUN.pts + bonus; S.current = null; save();
+  var pts = RUN.pts, maxC = RUN.maxCombo; RUN = null;
+  var final = d === DATA.days.length - 1 && isFirst;
+  app.innerHTML = topbar() + '<div class="screen"><div class="card endcard">' +
+    '<div class="kicker">Mission ' + (d + 1) + ' terminée</div><h2>' + D.place + '</h2>' +
+    '<div class="bigstars">' + [0, 1, 2].map(function (i) { return '<span class="st' + (i < stars ? ' on' : '') + '" style="animation-delay:' + (300 + i * 350) + 'ms">★</span>'; }).join('') + '</div>' +
+    '<p class="lead center">' + pick(CFG.lines['end' + stars]) + '</p>' +
+    '<div class="reward win"><span class="ricon">' + D.reward.icon + '</span><div><small>' + (isFirst ? 'Nouveau trésor débloqué !' : 'Déjà dans ta collection') + '</small><br><b>' + D.reward.name + '</b></div></div>' +
+    '<table class="mini">' + SECS.map(function (k) { return '<tr><td>' + CFG.icons[k] + ' ' + CFG.sec[k] + '</td><td>' + by[k][0] + '/' + by[k][1] + '</td></tr>'; }).join('') +
+    '<tr><td>🔥 Plus longue série</td><td>' + maxC + '</td></tr><tr><td>' + CFG.icons.points + ' Points gagnés</td><td>+' + pts + ' (+' + bonus + ' bonus étoiles)</td></tr></table>' +
+    '<p class="muted small center">(réponses justes du premier coup)</p>' +
+    (final ? '<div class="final">' + CFG.lines.final + '</div>' : '') +
+    '<div class="btns"><button class="primary big" data-act="home">Retour à la carte</button><button data-act="eclair">⚡ Bonus : Défi Éclair</button></div></div></div>';
+  tone(CFG.sounds.win, 0.1);
+  setTimeout(function () { burst(final ? 40 : 20, document.querySelector('.bigstars')); }, 500);
+  if (final) setTimeout(function () { burst(30); }, 1400);
+}
+
+/* ---------- revanches ---------- */
+function renderRevIntro() {
+  var n = S.missed.length;
+  app.innerHTML = topbar() + '<div class="screen"><div class="card intro center"><div class="introicon">' + CFG.revIcon + '</div><h2>Revanches</h2>' +
+    (n ? '<p class="lead">' + CFG.lines.revIntro + '</p><p>Questions à reconquérir : <b>' + n + '</b></p><p class="muted small">Une revanche réussie du premier coup disparaît de la liste et rapporte des points.</p>' +
+      '<div class="btns"><button class="primary big" data-act="revgo">Prendre ma revanche (' + Math.min(n, 10) + ' questions)</button><button class="ghost" data-act="home">Retour à la carte</button></div>'
+      : '<p class="lead">' + CFG.lines.revEmpty + '</p><div class="btns"><button class="primary big" data-act="home">Retour à la carte</button></div>') + '</div></div>';
+}
+function startRev() {
+  var list = shuffle(S.missed).slice(0, 10).map(function (m) { var q = clone(m.q); q.tries = 0; q.done = false; if (q.c) q.c = shuffle(q.c); return q; });
+  if (!list.length) return renderRevIntro();
+  RUN = { mode: 'rev', qs: list, i: 0, res: [], pts: 0, combo: 0, maxCombo: 0 };
+  renderQ();
+}
+function finishRev() {
+  var won = RUN.res.filter(function (r) { return r.r === 2; }).length, tot = RUN.res.length;
+  S.points += RUN.pts; save(); var pts = RUN.pts; RUN = null;
+  app.innerHTML = topbar() + '<div class="screen"><div class="card endcard center"><div class="introicon">' + CFG.revIcon + '</div><h2>Revanches terminées</h2>' +
+    '<p class="lead">' + won + ' revanche' + (won > 1 ? 's' : '') + ' gagnée' + (won > 1 ? 's' : '') + ' sur ' + tot + '.</p><p>' + CFG.icons.points + ' +' + pts + ' points</p>' +
+    '<p class="muted">Il reste ' + S.missed.length + ' question' + (S.missed.length > 1 ? 's' : '') + ' à reconquérir.</p>' +
+    '<div class="btns"><button class="primary big" data-act="home">Retour à la carte</button></div></div></div>';
+  if (won) burst(16);
+}
+
+/* ---------- collection ---------- */
+function renderColl() {
+  var h = '<div class="screen"><div class="card"><h2 class="center">🎁 ' + CFG.collTitle + '</h2><p class="center muted">Chaque mission terminée t\'offre un trésor.</p><div class="coll">';
+  DATA.days.forEach(function (D, i) {
+    var st = S.days[i], done = st && st.done;
+    h += '<div class="item' + (done ? ' got' : '') + '"><div class="iicon">' + (done ? D.reward.icon : '?') + '</div><div class="iname">' + (done ? D.reward.name : 'Mission ' + (i + 1)) + '</div><div class="istars">' + (done ? starsStr(st.stars) : '') + '</div></div>';
+  });
+  h += '</div><p class="center">Rang actuel : <b>' + rank() + '</b></p><div class="ranks">' + CFG.ranks.map(function (r) { return '<span class="' + (daysDone() >= r.min ? 'on' : '') + '">' + r.name + '<small>' + r.min + ' mission' + (r.min > 1 ? 's' : '') + '</small></span>'; }).join('') + '</div>' +
+    '<div class="btns"><button class="primary" data-act="home">Retour à la carte</button></div></div></div>';
+  app.innerHTML = topbar() + h;
+}
+
+/* ---------- défi éclair ---------- */
+function renderEclairIntro() {
+  stopEclair();
+  app.innerHTML = topbar() + '<div class="screen"><div class="card intro center"><div class="introicon">⚡</div><h2>Défi Éclair</h2>' +
+    '<p class="lead">60 secondes pour répondre à un maximum de ' + (CFG.level === 'CM2' ? 'multiplications et divisions' : 'tables de multiplication') + '.</p>' +
+    '<p>Record : <b>' + S.eclairBest + '</b> · chaque bonne réponse rapporte 2 ' + CFG.icons.points + '</p>' +
+    '<div class="btns"><button class="primary big" data-act="ecgo">C\'est parti !</button><button class="ghost" data-act="home">Retour à la carte</button></div></div></div>';
+}
+function eclairGo() {
+  stopEclair();
+  EC = { t: 60, score: 0, cur: null, buf: '', lock: false, timer: null };
+  var keys = ['7', '8', '9', '4', '5', '6', '1', '2', '3', 'del', '0', 'ok'];
+  app.innerHTML = topbar() + '<div class="screen"><div class="card eclair center"><div class="ectop"><span>⏳ <b id="ect">60</b> s</span><span>✔ <b id="ecs">0</b></span></div>' +
+    '<div class="ectime"><div id="ecbar"></div></div><div class="ecq" id="ecq"></div><div class="ecin" id="ecin">&nbsp;</div><div class="keypad">' +
+    keys.map(function (k) { return '<button class="' + (k === 'ok' ? 'primary' : '') + '" data-act="key" data-k="' + k + '">' + (k === 'del' ? '⌫' : k === 'ok' ? 'OK' : k) + '</button>'; }).join('') +
+    '</div><p class="muted small">Tu peux aussi taper au clavier puis Entrée.</p></div></div>';
+  ecNext();
+  EC.timer = setInterval(function () {
+    if (!EC) return; EC.t--;
+    var el = document.getElementById('ect'), b = document.getElementById('ecbar');
+    if (el) el.textContent = EC.t; if (b) b.style.width = (EC.t / 60 * 100) + '%';
+    if (EC.t <= 0) ecEnd();
+  }, 1000);
+}
+function ecNext() {
+  var a = R(2, 9), b = R(2, 10);
+  if (CFG.level === 'CM2' && Math.random() < 0.35) EC.cur = { q: (a * b) + ' ÷ ' + a, a: b };
+  else { if (Math.random() < .5) { var t = a; a = b; b = t; } EC.cur = { q: a + ' × ' + b, a: a * b }; }
+  EC.buf = ''; EC.lock = false; ecDraw();
+}
+function ecDraw(cls) {
+  var q = document.getElementById('ecq'), i = document.getElementById('ecin'), s = document.getElementById('ecs');
+  if (q) q.textContent = EC.cur.q + ' = ?'; if (i) { i.innerHTML = EC.buf || '&nbsp;'; i.className = 'ecin ' + (cls || ''); } if (s) s.textContent = EC.score;
+}
+function ecKey(k) {
+  if (!EC || EC.t <= 0 || EC.lock) return;
+  if (k === 'del') EC.buf = EC.buf.slice(0, -1);
+  else if (k === 'ok') {
+    if (!EC.buf) return;
+    if (+EC.buf === EC.cur.a) { EC.score++; tone([CFG.sounds.ok[0], CFG.sounds.ok[2]], 0.06); ecDraw('good'); EC.lock = true; setTimeout(function () { if (EC) ecNext(); }, 180); return; }
+    tone(CFG.sounds.wrong, 0.1); EC.buf = String(EC.cur.a); ecDraw('bad'); EC.lock = true; setTimeout(function () { if (EC) ecNext(); }, 900); return;
+  } else if (EC.buf.length < 3) EC.buf += k;
+  ecDraw();
+}
+function ecEnd() {
+  var sc = EC.score, rec = sc > S.eclairBest; clearInterval(EC.timer); EC = null;
+  if (rec) S.eclairBest = sc; S.points += sc * 2; save();
+  app.innerHTML = topbar() + '<div class="screen"><div class="card endcard center"><div class="introicon">⚡</div><h2>Temps écoulé !</h2>' +
+    '<p class="lead"><b>' + sc + '</b> bonne' + (sc > 1 ? 's' : '') + ' réponse' + (sc > 1 ? 's' : '') + '</p>' +
+    (rec ? '<p class="final">' + CFG.lines.record + '</p>' : '<p class="muted">Record : ' + S.eclairBest + '</p>') +
+    '<p>' + CFG.icons.points + ' +' + sc * 2 + ' points</p><div class="btns"><button class="primary big" data-act="ecgo">Rejouer</button><button class="ghost" data-act="home">Retour à la carte</button></div></div></div>';
+  tone(CFG.sounds.win, 0.09); if (rec) burst(24);
+}
+
+/* ---------- coin des grands-parents ---------- */
+function pct(a, b) { return b ? Math.round(a / b * 100) + ' %' : '-'; }
+function renderParents() {
+  var rows = '', agg = {}; SECS.forEach(function (k) { agg[k] = [0, 0]; });
+  var cell = function (L, k) { return L.by && L.by[k] ? L.by[k] : [0, 0]; };
+  DATA.days.forEach(function (D, i) {
+    var st = S.days[i];
+    if (!st || !st.done) { rows += '<tr class="off"><td>J' + (i + 1) + '</td><td>' + D.place + '</td><td colspan="' + (SECS.length + 2) + '">pas encore jouée</td></tr>'; return; }
+    var L = st.hist[st.hist.length - 1];
+    SECS.forEach(function (k) { var c = cell(L, k); agg[k][0] += c[0]; agg[k][1] += c[1]; });
+    rows += '<tr><td>J' + (i + 1) + '</td><td>' + D.place + '</td><td class="stars">' + starsStr(L.stars) + '</td>' +
+      SECS.map(function (k) { var c = cell(L, k); return '<td>' + c[0] + '/' + c[1] + '</td>'; }).join('') + '<td class="small">' + L.date + (st.hist.length > 1 ? '<br>(' + st.hist.length + ' essais)' : '') + '</td></tr>';
+  });
+  var miss = S.missed.slice().sort(function (a, b) { return a.day - b.day; }).map(function (m) {
+    return '<li><span class="tagd">J' + (m.day + 1) + ' · ' + CFG.sec[m.q.dom] + '</span> ' + esc(promptText(m.q)) + ' <b>→ ' + strip(ansText(m.q)) + '</b></li>';
+  }).join('');
+  var plan = DATA.days.map(function (D, i) { return '<li><b>J' + (i + 1) + '</b> ' + D.focus + '</li>'; }).join('');
+  app.innerHTML = topbar() + '<div class="screen"><div class="card parents"><h2>👵👴 Le coin des grands-parents</h2>' +
+    '<p>' + (CFG.parentsText || 'Une mission par jour, 15 à 20 minutes : 6 questions d\'orthographe, 5 de calcul et une lecture avec ses questions. Programme de ' + CFG.level + ', première période (septembre-octobre).') + '</p>' +
+    '<p><b>Le principe :</b> à la première erreur, le jeu montre <i>où</i> se trouve l\'erreur (lettres fautives, chiffre faux, phrase du texte, astuce de remplacement). À la deuxième, il donne la réponse et range la question dans les « Revanches » à rejouer plus tard.</p>' +
+    '<p class="tip">Le plus utile pour vous : regarder ensemble la liste des erreurs ci-dessous, et faire expliquer la règle avec ses mots plutôt que la réponse.</p>' +
+    '<h3>Résultats (réponses justes du premier coup)</h3><div class="tblwrap"><table class="res"><tr><th></th><th>Mission</th><th>Étoiles</th>' + SECS.map(function (k) { return '<th>' + CFG.icons[k] + '</th>'; }).join('') + '<th>Date</th></tr>' + rows + '</table></div>' +
+    '<div class="aggs">' + SECS.map(function (k) { return '<span>' + CFG.icons[k] + ' ' + CFG.sec[k] + ' <b>' + pct(agg[k][0], agg[k][1]) + '</b></span>'; }).join('') + '<span>⚡ Record Éclair <b>' + S.eclairBest + '</b></span></div>' +
+    '<h3>Erreurs à retravailler (' + S.missed.length + ')</h3>' + (miss ? '<ul class="misslist">' + miss + '</ul>' : '<p class="muted">Aucune pour le moment.</p>') +
+    '<h3>Le programme des 10 jours</h3><ul class="planlist">' + plan + '</ul>' +
+    '<details class="danger"><summary>Remettre le jeu à zéro</summary><p>Efface toutes les étoiles, points, trésors et erreurs enregistrés sur cet appareil.</p><button data-act="reset">Tout effacer</button></details>' +
+    '<div class="btns"><button class="primary" data-act="home">Retour à la carte</button></div></div></div>';
+}
+
+/* ---------- événements ---------- */
+document.addEventListener('click', function (ev) {
+  var b = ev.target.closest('[data-act]'); if (!b) return;
+  var act = b.getAttribute('data-act');
+  switch (act) {
+    case 'home': stopQT(); if (RUN && RUN.mode === 'rev') { S.points += RUN.pts; save(); } renderMap(); break;
+    case 'qkey': padKey(b.getAttribute('data-k')); break;
+    case 'mute': S.muted = !S.muted; save(); b.textContent = S.muted ? '🔇' : '🔊'; break;
+    case 'day': renderIntro(+b.getAttribute('data-d')); break;
+    case 'start': startDay(+b.getAttribute('data-d')); break;
+    case 'quit':
+      if (RUN && RUN.mode === 'day') { if (confirm('Faire une pause ? Ta mission est gardée, tu pourras la reprendre.')) renderMap(); }
+      else { if (RUN) { S.points += RUN.pts; save(); } renderMap(); }
+      break;
+    case 'choice': var q = cur(); if (!q.done) submit(q.c[+b.getAttribute('data-i')], b); break;
+    case 'check': var inp = document.getElementById('inp'); if (inp) submit(inp.value, null); break;
+    case 'next': next(); break;
+    case 'acc':
+      var i2 = document.getElementById('inp'); if (!i2 || i2.disabled) break;
+      var c = b.getAttribute('data-c'), s0 = i2.selectionStart != null ? i2.selectionStart : i2.value.length, s1 = i2.selectionEnd != null ? i2.selectionEnd : s0;
+      i2.value = i2.value.slice(0, s0) + c + i2.value.slice(s1); i2.focus(); try { i2.setSelectionRange(s0 + c.length, s0 + c.length); } catch (e) {}
+      break;
+    case 'say': say(cur().say, 0.85, cur().lang); break;
+    case 'sayslow': say(cur().say, 0.55, cur().lang); break;
+    case 'reveal': var sc = document.getElementById('secret'); if (sc) sc.classList.toggle('show'); break;
+    case 'coll': renderColl(); break;
+    case 'rev': renderRevIntro(); break;
+    case 'revgo': startRev(); break;
+    case 'eclair': renderEclairIntro(); break;
+    case 'ecgo': eclairGo(); break;
+    case 'key': ecKey(b.getAttribute('data-k')); break;
+    case 'parents': renderParents(); break;
+    case 'reset':
+      if (confirm('Tout effacer pour ' + CFG.name + ' ?') && confirm('Vraiment ? Cette action est définitive.')) { S = fresh(); save(); renderMap(); }
+      break;
+  }
+});
+document.addEventListener('keydown', function (ev) {
+  if (EC) {
+    if (/^[0-9]$/.test(ev.key)) { ecKey(ev.key); ev.preventDefault(); }
+    else if (ev.key === 'Backspace') { ecKey('del'); ev.preventDefault(); }
+    else if (ev.key === 'Enter') { ecKey('ok'); ev.preventDefault(); }
+    return;
+  }
+  var pq = RUN && RUN.qs && RUN.qs[RUN.i];
+  if (pq && pq.pad && !pq.done && document.getElementById('padin')) {
+    if (/^[0-9]$/.test(ev.key)) { padKey(ev.key); ev.preventDefault(); return; }
+    if (ev.key === 'Backspace') { padKey('del'); ev.preventDefault(); return; }
+    if (ev.key === 'Enter') { padKey('ok'); ev.preventDefault(); return; }
+  }
+  if (ev.key !== 'Enter') return;
+  var n = document.getElementById('next');
+  if (n) { ev.preventDefault(); n.click(); return; }
+  var inp = document.getElementById('inp');
+  if (inp && document.activeElement === inp) { ev.preventDefault(); submit(inp.value, null); return; }
+  var t = ev.target.closest && ev.target.closest('.node[data-act]'); if (t) t.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+});
+if (canSpeak) { try { speechSynthesis.getVoices(); } catch (e) {} }
+window.__TEST__ = { GEN: GEN, words: words, isRight: isRight, cleanTyped: cleanTyped, prep: prep, timeLimit: timeLimit, sections: SECS, state: function () { return S; }, run: function () { return RUN; }, expireTimer: function () { if (QT) QT.left = 1; } };
+renderMap();
+})();
+
+</script>
+</body>
+</html>

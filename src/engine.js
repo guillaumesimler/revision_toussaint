@@ -13,6 +13,13 @@ function load() {
 }
 function save() { var s = JSON.stringify(S); MEM = s; try { localStorage.setItem(KEY, s); } catch (e) {} }
 var S = load() || fresh();
+var SECS = CFG.sections || ['ortho', 'calc', 'lect'];
+var UI = {
+  fr: { check: 'Valider', next: 'Suivant →', end: 'Terminer ✓', ph: 'ta réponse', notq: 'Pas tout à fait.', try_: 'Ton essai :', miss: 'Il manque quelque chose à l\'endroit marqué <b>▾</b>.', zone: 'L\'erreur se cache dans la partie <span class="zonetag">colorée</span>. Corrige-la !', whole: 'Tout le mot est à revoir : relis bien la consigne.', txt: 'La réponse se cache dans la partie <span class="zonetag">surlignée</span> du texte. Relis-la !', good: 'La bonne réponse est :', write: 'Il fallait écrire :', listen: '🔊 Écouter', slow: '🐢 Lentement', reveal: 'Pour un grand-parent : voir la dictée', dict: 'Dictée : écoute et écris ce que tu entends.', empty: 'Écris ta réponse dans la case.', fillq: 'Choisis le bon mot pour compléter la phrase :', case_: 'Attention aux <b>majuscules</b> : c\'est la seule erreur !' },
+  de: { check: 'Prüfen', next: 'Weiter →', end: 'Fertig ✓', ph: 'deine Antwort', notq: 'Fast!', try_: 'Dein Versuch:', miss: 'An der Stelle <b>▾</b> fehlt etwas.', zone: 'Der Fehler steckt im <span class="zonetag">farbigen</span> Teil. Verbessere ihn!', whole: 'Das ganze Wort stimmt noch nicht. Lies die Aufgabe noch einmal.', txt: 'Die Antwort steht im <span class="zonetag">markierten</span> Teil des Textes. Lies ihn noch einmal!', good: 'Die richtige Antwort ist:', write: 'Richtig geschrieben:', listen: '🔊 Anhören', slow: '🐢 Langsam', reveal: 'Für Oma oder Opa: Diktat zeigen', dict: 'Diktat: Hör gut zu und schreib, was du hörst.', empty: 'Schreib deine Antwort in das Feld.', fillq: 'Wähle das richtige Wort:', case_: 'Achte auf <b>Groß- und Kleinschreibung</b>: Das ist der einzige Fehler!' }
+};
+function tr(q) { return UI[(q && q.lang) === 'de' ? 'de' : 'fr']; }
+var QT = null;
 var RUN = null, EC = null;
 
 /* ---------- utilitaires ---------- */
@@ -120,6 +127,10 @@ var GEN = {
     if (k === 2) { a = R(1, 4); b = R(1, 11) * 5; return { t: 'num', q: 'Convertis :<br>' + big(a + ' h ' + b + ' min = ? min'), a: a * 60 + b, z: '1 h = 60 min.', e: a + ' h = ' + a * 60 + ' min, donc ' + a + ' h ' + b + ' min = ' + (a * 60 + b) + ' min.' }; }
     a = R(1, 9); b = R(1, 99); return { t: 'num', q: 'Convertis :<br>' + big(a + ' m ' + b + ' cm = ? cm'), a: a * 100 + b, z: '1 m = 100 cm.', e: a + ' m = ' + a * 100 + ' cm, donc ' + a + ' m ' + b + ' cm = ' + (a * 100 + b) + ' cm.' };
   },
+  tabT: function () {
+    var a = R(1, 9), b = R(2, 9); if (Math.random() < .5) { var t = a; a = b; b = t; }
+    return { t: 'num', q: big(a + ' × ' + b + ' = ?'), a: a * b, one: a * b < 10, z: 'Pense à la table de ' + Math.max(a, b) + ' : ' + Math.max(a, b) + ', ' + 2 * Math.max(a, b) + ', ' + 3 * Math.max(a, b) + '...', e: a + ' × ' + b + ' = ' + a * b + '.' };
+  },
   mental: function () {
     var k = R(0, 4), n;
     if (k === 0) { n = 4 * R(2, 25); return { t: 'num', q: 'Calcul mental :<br>' + big(n + ' × 25'), a: n * 25, z: 'Astuce : × 25, c\'est × 100 puis ÷ 4.', e: n + ' × 25 = ' + fmt(n * 25) + ' (' + n + ' × 100 = ' + fmt(n * 100) + ', puis ÷ 4).' }; }
@@ -137,8 +148,33 @@ function prep(q, dom, id) {
   if (q.c) { var corr = typeof q.a === 'number' ? q.c[q.a] : q.a; q.c = shuffle(q.c); q.a = corr; }
   return q;
 }
+function timeLimit(d) { return CFG.timer ? Math.max(CFG.timer.min, CFG.timer.start - d * CFG.timer.step) : 0; }
+function genUnique(part, i, seen) {
+  var g = part.gen[i], q, k = 0;
+  do { q = GEN[g[0]].apply(null, g.slice(1)); k++; } while (seen[q.q] && k < 30);
+  seen[q.q] = 1; return q;
+}
+function buildParts(d, D) {
+  var qs = [], uid = Date.now().toString(36);
+  D.parts.forEach(function (P) {
+    var add = function (x) { if (P.lang) x.lang = P.lang; if (P.timed) { x.limit = timeLimit(d); x.pad = true; } qs.push(x); }, seen = {};
+    if (P.lect) P.lect.qs.forEach(function (q, i) { var x = prep(q, P.dom, d + '-' + P.dom + 'l' + i); x.t = 'qcm'; x.txt = { title: P.lect.title, s: P.lect.s }; add(x); });
+    (P.qs || []).forEach(function (q, i) { add(prep(q, P.dom, d + '-' + P.dom + i)); });
+    (P.gen || []).forEach(function (g, i) { add(prep(genUnique(P, i, seen), P.dom, d + '-' + P.dom + 'g' + i + '-' + uid)); });
+  });
+  return qs;
+}
+function partCount(D, dom) {
+  if (!D.parts) return dom === 'ortho' ? D.ortho.length : dom === 'calc' ? (D.calc.gen || []).length + (D.calc.probs || []).length : D.lect.qs.length;
+  var n = 0; D.parts.forEach(function (P) { if (P.dom === dom) n += (P.qs || []).length + (P.gen || []).length + (P.lect ? P.lect.qs.length : 0); }); return n;
+}
+function partTitle(D, dom) {
+  if (!D.parts) return dom === 'lect' ? D.lect.title : '';
+  var t = ''; D.parts.forEach(function (P) { if (P.dom === dom && P.lect) t = P.lect.title; }); return t;
+}
 function buildDay(d) {
   var D = DATA.days[d], qs = [], uid = Date.now().toString(36);
+  if (D.parts) return buildParts(d, D);
   D.ortho.forEach(function (q, i) { qs.push(prep(q, 'ortho', d + '-o' + i)); });
   (D.calc.gen || []).forEach(function (g, i) { qs.push(prep(GEN[g[0]].apply(null, g.slice(1)), 'calc', d + '-g' + i + '-' + uid)); });
   (D.calc.probs || []).forEach(function (q, i) { qs.push(prep(q, 'calc', d + '-p' + i)); });
@@ -147,12 +183,12 @@ function buildDay(d) {
 }
 
 /* ---------- vérification ---------- */
-function norm(s) { return String(s).toLowerCase().replace(/[’`´ʼ]/g, "'").replace(/\s+/g, ' ').replace(/\s*'\s*/g, "'").replace(/[.!]+$/, '').trim(); }
+function norm(s, cs) { s = String(s); if (!cs) s = s.toLowerCase(); return s.replace(/[’`´ʼ]/g, "'").replace(/\s+/g, ' ').replace(/\s*'\s*/g, "'").replace(/[.!]+$/, '').trim(); }
 function numVal(s) { s = String(s).replace(/[\s  ]/g, '').replace(',', '.'); if (!/^-?\d+(\.\d+)?$/.test(s)) return null; return parseFloat(s); }
 function cleanTyped(q, val) {
-  var v = norm(val);
+  var v = norm(val, q.cs);
   if (q.pre) {
-    var tail = norm(strip(q.pre)).split(/[\s→]+/).pop();
+    var tail = norm(strip(q.pre), q.cs).split(/[\s→]+/).pop();
     if (tail) {
       if (tail.slice(-1) === "'") { if (v.indexOf(tail) === 0) v = v.slice(tail.length); }
       else if (v.indexOf(tail + ' ') === 0) v = v.slice(tail.length + 1);
@@ -164,7 +200,7 @@ function isRight(q, val) {
   if (q.t === 'qcm' || q.t === 'fill') return val === q.a;
   if (q.t === 'num') { var a = numVal(val), b = numVal(q.a); return a !== null && Math.abs(a - b) < 1e-9; }
   var v = cleanTyped(q, val);
-  return q.a.some(function (x) { return norm(x) === v; });
+  return q.a.some(function (x) { return norm(x, q.cs) === v; });
 }
 function diffZone(inp, exp) {
   var i = 0; while (i < inp.length && i < exp.length && inp[i] === exp[i]) i++;
@@ -173,7 +209,7 @@ function diffZone(inp, exp) {
 }
 function bestTarget(q, v) {
   var best = null, bs = -1;
-  q.a.forEach(function (x) { var e = norm(x), z = diffZone(v, e); if (z.i + z.j > bs) { bs = z.i + z.j; best = e; } });
+  q.a.forEach(function (x) { var e = norm(x, q.cs), z = diffZone(v, e); if (z.i + z.j > bs) { bs = z.i + z.j; best = e; } });
   return best;
 }
 function groupMark(s, wrong) {
@@ -189,7 +225,7 @@ function ansText(q) {
 function promptText(q) {
   if (q.t === 'fill') return strip(q.s);
   if (q.t === 'type') return strip((q.q || '') + ' ' + (q.s || '') + ' ' + (q.pre || '') + ' …');
-  if (q.t === 'dictee') return 'Dictée : « ' + q.say + ' »';
+  if (q.t === 'dictee') return (q.lang === 'de' ? 'Diktat : « ' : 'Dictée : « ') + q.say + ' »';
   return strip(q.q);
 }
 
@@ -223,10 +259,11 @@ function burst(n, el) {
   }
 }
 var canSpeak = 'speechSynthesis' in window;
-function say(text, rate) {
+function say(text, rate, lang) {
   try {
-    var u = new SpeechSynthesisUtterance(text); u.lang = 'fr-FR'; u.rate = rate;
-    var v = speechSynthesis.getVoices().filter(function (v) { return /^fr/i.test(v.lang); })[0]; if (v) u.voice = v;
+    var L = lang === 'de' ? 'de' : 'fr';
+    var u = new SpeechSynthesisUtterance(text); u.lang = L === 'de' ? 'de-DE' : 'fr-FR'; u.rate = rate;
+    var v = speechSynthesis.getVoices().filter(function (v) { return new RegExp('^' + L, 'i').test(v.lang); })[0]; if (v) u.voice = v;
     speechSynthesis.cancel(); speechSynthesis.speak(u);
   } catch (e) {}
 }
@@ -237,7 +274,7 @@ function starsTotal() { var n = 0; for (var k in S.days) n += S.days[k].stars ||
 function unlocked(i) { return i === 0 || !!(S.days[i - 1] && S.days[i - 1].done); }
 function rank() { var n = daysDone(), cur = CFG.ranks[0]; CFG.ranks.forEach(function (r) { if (n >= r.min) cur = r; }); return cur.name; }
 function starsStr(n, max) { max = max || 3; var s = ''; for (var i = 0; i < max; i++) s += i < n ? '★' : '☆'; return s; }
-function stopEclair() { if (EC && EC.timer) clearInterval(EC.timer); EC = null; }
+function stopEclair() { if (EC && EC.timer) clearInterval(EC.timer); EC = null; stopQT(); }
 
 function topbar() {
   return '<div class="topbar"><button class="ghost brand" data-act="home"><span class="bicon">' + CFG.homeIcon + '</span><b>' + CFG.name + '</b><span class="lvl">' + CFG.level + '</span></button>' +
@@ -286,9 +323,20 @@ function renderMap() {
     '<nav class="menu"><button data-act="coll">🎁 Collection<span>' + daysDone() + '/10</span></button>' +
     '<button data-act="rev" class="' + (miss ? 'has' : '') + '">' + CFG.revIcon + ' Revanches<span>' + miss + '</span></button>' +
     '<button data-act="eclair">⚡ Défi Éclair<span>record ' + S.eclairBest + '</span></button>' +
-    '<button data-act="parents">👵👴 Grands-parents<span>bilan</span></button></nav>' +
+    '<button data-act="parents">👵👴 Grands-parents<span>bilan</span></button></nav>' + siblingLink() +
     '<div class="mapwrap">' + svg + '</div></div>';
   setTimeout(function () { var el = document.querySelector('.node.next'); if (el && el.scrollIntoView && daysDone() > 2) el.scrollIntoView({ block: 'center', behavior: 'smooth' }); }, 60);
+}
+
+function siblingLink() {
+  if (!CFG.sibling) return '';
+  var b = CFG.sibling, st = null, txt = 'pas encore commencé';
+  try { st = JSON.parse(localStorage.getItem(b.key) || 'null'); } catch (e) {}
+  if (st && st.days) {
+    var n = 0, stars = 0; for (var k in st.days) { if (st.days[k].done) n++; stars += st.days[k].stars || 0; }
+    txt = n + '/10 missions · ★ ' + stars + '/30';
+  }
+  return '<a class="sibling" href="' + b.href + '"><span class="sicon">' + b.icon + '</span><span><b>' + b.label + '</b><small>' + txt + '</small></span><span class="sgo">→</span></a>';
 }
 
 /* ---------- intro de mission ---------- */
@@ -297,9 +345,8 @@ function renderIntro(d) {
   app.innerHTML = topbar() + '<div class="screen"><div class="card intro">' +
     '<div class="introicon">' + D.icon + '</div><div class="kicker">Mission ' + (d + 1) + ' sur 10</div><h2>' + D.place + '</h2>' +
     '<p class="lead">' + D.intro + '</p>' +
-    '<ul class="plan"><li><span>' + CFG.icons.ortho + ' ' + CFG.sec.ortho + '</span><b>' + D.ortho.length + ' questions</b></li>' +
-    '<li><span>' + CFG.icons.calc + ' ' + CFG.sec.calc + '</span><b>' + ((D.calc.gen || []).length + (D.calc.probs || []).length) + ' questions</b></li>' +
-    '<li><span>' + CFG.icons.lect + ' ' + CFG.sec.lect + ' : « ' + D.lect.title + ' »</span><b>' + D.lect.qs.length + ' questions</b></li></ul>' +
+    '<ul class="plan">' + SECS.map(function (k) { var t = partTitle(D, k); return '<li><span>' + CFG.icons[k] + ' ' + CFG.sec[k] + (t ? ' : « ' + t + ' »' : '') + '</span><b>' + partCount(D, k) + ' questions</b></li>'; }).join('') + '</ul>' +
+    (CFG.timer ? '<p class="timerinfo">⏱️ Aujourd\'hui, tu as <b>' + timeLimit(d) + ' secondes</b> par calcul de tables.</p>' : '') +
     '<div class="reward"><span class="ricon">' + D.reward.icon + '</span><div><small>À gagner</small><br><b>' + D.reward.name + '</b></div></div>' +
     (st && st.done ? '<p class="muted center">Déjà réussie avec ' + starsStr(st.stars) + '. Rejoue pour gagner plus d\'étoiles !</p>' : '') +
     '<div class="rules"><b>Règle du jeu :</b> si tu te trompes, ' + CFG.comp.name + ' te montre <i>où</i> est l\'erreur. Au deuxième essai raté, la réponse s\'affiche et la question part dans tes Revanches.</div>' +
@@ -321,28 +368,34 @@ function startDay(d) {
 /* ---------- question ---------- */
 function cur() { return RUN.qs[RUN.i]; }
 var ACCENTS = ['é', 'è', 'ê', 'ë', 'à', 'â', 'ç', 'ù', 'û', 'î', 'ï', 'ô', 'œ', "'"];
-function accentBar() { return '<div class="accents">' + ACCENTS.map(function (c) { return '<button data-act="acc" data-c="' + esc(c) + '" tabindex="-1">' + c + '</button>'; }).join('') + '</div>'; }
+var UMLAUTS = ['ä', 'ö', 'ü', 'ß', 'Ä', 'Ö', 'Ü'];
+function accentBar(q) { return '<div class="accents">' + ((q && q.lang === 'de') ? UMLAUTS : ACCENTS).map(function (c) { return '<button data-act="acc" data-c="' + esc(c) + '" tabindex="-1">' + c + '</button>'; }).join('') + '</div>'; }
 function qBody(q) {
   var h = '';
   if (q.t === 'qcm') {
     h += '<div class="qtext">' + q.q + '</div><div class="choices' + (q.c.length > 2 && q.c.some(function (c) { return strip(c).length > 24; }) ? ' long' : '') + '">' +
       q.c.map(function (c, i) { return '<button class="choice" data-act="choice" data-i="' + i + '">' + c + '</button>'; }).join('') + '</div><div id="actions" class="actions"></div>';
   } else if (q.t === 'fill') {
-    h += '<div class="qtext small">' + (q.q || 'Choisis le bon mot pour compléter la phrase :') + '</div>' +
+    h += '<div class="qtext small">' + (q.q || tr(q).fillq) + '</div>' +
       '<div class="sentence">' + q.s.replace('___', '<span class="blank" id="blank">?</span>') + '</div>' +
       '<div class="choices row">' + q.c.map(function (c, i) { return '<button class="choice" data-act="choice" data-i="' + i + '">' + c + '</button>'; }).join('') + '</div><div id="actions" class="actions"></div>';
   } else if (q.t === 'type' || q.t === 'dictee') {
     if (q.t === 'dictee') {
-      h += '<div class="qtext">' + (q.q || 'Dictée : écoute et écris ce que tu entends.') + '</div><div class="sayrow">' +
-        (canSpeak ? '<button data-act="say">🔊 Écouter</button><button data-act="sayslow">🐢 Lentement</button>' : '') +
-        '<button class="ghost" data-act="reveal">Pour un grand-parent : voir la dictée</button><span class="secret" id="secret">« ' + q.say + ' »</span></div>';
+      h += '<div class="qtext">' + (q.q || tr(q).dict) + '</div><div class="sayrow">' +
+        (canSpeak ? '<button data-act="say">' + tr(q).listen + '</button><button data-act="sayslow">' + tr(q).slow + '</button>' : '') +
+        '<button class="ghost" data-act="reveal">' + tr(q).reveal + '</button><span class="secret" id="secret">« ' + q.say + ' »</span></div>';
     } else {
       h += '<div class="qtext">' + q.q + '</div>' + (q.s ? '<div class="sentence">' + q.s + '</div>' : '');
     }
     h += '<div class="typeline">' + (q.pre ? '<span class="pre">' + q.pre + '</span>' : '') +
-      '<input id="inp" class="ans" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="ta réponse">' +
-      (q.post ? '<span class="post">' + q.post + '</span>' : '') + '</div>' + accentBar() +
-      '<div id="actions" class="actions"><button class="primary big" data-act="check">Valider</button></div>';
+      '<input id="inp" class="ans" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="' + tr(q).ph + '">' +
+      (q.post ? '<span class="post">' + q.post + '</span>' : '') + '</div>' + accentBar(q) +
+      '<div id="actions" class="actions"><button class="primary big" data-act="check">' + tr(q).check + '</button></div>';
+  } else if (q.t === 'num' && q.pad) {
+    h += (q.limit ? '<div class="qtimer" id="qtimer"><div class="qtbar" id="qtbar"></div><span id="qtsec">' + q.limit + ' s</span></div>' : '') +
+      '<div class="qtext">' + q.q + '</div><div class="padin" id="padin">&nbsp;</div><div class="keypad qpad">' +
+      ['7', '8', '9', '4', '5', '6', '1', '2', '3', 'del', '0', 'ok'].map(function (k) { return '<button class="' + (k === 'ok' ? 'primary' : '') + '" data-act="qkey" data-k="' + k + '">' + (k === 'del' ? '⌫' : k === 'ok' ? 'OK' : k) + '</button>'; }).join('') +
+      '</div><div id="actions" class="actions"></div>';
   } else if (q.t === 'num') {
     h += '<div class="qtext">' + q.q + '</div><div class="typeline"><input id="inp" class="ans num" type="text" inputmode="decimal" autocomplete="off" placeholder="?">' +
       (q.unit ? '<span class="post">' + q.unit + '</span>' : '') + '</div>' +
@@ -352,23 +405,57 @@ function qBody(q) {
 }
 function renderQ() {
   var q = cur(), total = RUN.qs.length, prev = RUN.qs[RUN.i - 1], newSec = !prev || prev.dom !== q.dom;
-  var secN = ['ortho', 'calc', 'lect'].indexOf(q.dom) + 1;
+  var secN = SECS.indexOf(q.dom) + 1;
   var h = '<div class="screen qscreen"><div class="qtop"><button class="ghost icon" data-act="quit" title="Quitter">✕</button>' +
     '<div class="prog"><div class="bar" style="width:' + (RUN.i / total * 100) + '%"></div></div><div class="qcount">' + (RUN.i + 1) + '/' + total + '</div></div>' +
     '<div class="hud"><span class="chip">' + CFG.icons[q.dom] + ' ' + CFG.sec[q.dom] + '</span><span class="combo' + (RUN.combo >= 3 ? ' hot' : '') + '" id="combo">' + (RUN.combo >= 2 ? '🔥 série ' + RUN.combo : '') + '</span>' +
     '<span class="pts" id="pts">' + CFG.icons.points + ' ' + RUN.pts + '</span></div>';
   if (newSec && RUN.mode === 'day') h += '<div class="secbanner">' + CFG.icons[q.dom] + ' Épreuve ' + secN + ' : ' + CFG.sec[q.dom] + '</div>';
   if (RUN.mode === 'rev') h += '<div class="secbanner">' + CFG.revIcon + ' Revanche ' + (RUN.i + 1) + ' sur ' + total + '</div>';
-  if (q.txt) h += '<div class="card textcard" id="txt"><div class="ttitle">' + CFG.icons.lect + ' ' + q.txt.title + '</div><p>' +
+  if (q.txt) h += '<div class="card textcard" id="txt"' + (q.lang ? ' lang="' + q.lang + '"' : '') + '><div class="ttitle">' + (CFG.icons.lect || CFG.icons[q.dom]) + ' ' + q.txt.title + '</div><p>' +
     q.txt.s.map(function (s, i) { return '<span class="sent" data-s="' + i + '">' + s + '</span>'; }).join(' ') + '</p></div>';
   var tip = RUN.i === 0 && RUN.mode === 'day' ? pick(CFG.lines.hello) : newSec && CFG.lines.sec[q.dom] ? CFG.lines.sec[q.dom] : pick(CFG.lines.idle);
-  h += '<div class="card qcard">' + qBody(q) + '<div class="fb" id="fb"></div></div>' +
+  h += '<div class="card qcard"' + (q.lang ? ' lang="' + q.lang + '"' : '') + '>' + qBody(q) + '<div class="fb" id="fb"></div></div>' +
     '<div class="comp"><div class="avatar">' + CFG.comp.icon + '</div><div class="bubble" id="bubble"><b>' + CFG.comp.name + ' :</b> <span id="btext">' + tip + '</span></div></div></div>';
   app.innerHTML = h;
   window.scrollTo(0, 0);
   var inp = document.getElementById('inp');
   if (inp && window.innerWidth > 700) inp.focus();
-  if (q.t === 'dictee' && canSpeak) setTimeout(function () { say(q.say, 0.85); }, 400);
+  if (q.t === 'dictee' && canSpeak) setTimeout(function () { say(q.say, 0.85, q.lang); }, 400);
+  PADBUF = '';
+  if (q.limit && !q.done) startQT(q.limit);
+}
+/* ---------- chrono des tables ---------- */
+var PADBUF = '';
+function padDraw(cls) { var el = document.getElementById('padin'); if (el) { el.innerHTML = PADBUF || '&nbsp;'; el.className = 'padin ' + (cls || ''); } }
+function padKey(k) {
+  var q = cur(); if (!q || q.done) return;
+  if (k === 'del') PADBUF = PADBUF.slice(0, -1);
+  else if (k === 'ok') { if (PADBUF) { var v = PADBUF; submit(v, null); if (!cur().done) { PADBUF = ''; } } return; }
+  else if (PADBUF.length < 3) PADBUF += k;
+  padDraw();
+}
+function stopQT() { if (QT && QT.iv) clearInterval(QT.iv); QT = null; }
+function startQT(sec) {
+  stopQT(); QT = { left: sec * 1000, total: sec * 1000, last: Date.now(), iv: null };
+  QT.iv = setInterval(tickQT, 100); tickQT();
+}
+function tickQT() {
+  if (!QT) return;
+  var now = Date.now(); if (!document.hidden) QT.left -= now - QT.last; QT.last = now;
+  var b = document.getElementById('qtbar'), t = document.getElementById('qtsec'), box = document.getElementById('qtimer');
+  if (!b) { stopQT(); return; }
+  var f = Math.max(0, QT.left / QT.total); b.style.width = (f * 100) + '%';
+  if (t) t.textContent = Math.ceil(Math.max(0, QT.left) / 1000) + ' s';
+  if (box) box.classList.toggle('low', QT.left < 3000);
+  if (QT.left <= 0) { stopQT(); timeUp(); }
+}
+function timeUp() {
+  var q = cur(); if (!q || q.done) return;
+  q.tries++; RUN.combo = 0; hud(); tone(CFG.sounds.wrong, 0.16); shake(document.getElementById('padin'));
+  if (q.tries === 1) { bubble(pick(CFG.lines.wrong1)); fb('<b>⏱️ Temps écoulé !</b> Encore une chance : le chrono repart.' + (q.z ? '<div class="hint">' + q.z + '</div>' : ''), 'zonemsg'); PADBUF = ''; padDraw(); startQT(q.limit); }
+  else { q.done = true; RUN.res.push({ dom: q.dom, r: 0, id: q.id }); showAnswer(q, '', null); addMissed(q); }
+  if (RUN.mode === 'day') save();
 }
 function fb(html, cls) { var el = document.getElementById('fb'); if (el) el.innerHTML = '<div class="msg ' + cls + '">' + html + '</div>'; }
 function bubble(t) { var b = document.getElementById('btext'); if (b) { b.innerHTML = t; var p = b.parentNode; p.classList.remove('pop'); void p.offsetWidth; p.classList.add('pop'); } }
@@ -380,8 +467,10 @@ function hud() {
 function showNext() {
   var a = document.getElementById('actions'); if (!a) return;
   var last = RUN.i === RUN.qs.length - 1;
-  a.innerHTML = '<button class="primary big" id="next" data-act="next">' + (last ? 'Terminer ✓' : 'Suivant →') + '</button>';
+  stopQT();
+  a.innerHTML = '<button class="primary big" id="next" data-act="next">' + (last ? tr(cur()).end : tr(cur()).next) + '</button>';
   var inp = document.getElementById('inp'); if (inp) inp.disabled = true;
+  document.querySelectorAll('.qpad button').forEach(function (b) { b.disabled = true; });
   document.querySelectorAll('.accents button').forEach(function (b) { b.disabled = true; });
   setTimeout(function () { var n = document.getElementById('next'); if (n) n.focus(); }, 30);
 }
@@ -395,7 +484,7 @@ function submit(val, btn) {
   var q = cur(); if (q.done) return;
   var inp = document.getElementById('inp');
   if (q.t === 'num' && numVal(val) === null) { fb('Écris seulement un nombre' + (String(q.a).indexOf(',') >= 0 ? ' (avec une virgule si besoin)' : '') + '.', 'info'); return; }
-  if ((q.t === 'type' || q.t === 'dictee') && !norm(val)) { fb('Écris ta réponse dans la case.', 'info'); return; }
+  if ((q.t === 'type' || q.t === 'dictee') && !norm(val)) { fb(tr(q).empty, 'info'); return; }
   var ok = isRight(q, val);
   if (ok) {
     q.done = true; var first = q.tries === 0;
@@ -406,10 +495,11 @@ function submit(val, btn) {
     if (q.t === 'qcm' || q.t === 'fill') lockChoices();
     if (q.t === 'fill') { var bl = document.getElementById('blank'); if (bl) { bl.textContent = q.a; bl.className = 'blank ok'; } }
     if (inp) inp.classList.add('ok');
+    if (q.pad) padDraw('good');
     var extra = '';
     if (!first && q.c && q.c.length === 2) addMissed(q);
     if (RUN.mode === 'rev' && first) { S.missed = S.missed.filter(function (m) { return m.q.id !== q.id; }); extra = ' <b>Revanche gagnée !</b>'; }
-    fb('<b>+' + gain + '</b> ' + (first ? '' : '(2e essai) ') + extra + (q.e && !first ? '<div class="exp">' + q.e + '</div>' : q.e && q.dom === 'ortho' ? '<div class="exp">' + q.e + '</div>' : ''), 'good');
+    fb('<b>+' + gain + '</b> ' + (first ? '' : '(2e essai) ') + extra + (q.e && !first ? '<div class="exp">' + q.e + '</div>' : q.e && (CFG.showExp || ['ortho']).indexOf(q.dom) >= 0 ? '<div class="exp">' + q.e + '</div>' : ''), 'good');
     if (q.txt) markRefs(q, 'okref');
     var line = first ? pick(CFG.lines.ok) : pick(CFG.lines.ok2);
     if (first && (RUN.combo === 5 || RUN.combo === 10)) { line = pick(CFG.lines.combo); burst(14, btn || inp); tone(CFG.sounds.win, 0.08); }
@@ -417,7 +507,7 @@ function submit(val, btn) {
     bubble(line); hud(); showNext();
   } else {
     q.tries++; RUN.combo = 0; hud(); tone(CFG.sounds.wrong, 0.16);
-    if (q.tries === 1) showZone(q, val, btn);
+    if (q.tries === 1) { showZone(q, val, btn); if (q.limit) startQT(q.limit); }
     else { q.done = true; RUN.res.push({ dom: q.dom, r: 0, id: q.id }); showAnswer(q, val, btn); addMissed(q); }
   }
   if (RUN.mode === 'day') save();
@@ -428,12 +518,12 @@ function showZone(q, val, btn) {
   if (q.t === 'qcm' || q.t === 'fill') {
     if (btn) { btn.classList.add('wrong'); btn.disabled = true; shake(btn); }
     if (q.t === 'fill') { var bl = document.getElementById('blank'); if (bl) bl.classList.add('zone'); }
-    if (q.txt) { markRefs(q, 'zone'); fb('<b>Pas tout à fait.</b> La réponse se cache dans la partie <span class="zonetag">surlignée</span> du texte. Relis-la !', 'zonemsg'); }
-    else fb('<b>Pas tout à fait.</b> ' + (q.z || 'Relis bien la question : un mot important t\'a peut-être échappé.'), 'zonemsg');
+    if (q.txt) { markRefs(q, 'zone'); fb('<b>' + tr(q).notq + '</b> ' + tr(q).txt, 'zonemsg'); }
+    else fb('<b>' + tr(q).notq + '</b> ' + (q.z || (q.lang === 'de' ? 'Lies die Frage noch einmal genau.' : 'Relis bien la question : un mot important t\'a peut-être échappé.')), 'zonemsg');
     return;
   }
   var inp = document.getElementById('inp');
-  shake(inp);
+  shake(inp || document.getElementById('padin'));
   if (q.t === 'num') {
     var exp = String(q.a).replace(',', '.'), got = String(val).replace(/[\s  ]/g, '').replace(',', '.'), isInt = function (s) { return /^\d+$/.test(s); }, msg, html = '';
     if (isInt(exp) && isInt(got) && !q.one && exp.length > 1) {
@@ -453,6 +543,7 @@ function showZone(q, val, btn) {
     } else msg = q.z || 'Vérifie ton calcul.';
     fb('<b>Pas tout à fait.</b> ' + (html ? '<div class="yours">Tu as écrit : ' + html + '</div>' : '') + msg, 'zonemsg');
     if (inp) { inp.select(); }
+    if (q.pad) padDraw('bad');
     return;
   }
   // texte : on repère la zone fautive lettre par lettre
@@ -461,8 +552,9 @@ function showZone(q, val, btn) {
   if (z.i === 0 && z.j === 0) shown = '<mark class="err">' + esc(v) + '</mark>';
   else if (!mid) shown = esc(v.slice(0, z.i)) + '<mark class="miss">▾</mark>' + esc(v.slice(z.i));
   else shown = esc(v.slice(0, z.i)) + '<mark class="err">' + esc(mid) + '</mark>' + esc(v.slice(v.length - z.j));
-  var m = z.i === 0 && z.j === 0 ? 'Tout le mot est à revoir : relis bien la consigne.' : !mid ? 'Il manque quelque chose à l\'endroit marqué <b>▾</b>.' : 'L\'erreur se cache dans la partie <span class="zonetag">colorée</span>. Corrige-la !';
-  fb('<b>Pas tout à fait.</b><div class="yours">Ton essai : <span class="word">' + shown + '</span></div>' + m + (q.z ? '<div class="hint">' + q.z + '</div>' : ''), 'zonemsg');
+  var caseOnly = q.cs && q.a.some(function (x) { return norm(x) === norm(cleanTyped(q, val)); });
+  var m = caseOnly ? tr(q).case_ : z.i === 0 && z.j === 0 ? tr(q).whole : !mid ? tr(q).miss : tr(q).zone;
+  fb('<b>' + tr(q).notq + '</b><div class="yours">' + tr(q).try_ + ' <span class="word">' + shown + '</span></div>' + m + (q.z && !caseOnly ? '<div class="hint">' + q.z + '</div>' : ''), 'zonemsg');
   if (inp) { inp.value = v; inp.focus(); try { inp.setSelectionRange(z.i, Math.max(z.i, v.length - z.j)); } catch (er) {} }
 }
 function showAnswer(q, val, btn) {
@@ -474,13 +566,14 @@ function showAnswer(q, val, btn) {
     lockChoices();
     if (q.t === 'fill') { var bl = document.getElementById('blank'); if (bl) { bl.textContent = q.a; bl.className = 'blank reveal'; } }
     if (q.txt) markRefs(q, 'zone');
-    fb('La bonne réponse est : <b>' + ans + '</b>' + (q.e ? '<div class="exp">' + q.e + '</div>' : ''), 'answer');
+    fb(tr(q).good + ' <b>' + ans + '</b>' + (q.e ? '<div class="exp">' + q.e + '</div>' : ''), 'answer');
   } else if (q.t === 'num') {
+    if (q.pad) { PADBUF = String(q.a); padDraw('reveal'); }
     fb('La bonne réponse est : <b class="bigans">' + ans + '</b>' + (q.e ? '<div class="exp">' + q.e + '</div>' : ''), 'answer');
   } else {
     var v = cleanTyped(q, val), e = bestTarget(q, v), z = diffZone(v, e), mid = e.slice(z.i, e.length - z.j);
     var shown = z.i === 0 && z.j === 0 ? '<mark class="good">' + esc(e) + '</mark>' : esc(e.slice(0, z.i)) + (mid ? '<mark class="good">' + esc(mid) + '</mark>' : '') + esc(e.slice(e.length - z.j));
-    fb('Il fallait écrire : <span class="word">' + (q.pre ? strip(q.pre).split('→').pop().trim() + ' ' : '') + shown + '</span>' + (q.e ? '<div class="exp">' + q.e + '</div>' : ''), 'answer');
+    fb(tr(q).write + ' <span class="word">' + (q.pre ? strip(q.pre).split('→').pop().trim() + ' ' : '') + shown + '</span>' + (q.e ? '<div class="exp">' + q.e + '</div>' : ''), 'answer');
   }
   showNext();
 }
@@ -491,6 +584,7 @@ function addMissed(q) {
   S.missed.push({ q: c, day: RUN.day, date: today() });
 }
 function next() {
+  stopQT();
   RUN.i++;
   if (RUN.mode === 'day') save();
   if (RUN.i >= RUN.qs.length) return RUN.mode === 'day' ? finishDay() : finishRev();
@@ -501,7 +595,7 @@ function next() {
 function finishDay() {
   var d = RUN.day, D = DATA.days[d], tot = RUN.res.length, first = RUN.res.filter(function (r) { return r.r === 2; }).length;
   var ratio = tot ? first / tot : 0, stars = ratio >= 0.85 ? 3 : ratio >= 0.6 ? 2 : 1;
-  var by = {}; ['ortho', 'calc', 'lect'].forEach(function (k) { var rs = RUN.res.filter(function (r) { return r.dom === k; }); by[k] = [rs.filter(function (r) { return r.r === 2; }).length, rs.length]; });
+  var by = {}; SECS.forEach(function (k) { var rs = RUN.res.filter(function (r) { return r.dom === k; }); by[k] = [rs.filter(function (r) { return r.r === 2; }).length, rs.length]; });
   var prev = S.days[d], isFirst = !(prev && prev.done);
   var hist = (prev && prev.hist) || []; hist.push({ date: today(), stars: stars, first: first, tot: tot, by: by });
   S.days[d] = { done: true, stars: Math.max(stars, (prev && prev.stars) || 0), hist: hist };
@@ -513,9 +607,7 @@ function finishDay() {
     '<div class="bigstars">' + [0, 1, 2].map(function (i) { return '<span class="st' + (i < stars ? ' on' : '') + '" style="animation-delay:' + (300 + i * 350) + 'ms">★</span>'; }).join('') + '</div>' +
     '<p class="lead center">' + pick(CFG.lines['end' + stars]) + '</p>' +
     '<div class="reward win"><span class="ricon">' + D.reward.icon + '</span><div><small>' + (isFirst ? 'Nouveau trésor débloqué !' : 'Déjà dans ta collection') + '</small><br><b>' + D.reward.name + '</b></div></div>' +
-    '<table class="mini"><tr><td>' + CFG.icons.ortho + ' ' + CFG.sec.ortho + '</td><td>' + by.ortho[0] + '/' + by.ortho[1] + '</td></tr>' +
-    '<tr><td>' + CFG.icons.calc + ' ' + CFG.sec.calc + '</td><td>' + by.calc[0] + '/' + by.calc[1] + '</td></tr>' +
-    '<tr><td>' + CFG.icons.lect + ' ' + CFG.sec.lect + '</td><td>' + by.lect[0] + '/' + by.lect[1] + '</td></tr>' +
+    '<table class="mini">' + SECS.map(function (k) { return '<tr><td>' + CFG.icons[k] + ' ' + CFG.sec[k] + '</td><td>' + by[k][0] + '/' + by[k][1] + '</td></tr>'; }).join('') +
     '<tr><td>🔥 Plus longue série</td><td>' + maxC + '</td></tr><tr><td>' + CFG.icons.points + ' Points gagnés</td><td>+' + pts + ' (+' + bonus + ' bonus étoiles)</td></tr></table>' +
     '<p class="muted small center">(réponses justes du premier coup)</p>' +
     (final ? '<div class="final">' + CFG.lines.final + '</div>' : '') +
@@ -618,25 +710,26 @@ function ecEnd() {
 /* ---------- coin des grands-parents ---------- */
 function pct(a, b) { return b ? Math.round(a / b * 100) + ' %' : '-'; }
 function renderParents() {
-  var rows = '', agg = { ortho: [0, 0], calc: [0, 0], lect: [0, 0] };
+  var rows = '', agg = {}; SECS.forEach(function (k) { agg[k] = [0, 0]; });
+  var cell = function (L, k) { return L.by && L.by[k] ? L.by[k] : [0, 0]; };
   DATA.days.forEach(function (D, i) {
     var st = S.days[i];
-    if (!st || !st.done) { rows += '<tr class="off"><td>J' + (i + 1) + '</td><td>' + D.place + '</td><td colspan="5">pas encore jouée</td></tr>'; return; }
+    if (!st || !st.done) { rows += '<tr class="off"><td>J' + (i + 1) + '</td><td>' + D.place + '</td><td colspan="' + (SECS.length + 2) + '">pas encore jouée</td></tr>'; return; }
     var L = st.hist[st.hist.length - 1];
-    ['ortho', 'calc', 'lect'].forEach(function (k) { agg[k][0] += L.by[k][0]; agg[k][1] += L.by[k][1]; });
-    rows += '<tr><td>J' + (i + 1) + '</td><td>' + D.place + '<div class="muted small">' + D.focus + '</div></td><td class="stars">' + starsStr(L.stars) + '</td>' +
-      ['ortho', 'calc', 'lect'].map(function (k) { return '<td>' + L.by[k][0] + '/' + L.by[k][1] + '</td>'; }).join('') + '<td class="small">' + L.date + (st.hist.length > 1 ? '<br>(' + st.hist.length + ' essais)' : '') + '</td></tr>';
+    SECS.forEach(function (k) { var c = cell(L, k); agg[k][0] += c[0]; agg[k][1] += c[1]; });
+    rows += '<tr><td>J' + (i + 1) + '</td><td>' + D.place + '</td><td class="stars">' + starsStr(L.stars) + '</td>' +
+      SECS.map(function (k) { var c = cell(L, k); return '<td>' + c[0] + '/' + c[1] + '</td>'; }).join('') + '<td class="small">' + L.date + (st.hist.length > 1 ? '<br>(' + st.hist.length + ' essais)' : '') + '</td></tr>';
   });
   var miss = S.missed.slice().sort(function (a, b) { return a.day - b.day; }).map(function (m) {
     return '<li><span class="tagd">J' + (m.day + 1) + ' · ' + CFG.sec[m.q.dom] + '</span> ' + esc(promptText(m.q)) + ' <b>→ ' + strip(ansText(m.q)) + '</b></li>';
   }).join('');
   var plan = DATA.days.map(function (D, i) { return '<li><b>J' + (i + 1) + '</b> ' + D.focus + '</li>'; }).join('');
   app.innerHTML = topbar() + '<div class="screen"><div class="card parents"><h2>👵👴 Le coin des grands-parents</h2>' +
-    '<p>Une mission par jour, 15 à 20 minutes : 6 questions d\'orthographe, 5 de calcul et une lecture avec ses questions. Programme de ' + CFG.level + ', première période (septembre-octobre).</p>' +
+    '<p>' + (CFG.parentsText || 'Une mission par jour, 15 à 20 minutes : 6 questions d\'orthographe, 5 de calcul et une lecture avec ses questions. Programme de ' + CFG.level + ', première période (septembre-octobre).') + '</p>' +
     '<p><b>Le principe :</b> à la première erreur, le jeu montre <i>où</i> se trouve l\'erreur (lettres fautives, chiffre faux, phrase du texte, astuce de remplacement). À la deuxième, il donne la réponse et range la question dans les « Revanches » à rejouer plus tard.</p>' +
     '<p class="tip">Le plus utile pour vous : regarder ensemble la liste des erreurs ci-dessous, et faire expliquer la règle avec ses mots plutôt que la réponse.</p>' +
-    '<h3>Résultats (réponses justes du premier coup)</h3><div class="tblwrap"><table class="res"><tr><th></th><th>Mission</th><th>Étoiles</th><th>' + CFG.icons.ortho + '</th><th>' + CFG.icons.calc + '</th><th>' + CFG.icons.lect + '</th><th>Date</th></tr>' + rows + '</table></div>' +
-    '<div class="aggs"><span>' + CFG.icons.ortho + ' Orthographe <b>' + pct(agg.ortho[0], agg.ortho[1]) + '</b></span><span>' + CFG.icons.calc + ' Calcul <b>' + pct(agg.calc[0], agg.calc[1]) + '</b></span><span>' + CFG.icons.lect + ' Lecture <b>' + pct(agg.lect[0], agg.lect[1]) + '</b></span><span>⚡ Record Éclair <b>' + S.eclairBest + '</b></span></div>' +
+    '<h3>Résultats (réponses justes du premier coup)</h3><div class="tblwrap"><table class="res"><tr><th></th><th>Mission</th><th>Étoiles</th>' + SECS.map(function (k) { return '<th>' + CFG.icons[k] + '</th>'; }).join('') + '<th>Date</th></tr>' + rows + '</table></div>' +
+    '<div class="aggs">' + SECS.map(function (k) { return '<span>' + CFG.icons[k] + ' ' + CFG.sec[k] + ' <b>' + pct(agg[k][0], agg[k][1]) + '</b></span>'; }).join('') + '<span>⚡ Record Éclair <b>' + S.eclairBest + '</b></span></div>' +
     '<h3>Erreurs à retravailler (' + S.missed.length + ')</h3>' + (miss ? '<ul class="misslist">' + miss + '</ul>' : '<p class="muted">Aucune pour le moment.</p>') +
     '<h3>Le programme des 10 jours</h3><ul class="planlist">' + plan + '</ul>' +
     '<details class="danger"><summary>Remettre le jeu à zéro</summary><p>Efface toutes les étoiles, points, trésors et erreurs enregistrés sur cet appareil.</p><button data-act="reset">Tout effacer</button></details>' +
@@ -648,7 +741,8 @@ document.addEventListener('click', function (ev) {
   var b = ev.target.closest('[data-act]'); if (!b) return;
   var act = b.getAttribute('data-act');
   switch (act) {
-    case 'home': if (RUN && RUN.mode === 'rev') { S.points += RUN.pts; save(); } renderMap(); break;
+    case 'home': stopQT(); if (RUN && RUN.mode === 'rev') { S.points += RUN.pts; save(); } renderMap(); break;
+    case 'qkey': padKey(b.getAttribute('data-k')); break;
     case 'mute': S.muted = !S.muted; save(); b.textContent = S.muted ? '🔇' : '🔊'; break;
     case 'day': renderIntro(+b.getAttribute('data-d')); break;
     case 'start': startDay(+b.getAttribute('data-d')); break;
@@ -664,8 +758,8 @@ document.addEventListener('click', function (ev) {
       var c = b.getAttribute('data-c'), s0 = i2.selectionStart != null ? i2.selectionStart : i2.value.length, s1 = i2.selectionEnd != null ? i2.selectionEnd : s0;
       i2.value = i2.value.slice(0, s0) + c + i2.value.slice(s1); i2.focus(); try { i2.setSelectionRange(s0 + c.length, s0 + c.length); } catch (e) {}
       break;
-    case 'say': say(cur().say, 0.85); break;
-    case 'sayslow': say(cur().say, 0.55); break;
+    case 'say': say(cur().say, 0.85, cur().lang); break;
+    case 'sayslow': say(cur().say, 0.55, cur().lang); break;
     case 'reveal': var sc = document.getElementById('secret'); if (sc) sc.classList.toggle('show'); break;
     case 'coll': renderColl(); break;
     case 'rev': renderRevIntro(); break;
@@ -686,6 +780,12 @@ document.addEventListener('keydown', function (ev) {
     else if (ev.key === 'Enter') { ecKey('ok'); ev.preventDefault(); }
     return;
   }
+  var pq = RUN && RUN.qs && RUN.qs[RUN.i];
+  if (pq && pq.pad && !pq.done && document.getElementById('padin')) {
+    if (/^[0-9]$/.test(ev.key)) { padKey(ev.key); ev.preventDefault(); return; }
+    if (ev.key === 'Backspace') { padKey('del'); ev.preventDefault(); return; }
+    if (ev.key === 'Enter') { padKey('ok'); ev.preventDefault(); return; }
+  }
   if (ev.key !== 'Enter') return;
   var n = document.getElementById('next');
   if (n) { ev.preventDefault(); n.click(); return; }
@@ -694,6 +794,6 @@ document.addEventListener('keydown', function (ev) {
   var t = ev.target.closest && ev.target.closest('.node[data-act]'); if (t) t.dispatchEvent(new MouseEvent('click', { bubbles: true }));
 });
 if (canSpeak) { try { speechSynthesis.getVoices(); } catch (e) {} }
-window.__TEST__ = { GEN: GEN, words: words, isRight: isRight, cleanTyped: cleanTyped, state: function () { return S; }, run: function () { return RUN; } };
+window.__TEST__ = { GEN: GEN, words: words, isRight: isRight, cleanTyped: cleanTyped, prep: prep, timeLimit: timeLimit, sections: SECS, state: function () { return S; }, run: function () { return RUN; }, expireTimer: function () { if (QT) QT.left = 1; } };
 renderMap();
 })();
