@@ -143,6 +143,17 @@ input.ans::selection{background:var(--zone);color:#000}
 .sayrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:6px}
 .secret{display:none;font-weight:700;padding:4px 10px;border-radius:var(--radius);background:var(--soft)}
 .secret.show{display:inline-block}
+.dchoix .choice{text-align:left;padding-left:16px}
+.choice mark{border-radius:4px;padding:0 3px;text-decoration:none}
+.choice mark.err{background:var(--zone-bg);color:var(--bad);font-weight:700}
+.choice mark.good{background:var(--good-bg);color:var(--good)}
+.menu:has(button:nth-child(3):last-child){grid-template-columns:repeat(3,1fr)}
+.frrow{display:flex;justify-content:flex-end;margin:0 0 8px}
+.frbtn{font-size:15px;min-height:40px;padding:6px 12px}
+.frt{display:none;color:var(--muted);font-size:.86em;font-style:italic;font-weight:400;margin-top:3px}
+.fron .frt{display:block}
+.fron .sent.bil{display:block;margin-bottom:10px}
+@media(min-width:700px){.fron .sent.bil{display:grid;grid-template-columns:1fr 1fr;gap:16px}.fron .sent.bil .frt{margin-top:0}}
 .actions{display:flex;justify-content:center;margin-top:14px}
 .actions:empty{display:none}
 .fb .msg{margin-top:14px;padding:12px 14px;border-radius:var(--radius);animation:pop .35s ease both;font-size:18px}

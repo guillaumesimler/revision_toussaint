@@ -29,7 +29,7 @@ def check(cond, msg):
 async def play_answers(pg, count):
     for _ in range(count):
         q = await pg.evaluate("()=>{const r=__TEST__.run();const q=r.qs[r.i];return {t:q.t,a:q.a,c:q.c||null,pad:!!q.pad}}")
-        if q['t'] in ('qcm', 'fill'):
+        if q['t'] in ('qcm', 'fill', 'dchoix'):
             await pg.click(f'.choice[data-i="{q["c"].index(q["a"])}"]')
         elif q['pad']:
             await pg.keyboard.type(str(q['a'])); await pg.keyboard.press('Enter')
@@ -43,7 +43,7 @@ async def main():
     (site / 'old').mkdir(); (site / 'new').mkdir()
     for f in ('elena.html', 'sarah.html'):
         shutil.copy(OLD / f, site / 'old' / f)
-    for f in ('elena.html', 'sarah.html', 'elena-harmonie.html', 'sarah-meute.html', 'index.html'):
+    for f in ('elena.html', 'sarah.html', 'elena-harmonie.html', 'sarah-meute.html', 'elena-livre.html', 'sarah-vampire.html', 'index.html'):
         shutil.copy(ROOT / f, site / 'new' / f)
     class Quiet(http.server.SimpleHTTPRequestHandler):
         def log_message(self, *a):
@@ -59,7 +59,7 @@ async def main():
         pg = await ctx.new_page()
         errors = []
         pg.on('pageerror', lambda e: errors.append(str(e)))
-        for kid, new_game in (('elena', 'elena-harmonie'), ('sarah', 'sarah-meute')):
+        for kid, new_game, third in (('elena', 'elena-harmonie', 'elena-livre'), ('sarah', 'sarah-meute', 'sarah-vampire')):
             key = f'revision-{kid}-v1'
             # 1. Today's live version: finish day 1, stop in the middle of day 2.
             await pg.goto(f'{base}/old/{kid}.html'); await pg.wait_for_timeout(300)
@@ -86,24 +86,25 @@ async def main():
             done = await pg.evaluate('()=>Object.keys(__TEST__.state().days).length')
             check(done == 2, f'{kid}: mission 2 completes in the new version ({done} days done)')
 
-            # 3. The new game saves under its own key and leaves the old save alone.
+            # 3. Each newer game saves under its own key and leaves the old save alone.
             snap = await pg.evaluate(f'()=>localStorage.getItem("{key}")')
-            await pg.goto(f'{base}/new/{new_game}.html'); await pg.wait_for_timeout(400)
-            await pg.click('.hero [data-act="day"]'); await pg.click('[data-act="start"]')
-            n = await pg.evaluate('()=>__TEST__.run().qs.length')
-            await play_answers(pg, n); await pg.wait_for_timeout(300)
-            check(await pg.evaluate(f'()=>localStorage.getItem("{key}")') == snap, f'{kid}: playing {new_game} leaves the old save untouched')
-            new_key = 'revision-' + kid + '2-v1'
-            check(await pg.evaluate(f'()=>!!localStorage.getItem("{new_key}")'), f'{kid}: {new_game} saves under {new_key}')
+            for game, n_game in ((new_game, 2), (third, 3)):
+                await pg.goto(f'{base}/new/{game}.html'); await pg.wait_for_timeout(400)
+                await pg.click('.hero [data-act="day"]'); await pg.click('[data-act="start"]')
+                n = await pg.evaluate('()=>__TEST__.run().qs.length')
+                await play_answers(pg, n); await pg.wait_for_timeout(300)
+                check(await pg.evaluate(f'()=>localStorage.getItem("{key}")') == snap, f'{kid}: playing {game} leaves the old save untouched')
+                new_key = f'revision-{kid}{n_game}-v1'
+                check(await pg.evaluate(f'()=>!!localStorage.getItem("{new_key}")'), f'{kid}: {game} saves under {new_key}')
 
             # 4. Each game links to the other and shows its progress.
             await pg.goto(f'{base}/new/{kid}.html'); await pg.wait_for_timeout(300)
-            link = await pg.inner_text('a.sibling')
-            check('1/10' in link, f'{kid}: link to the new game shows its progress ({link!r})')
+            links = await pg.locator('a.sibling').all_inner_texts()
+            check(len(links) == 2 and all('1/10' in t for t in links), f'{kid}: links to the two other games show their progress ({links!r})')
         await pg.goto(f'{base}/new/index.html'); await pg.wait_for_timeout(300)
         await pg.screenshot(path=f'{ROOT}/tests/shots/progress_index.png', full_page=True)
         idx = await pg.inner_text('body')
-        check(idx.count('missions') == 4, 'start page shows progress for all four games')
+        check(idx.count('missions') == 6, 'start page shows progress for all six games')
         check(not errors, f'no page errors {errors}')
         await b.close()
     httpd.shutdown()
