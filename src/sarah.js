@@ -4,7 +4,7 @@ var CFG = {
   tagline: 'Dix salles. Dix énigmes. Un médaillon que personne n\'a trouvé depuis un siècle.',
   homeIcon: '🕯️', revIcon: '🕸️', collTitle: 'Le cabinet de curiosités',
   comp: { name: 'Nyx', icon: '🦇' },
-  sibling: { href: 'sarah-meute.html', key: 'revision-sarah2-v1', icon: '🐺', label: 'Nouveau : Le Territoire de la Meute' },
+  siblings: [{ href: 'sarah-meute.html', key: 'revision-sarah2-v1', icon: '🐺', label: 'Le Territoire de la Meute' }, { href: 'sarah-vampire.html', key: 'revision-sarah3-v1', icon: '🌊', label: 'Nouveau : Über das stürmische Meer kamen die Vampire' }],
   icons: { ortho: '✒️', calc: '🧮', lect: '📜', points: '🖤' },
   sec: { ortho: 'Orthographe', calc: 'Calcul', lect: 'Lecture' },
   ranks: [{ min: 0, name: 'Visiteuse' }, { min: 3, name: 'Habitante du manoir' }, { min: 6, name: 'Gardienne des secrets' }, { min: 10, name: 'Maîtresse des ombres' }],

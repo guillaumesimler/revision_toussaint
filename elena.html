@@ -143,6 +143,17 @@ input.ans::selection{background:var(--zone);color:#000}
 .sayrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:6px}
 .secret{display:none;font-weight:700;padding:4px 10px;border-radius:var(--radius);background:var(--soft)}
 .secret.show{display:inline-block}
+.dchoix .choice{text-align:left;padding-left:16px}
+.choice mark{border-radius:4px;padding:0 3px;text-decoration:none}
+.choice mark.err{background:var(--zone-bg);color:var(--bad);font-weight:700}
+.choice mark.good{background:var(--good-bg);color:var(--good)}
+.menu:has(button:nth-child(3):last-child){grid-template-columns:repeat(3,1fr)}
+.frrow{display:flex;justify-content:flex-end;margin:0 0 8px}
+.frbtn{font-size:15px;min-height:40px;padding:6px 12px}
+.frt{display:none;color:var(--muted);font-size:.86em;font-style:italic;font-weight:400;margin-top:3px}
+.fron .frt{display:block}
+.fron .sent.bil{display:block;margin-bottom:10px}
+@media(min-width:700px){.fron .sent.bil{display:grid;grid-template-columns:1fr 1fr;gap:16px}.fron .sent.bil .frt{margin-top:0}}
 .actions{display:flex;justify-content:center;margin-top:14px}
 .actions:empty{display:none}
 .fb .msg{margin-top:14px;padding:12px 14px;border-radius:var(--radius);animation:pop .35s ease both;font-size:18px}
@@ -261,7 +272,7 @@ var CFG = {
   tagline: 'Dix missions magiques pour devenir la gardienne du royaume',
   homeIcon: '🏰', revIcon: '🪄', collTitle: 'Le coffre à trésors',
   comp: { name: 'Pétale', icon: '🧚' },
-  sibling: { href: 'elena-harmonie.html', key: 'revision-elena2-v1', icon: '🧜‍♀️', label: "Nouveau : L'Harmonie des Fées et des Sirènes" },
+  siblings: [{ href: 'elena-harmonie.html', key: 'revision-elena2-v1', icon: '🧜‍♀️', label: "L'Harmonie des Fées et des Sirènes" }, { href: 'elena-livre.html', key: 'revision-elena3-v1', icon: '📖', label: "Nouveau : Le Livre de l'Harmonie" }],
   icons: { ortho: '✏️', calc: '🔢', lect: '📚', points: '💖' },
   sec: { ortho: 'Orthographe', calc: 'Calcul', lect: 'Lecture' },
   ranks: [{ min: 0, name: 'Apprentie fée' }, { min: 3, name: 'Fée des fleurs' }, { min: 6, name: 'Fée des étoiles' }, { min: 10, name: 'Gardienne du royaume' }],
@@ -608,9 +619,11 @@ function load() {
 function save() { var s = JSON.stringify(S); MEM = s; try { localStorage.setItem(KEY, s); } catch (e) {} }
 var S = load() || fresh();
 var SECS = CFG.sections || ['ortho', 'calc', 'lect'];
+function L(fr, de) { return CFG.ui === 'de' ? de : fr; }
+var BACK = L('Retour à la carte', 'Zurück zur Karte'), COL = L(' : ', ': '), ECL = !CFG.noEclair, FRON = false;
 var UI = {
-  fr: { check: 'Valider', next: 'Suivant →', end: 'Terminer ✓', ph: 'ta réponse', notq: 'Pas tout à fait.', try_: 'Ton essai :', miss: 'Il manque quelque chose à l\'endroit marqué <b>▾</b>.', zone: 'L\'erreur se cache dans la partie <span class="zonetag">colorée</span>. Corrige-la !', whole: 'Tout le mot est à revoir : relis bien la consigne.', txt: 'La réponse se cache dans la partie <span class="zonetag">surlignée</span> du texte. Relis-la !', good: 'La bonne réponse est :', write: 'Il fallait écrire :', listen: '🔊 Écouter', slow: '🐢 Lentement', reveal: 'Pour un grand-parent : voir la dictée', dict: 'Dictée : écoute et écris ce que tu entends.', empty: 'Écris ta réponse dans la case.', fillq: 'Choisis le bon mot pour compléter la phrase :', case_: 'Attention aux <b>majuscules</b> : c\'est la seule erreur !' },
-  de: { check: 'Prüfen', next: 'Weiter →', end: 'Fertig ✓', ph: 'deine Antwort', notq: 'Fast!', try_: 'Dein Versuch:', miss: 'An der Stelle <b>▾</b> fehlt etwas.', zone: 'Der Fehler steckt im <span class="zonetag">farbigen</span> Teil. Verbessere ihn!', whole: 'Das ganze Wort stimmt noch nicht. Lies die Aufgabe noch einmal.', txt: 'Die Antwort steht im <span class="zonetag">markierten</span> Teil des Textes. Lies ihn noch einmal!', good: 'Die richtige Antwort ist:', write: 'Richtig geschrieben:', listen: '🔊 Anhören', slow: '🐢 Langsam', reveal: 'Für Oma oder Opa: Diktat zeigen', dict: 'Diktat: Hör gut zu und schreib, was du hörst.', empty: 'Schreib deine Antwort in das Feld.', fillq: 'Wähle das richtige Wort:', case_: 'Achte auf <b>Groß- und Kleinschreibung</b>: Das ist der einzige Fehler!' }
+  fr: { check: 'Valider', next: 'Suivant →', end: 'Terminer ✓', ph: 'ta réponse', notq: 'Pas tout à fait.', try_: 'Ton essai :', miss: 'Il manque quelque chose à l\'endroit marqué <b>▾</b>.', zone: 'L\'erreur se cache dans la partie <span class="zonetag">colorée</span>. Corrige-la !', whole: 'Tout le mot est à revoir : relis bien la consigne.', txt: 'La réponse se cache dans la partie <span class="zonetag">surlignée</span> du texte. Relis-la !', good: 'La bonne réponse est :', write: 'Il fallait écrire :', listen: '🔊 Écouter', slow: '🐢 Lentement', reveal: 'Pour un grand-parent : voir la dictée', dict: 'Dictée : écoute et écris ce que tu entends.', dchoix: 'La phrase est dite deux fois. Choisis celle qui est bien écrite.', listen2: '🔊 Écouter deux fois', wordz: 'L\'erreur est dans la partie <span class="zonetag">colorée</span>. Cherche la phrase qui l\'écrit autrement !', empty: 'Écris ta réponse dans la case.', fillq: 'Choisis le bon mot pour compléter la phrase :', case_: 'Attention aux <b>majuscules</b> : c\'est la seule erreur !' },
+  de: { check: 'Prüfen', next: 'Weiter →', end: 'Fertig ✓', ph: 'deine Antwort', notq: 'Fast!', try_: 'Dein Versuch:', miss: 'An der Stelle <b>▾</b> fehlt etwas.', zone: 'Der Fehler steckt im <span class="zonetag">farbigen</span> Teil. Verbessere ihn!', whole: 'Das ganze Wort stimmt noch nicht. Lies die Aufgabe noch einmal.', txt: 'Die Antwort steht im <span class="zonetag">markierten</span> Teil des Textes. Lies ihn noch einmal!', good: 'Die richtige Antwort ist:', write: 'Richtig geschrieben:', listen: '🔊 Anhören', slow: '🐢 Langsam', reveal: 'Für Oma oder Opa: Diktat zeigen', dict: 'Diktat: Hör gut zu und schreib, was du hörst.', dchoix: 'Du hörst den Satz zweimal. Wähle den richtig geschriebenen Satz.', listen2: '🔊 Zweimal anhören', wordz: 'Der Fehler steckt im <span class="zonetag">farbigen</span> Teil. Such den Satz, in dem es anders steht!', empty: 'Schreib deine Antwort in das Feld.', fillq: 'Wähle das richtige Wort:', case_: 'Achte auf <b>Groß- und Kleinschreibung</b>: Das ist der einzige Fehler!' }
 };
 function tr(q) { return UI[(q && q.lang) === 'de' ? 'de' : 'fr']; }
 var QT = null;
@@ -739,6 +752,7 @@ var GEN = {
 function clone(o) { return JSON.parse(JSON.stringify(o)); }
 function prep(q, dom, id) {
   q = clone(q); q.dom = dom; q.id = id; q.tries = 0; q.done = false;
+  if (q.fr && q.fr.c) { q.frm = {}; q.c.forEach(function (c, i) { q.frm[c] = q.fr.c[i]; }); }
   if (q.c) { var corr = typeof q.a === 'number' ? q.c[q.a] : q.a; q.c = shuffle(q.c); q.a = corr; }
   return q;
 }
@@ -752,7 +766,7 @@ function buildParts(d, D) {
   var qs = [], uid = Date.now().toString(36);
   D.parts.forEach(function (P) {
     var add = function (x) { if (P.lang) x.lang = P.lang; if (P.timed) { x.limit = timeLimit(d); x.pad = true; } qs.push(x); }, seen = {};
-    if (P.lect) P.lect.qs.forEach(function (q, i) { var x = prep(q, P.dom, d + '-' + P.dom + 'l' + i); x.t = 'qcm'; x.txt = { title: P.lect.title, s: P.lect.s }; add(x); });
+    if (P.lect) P.lect.qs.forEach(function (q, i) { var x = prep(q, P.dom, d + '-' + P.dom + 'l' + i); x.t = 'qcm'; x.txt = { title: P.lect.title, s: P.lect.s }; if (P.lect.fr) x.txt.fr = P.lect.fr; add(x); });
     (P.qs || []).forEach(function (q, i) { add(prep(q, P.dom, d + '-' + P.dom + i)); });
     (P.gen || []).forEach(function (g, i) { add(prep(genUnique(P, i, seen), P.dom, d + '-' + P.dom + 'g' + i + '-' + uid)); });
   });
@@ -790,8 +804,9 @@ function cleanTyped(q, val) {
   }
   return v.trim();
 }
+function isPick(q) { return q.t === 'qcm' || q.t === 'fill' || q.t === 'dchoix'; }
 function isRight(q, val) {
-  if (q.t === 'qcm' || q.t === 'fill') return val === q.a;
+  if (isPick(q)) return val === q.a;
   if (q.t === 'num') { var a = numVal(val), b = numVal(q.a); return a !== null && Math.abs(a - b) < 1e-9; }
   var v = cleanTyped(q, val);
   return q.a.some(function (x) { return norm(x, q.cs) === v; });
@@ -806,6 +821,12 @@ function bestTarget(q, v) {
   q.a.forEach(function (x) { var e = norm(x, q.cs), z = diffZone(v, e); if (z.i + z.j > bs) { bs = z.i + z.j; best = e; } });
   return best;
 }
+function wordDiff(a, b, cls) {
+  var x = a.split(' '), y = b.split(' '), i = 0, j = 0;
+  while (i < x.length && i < y.length && x[i] === y[i]) i++;
+  while (j < x.length - i && j < y.length - i && x[x.length - 1 - j] === y[y.length - 1 - j]) j++;
+  return x.map(function (w, k) { return k >= i && k < x.length - j ? '<mark class="' + cls + '">' + esc(w) + '</mark>' : esc(w); }).join(' ');
+}
 function groupMark(s, wrong) {
   var out = '', n = s.length;
   for (var k = 0; k < n; k++) { out += wrong.indexOf(k) >= 0 ? '<mark class="err">' + s[k] + '</mark>' : s[k]; var rem = n - 1 - k; if (rem > 0 && rem % 3 === 0) out += NB; }
@@ -819,7 +840,7 @@ function ansText(q) {
 function promptText(q) {
   if (q.t === 'fill') return strip(q.s);
   if (q.t === 'type') return strip((q.q || '') + ' ' + (q.s || '') + ' ' + (q.pre || '') + ' …');
-  if (q.t === 'dictee') return (q.lang === 'de' ? 'Diktat : « ' : 'Dictée : « ') + q.say + ' »';
+  if (q.t === 'dictee' || q.t === 'dchoix') return (q.lang === 'de' ? 'Diktat : « ' : 'Dictée : « ') + q.say + ' »';
   return strip(q.q);
 }
 
@@ -852,12 +873,17 @@ function burst(n, el) {
     (function (pp) { setTimeout(function () { if (pp.parentNode) pp.parentNode.removeChild(pp); }, 1800); })(p);
   }
 }
-var canSpeak = 'speechSynthesis' in window;
-function say(text, rate, lang) {
+var canSpeak = 'speechSynthesis' in window, SAYTOK = 0;
+function stopSay() { SAYTOK++; if (canSpeak) { try { speechSynthesis.cancel(); } catch (e) {} } }
+function sayTwice(text, rate, lang) {
+  var tok = ++SAYTOK;
+  say(text, rate, lang, function () { setTimeout(function () { if (tok === SAYTOK) say(text, rate, lang); }, 1000); });
+}
+function say(text, rate, lang, done) {
   try {
-    var L = lang === 'de' ? 'de' : 'fr';
-    var u = new SpeechSynthesisUtterance(text); u.lang = L === 'de' ? 'de-DE' : 'fr-FR'; u.rate = rate;
-    var v = speechSynthesis.getVoices().filter(function (v) { return new RegExp('^' + L, 'i').test(v.lang); })[0]; if (v) u.voice = v;
+    var Lg = lang === 'de' ? 'de' : 'fr';
+    var u = new SpeechSynthesisUtterance(text); u.lang = Lg === 'de' ? 'de-DE' : 'fr-FR'; u.rate = rate; if (done) u.onend = done;
+    var v = speechSynthesis.getVoices().filter(function (v) { return new RegExp('^' + Lg, 'i').test(v.lang); })[0]; if (v) u.voice = v;
     speechSynthesis.cancel(); speechSynthesis.speak(u);
   } catch (e) {}
 }
@@ -872,7 +898,7 @@ function stopEclair() { if (EC && EC.timer) clearInterval(EC.timer); EC = null; 
 
 function topbar() {
   return '<div class="topbar"><button class="ghost brand" data-act="home"><span class="bicon">' + CFG.homeIcon + '</span><b>' + CFG.name + '</b><span class="lvl">' + CFG.level + '</span></button>' +
-    '<div class="stats"><span class="stat" title="Étoiles">★ ' + starsTotal() + '/30</span><span class="stat" title="Points">' + CFG.icons.points + ' ' + S.points + '</span>' +
+    '<div class="stats"><span class="stat" title="' + L('Étoiles', 'Sterne') + '">★ ' + starsTotal() + '/30</span><span class="stat" title="Points">' + CFG.icons.points + ' ' + S.points + '</span>' +
     '<button class="ghost icon" data-act="mute" title="Son">' + (S.muted ? '🔇' : '🔊') + '</button></div></div>';
 }
 
@@ -908,43 +934,44 @@ function renderMap() {
   }
   svg += '</svg>';
   var miss = S.missed.length;
-  var cta = nextI >= 0 ? '<button class="primary big" data-act="day" data-d="' + nextI + '">Mission ' + (nextI + 1) + ' : ' + DATA.days[nextI].place + ' →</button>'
+  var cta = nextI >= 0 ? '<button class="primary big" data-act="day" data-d="' + nextI + '">Mission ' + (nextI + 1) + COL + DATA.days[nextI].place + ' →</button>'
     : '<div class="allDone">' + CFG.lines.allDone + '</div>';
-  if (S.current && S.current.mode === 'day') cta = '<button class="primary big" data-act="day" data-d="' + S.current.day + '">Reprendre la mission ' + (S.current.day + 1) + ' →</button>';
+  if (S.current && S.current.mode === 'day') cta = '<button class="primary big" data-act="day" data-d="' + S.current.day + '">' + L('Reprendre la mission ', 'Weiter mit Mission ') + (S.current.day + 1) + ' →</button>';
   app.innerHTML = topbar() +
     '<div class="screen"><header class="hero"><div class="hicon">' + CFG.comp.icon + '</div><h1>' + CFG.title + '</h1><p class="tag">' + CFG.tagline + '</p>' +
-    '<div class="rank">Rang : <b>' + rank() + '</b> · ' + daysDone() + '/10 missions</div>' + cta + '</header>' +
-    '<nav class="menu"><button data-act="coll">🎁 Collection<span>' + daysDone() + '/10</span></button>' +
-    '<button data-act="rev" class="' + (miss ? 'has' : '') + '">' + CFG.revIcon + ' Revanches<span>' + miss + '</span></button>' +
-    '<button data-act="eclair">⚡ Défi Éclair<span>record ' + S.eclairBest + '</span></button>' +
-    '<button data-act="parents">👵👴 Grands-parents<span>bilan</span></button></nav>' + siblingLink() +
+    '<div class="rank">Rang' + COL + '<b>' + rank() + '</b> · ' + daysDone() + L('/10 missions', '/10 Missionen') + '</div>' + cta + '</header>' +
+    '<nav class="menu"><button data-act="coll">🎁 ' + L('Collection', 'Sammlung') + '<span>' + daysDone() + '/10</span></button>' +
+    '<button data-act="rev" class="' + (miss ? 'has' : '') + '">' + CFG.revIcon + ' ' + L('Revanches', 'Revanche') + '<span>' + miss + '</span></button>' +
+    (ECL ? '<button data-act="eclair">⚡ Défi Éclair<span>record ' + S.eclairBest + '</span></button>' : '') +
+    '<button data-act="parents">👵👴 ' + L('Grands-parents<span>bilan', 'Oma und Opa<span>Bilanz') + '</span></button></nav>' + siblingLink() +
     '<div class="mapwrap">' + svg + '</div></div>';
   setTimeout(function () { var el = document.querySelector('.node.next'); if (el && el.scrollIntoView && daysDone() > 2) el.scrollIntoView({ block: 'center', behavior: 'smooth' }); }, 60);
 }
 
 function siblingLink() {
-  if (!CFG.sibling) return '';
-  var b = CFG.sibling, st = null, txt = 'pas encore commencé';
+  return (CFG.siblings || []).map(function (b) {
+  var st = null, txt = L('pas encore commencé', 'noch nicht begonnen');
   try { st = JSON.parse(localStorage.getItem(b.key) || 'null'); } catch (e) {}
   if (st && st.days) {
     var n = 0, stars = 0; for (var k in st.days) { if (st.days[k].done) n++; stars += st.days[k].stars || 0; }
-    txt = n + '/10 missions · ★ ' + stars + '/30';
+    txt = n + L('/10 missions', '/10 Missionen') + ' · ★ ' + stars + '/30';
   }
   return '<a class="sibling" href="' + b.href + '"><span class="sicon">' + b.icon + '</span><span><b>' + b.label + '</b><small>' + txt + '</small></span><span class="sgo">→</span></a>';
+  }).join('');
 }
 
 /* ---------- intro de mission ---------- */
 function renderIntro(d) {
   var D = DATA.days[d], st = S.days[d], resume = S.current && S.current.mode === 'day' && S.current.day === d;
   app.innerHTML = topbar() + '<div class="screen"><div class="card intro">' +
-    '<div class="introicon">' + D.icon + '</div><div class="kicker">Mission ' + (d + 1) + ' sur 10</div><h2>' + D.place + '</h2>' +
+    '<div class="introicon">' + D.icon + '</div><div class="kicker">Mission ' + (d + 1) + L(' sur 10', ' von 10') + '</div><h2>' + D.place + '</h2>' +
     '<p class="lead">' + D.intro + '</p>' +
-    '<ul class="plan">' + SECS.map(function (k) { var t = partTitle(D, k); return '<li><span>' + CFG.icons[k] + ' ' + CFG.sec[k] + (t ? ' : « ' + t + ' »' : '') + '</span><b>' + partCount(D, k) + ' questions</b></li>'; }).join('') + '</ul>' +
+    '<ul class="plan">' + SECS.map(function (k) { var t = partTitle(D, k); return '<li><span>' + CFG.icons[k] + ' ' + CFG.sec[k] + (t ? L(' : « ' + t + ' »', ': „' + t + '“') : '') + '</span><b>' + partCount(D, k) + L(' questions', ' Fragen') + '</b></li>'; }).join('') + '</ul>' +
     (CFG.timer ? '<p class="timerinfo">⏱️ Aujourd\'hui, tu as <b>' + timeLimit(d) + ' secondes</b> par calcul de tables.</p>' : '') +
-    '<div class="reward"><span class="ricon">' + D.reward.icon + '</span><div><small>À gagner</small><br><b>' + D.reward.name + '</b></div></div>' +
-    (st && st.done ? '<p class="muted center">Déjà réussie avec ' + starsStr(st.stars) + '. Rejoue pour gagner plus d\'étoiles !</p>' : '') +
-    '<div class="rules"><b>Règle du jeu :</b> si tu te trompes, ' + CFG.comp.name + ' te montre <i>où</i> est l\'erreur. Au deuxième essai raté, la réponse s\'affiche et la question part dans tes Revanches.</div>' +
-    '<div class="btns"><button class="primary big" data-act="start" data-d="' + d + '">' + (resume ? 'Reprendre' : 'Commencer') + '</button><button class="ghost" data-act="home">Retour à la carte</button></div>' +
+    '<div class="reward"><span class="ricon">' + D.reward.icon + '</span><div><small>' + L('À gagner', 'Zu gewinnen') + '</small><br><b>' + D.reward.name + '</b></div></div>' +
+    (st && st.done ? '<p class="muted center">' + L('Déjà réussie avec ', 'Schon geschafft mit ') + starsStr(st.stars) + L('. Rejoue pour gagner plus d\'étoiles !', '. Spiel noch einmal für mehr Sterne!') + '</p>' : '') +
+    '<div class="rules">' + L('<b>Règle du jeu :</b> si tu te trompes, ' + CFG.comp.name + ' te montre <i>où</i> est l\'erreur. Au deuxième essai raté, la réponse s\'affiche et la question part dans tes Revanches.', '<b>Spielregel:</b> Bei einem Fehler zeigt dir ' + CFG.comp.name + ', <i>wo</i> er steckt. Beim zweiten Fehler siehst du die Antwort, und die Frage kommt in deine Revanche.') + '</div>' +
+    '<div class="btns"><button class="primary big" data-act="start" data-d="' + d + '">' + (resume ? L('Reprendre', 'Weiter') : L('Commencer', 'Los geht\'s')) + '</button><button class="ghost" data-act="home">' + BACK + '</button></div>' +
     '</div></div>';
 }
 function startDay(d) {
@@ -956,7 +983,7 @@ function startDay(d) {
     RUN = { mode: 'day', day: d, qs: buildDay(d), i: 0, res: [], pts: 0, combo: 0, maxCombo: 0 };
     S.current = RUN;
   }
-  save(); renderQ();
+  setFr(false); save(); renderQ();
 }
 
 /* ---------- question ---------- */
@@ -964,11 +991,18 @@ function cur() { return RUN.qs[RUN.i]; }
 var ACCENTS = ['é', 'è', 'ê', 'ë', 'à', 'â', 'ç', 'ù', 'û', 'î', 'ï', 'ô', 'œ', "'"];
 var UMLAUTS = ['ä', 'ö', 'ü', 'ß', 'Ä', 'Ö', 'Ü'];
 function accentBar(q) { return '<div class="accents">' + ((q && q.lang === 'de') ? UMLAUTS : ACCENTS).map(function (c) { return '<button data-act="acc" data-c="' + esc(c) + '" tabindex="-1">' + c + '</button>'; }).join('') + '</div>'; }
+function frt(s, tag) { return s ? '<' + (tag || 'span') + ' class="frt">' + s + '</' + (tag || 'span') + '>' : ''; }
+function setFr(on) { FRON = on; app.classList.toggle('fron', on); var b = document.getElementById('frbtn'); if (b) b.textContent = on ? '🇩🇪 Nur Deutsch' : '🇫🇷 Auf Französisch'; }
 function qBody(q) {
   var h = '';
   if (q.t === 'qcm') {
-    h += '<div class="qtext">' + q.q + '</div><div class="choices' + (q.c.length > 2 && q.c.some(function (c) { return strip(c).length > 24; }) ? ' long' : '') + '">' +
-      q.c.map(function (c, i) { return '<button class="choice" data-act="choice" data-i="' + i + '">' + c + '</button>'; }).join('') + '</div><div id="actions" class="actions"></div>';
+    h += '<div class="qtext">' + q.q + frt(q.fr && q.fr.q) + '</div><div class="choices' + (q.frm || (q.c.length > 2 && q.c.some(function (c) { return strip(c).length > 24; })) ? ' long' : '') + '">' +
+      q.c.map(function (c, i) { return '<button class="choice" data-act="choice" data-i="' + i + '">' + c + frt(q.frm && q.frm[c]) + '</button>'; }).join('') + '</div><div id="actions" class="actions"></div>';
+  } else if (q.t === 'dchoix') {
+    h += '<div class="qtext">' + (q.q || tr(q).dchoix) + '</div><div class="sayrow">' +
+      (canSpeak ? '<button data-act="say2">' + tr(q).listen2 + '</button><button data-act="sayslow">' + tr(q).slow + '</button>' : '') +
+      '<button class="ghost" data-act="reveal">' + tr(q).reveal + '</button><span class="secret" id="secret">« ' + q.say + ' »</span></div>' +
+      '<div class="choices long dchoix">' + q.c.map(function (c, i) { return '<button class="choice" data-act="choice" data-i="' + i + '">' + esc(c) + '</button>'; }).join('') + '</div><div id="actions" class="actions"></div>';
   } else if (q.t === 'fill') {
     h += '<div class="qtext small">' + (q.q || tr(q).fillq) + '</div>' +
       '<div class="sentence">' + q.s.replace('___', '<span class="blank" id="blank">?</span>') + '</div>' +
@@ -1000,22 +1034,24 @@ function qBody(q) {
 function renderQ() {
   var q = cur(), total = RUN.qs.length, prev = RUN.qs[RUN.i - 1], newSec = !prev || prev.dom !== q.dom;
   var secN = SECS.indexOf(q.dom) + 1;
-  var h = '<div class="screen qscreen"><div class="qtop"><button class="ghost icon" data-act="quit" title="Quitter">✕</button>' +
+  var h = '<div class="screen qscreen"><div class="qtop"><button class="ghost icon" data-act="quit" title="' + L('Quitter', 'Beenden') + '">✕</button>' +
     '<div class="prog"><div class="bar" style="width:' + (RUN.i / total * 100) + '%"></div></div><div class="qcount">' + (RUN.i + 1) + '/' + total + '</div></div>' +
-    '<div class="hud"><span class="chip">' + CFG.icons[q.dom] + ' ' + CFG.sec[q.dom] + '</span><span class="combo' + (RUN.combo >= 3 ? ' hot' : '') + '" id="combo">' + (RUN.combo >= 2 ? '🔥 série ' + RUN.combo : '') + '</span>' +
+    '<div class="hud"><span class="chip">' + CFG.icons[q.dom] + ' ' + CFG.sec[q.dom] + '</span><span class="combo' + (RUN.combo >= 3 ? ' hot' : '') + '" id="combo">' + (RUN.combo >= 2 ? '🔥 ' + L('série ', 'Serie ') + RUN.combo : '') + '</span>' +
     '<span class="pts" id="pts">' + CFG.icons.points + ' ' + RUN.pts + '</span></div>';
-  if (newSec && RUN.mode === 'day') h += '<div class="secbanner">' + CFG.icons[q.dom] + ' Épreuve ' + secN + ' : ' + CFG.sec[q.dom] + '</div>';
-  if (RUN.mode === 'rev') h += '<div class="secbanner">' + CFG.revIcon + ' Revanche ' + (RUN.i + 1) + ' sur ' + total + '</div>';
-  if (q.txt) h += '<div class="card textcard" id="txt"' + (q.lang ? ' lang="' + q.lang + '"' : '') + '><div class="ttitle">' + (CFG.icons.lect || CFG.icons[q.dom]) + ' ' + q.txt.title + '</div><p>' +
-    q.txt.s.map(function (s, i) { return '<span class="sent" data-s="' + i + '">' + s + '</span>'; }).join(' ') + '</p></div>';
+  if (newSec && RUN.mode === 'day') h += '<div class="secbanner">' + CFG.icons[q.dom] + L(' Épreuve ', ' Aufgabe ') + secN + COL + CFG.sec[q.dom] + '</div>';
+  if (RUN.mode === 'rev') h += '<div class="secbanner">' + CFG.revIcon + ' Revanche ' + (RUN.i + 1) + L(' sur ', ' von ') + total + '</div>';
+  if ((q.txt && q.txt.fr) || q.fr) h += '<div class="frrow"><button class="frbtn" id="frbtn" data-act="fr">' + (FRON ? '🇩🇪 Nur Deutsch' : '🇫🇷 Auf Französisch') + '</button></div>';
+  if (q.txt) h += '<div class="card textcard" id="txt"' + (q.lang ? ' lang="' + q.lang + '"' : '') + '><div class="ttitle">' + (CFG.icons.lect || CFG.icons[q.dom]) + ' ' + q.txt.title + frt(q.txt.fr && q.txt.fr.title) + '</div><p>' +
+    q.txt.s.map(function (s, i) { return q.txt.fr ? '<span class="sent bil" data-s="' + i + '"><span>' + s + '</span>' + frt(q.txt.fr.s[i]) + '</span>' : '<span class="sent" data-s="' + i + '">' + s + '</span>'; }).join(' ') + '</p></div>';
   var tip = RUN.i === 0 && RUN.mode === 'day' ? pick(CFG.lines.hello) : newSec && CFG.lines.sec[q.dom] ? CFG.lines.sec[q.dom] : pick(CFG.lines.idle);
   h += '<div class="card qcard"' + (q.lang ? ' lang="' + q.lang + '"' : '') + '>' + qBody(q) + '<div class="fb" id="fb"></div></div>' +
-    '<div class="comp"><div class="avatar">' + CFG.comp.icon + '</div><div class="bubble" id="bubble"><b>' + CFG.comp.name + ' :</b> <span id="btext">' + tip + '</span></div></div></div>';
+    '<div class="comp"><div class="avatar">' + CFG.comp.icon + '</div><div class="bubble" id="bubble"><b>' + CFG.comp.name + L(' :', ':') + '</b> <span id="btext">' + tip + '</span></div></div></div>';
   app.innerHTML = h;
   window.scrollTo(0, 0);
   var inp = document.getElementById('inp');
   if (inp && window.innerWidth > 700) inp.focus();
   if (q.t === 'dictee' && canSpeak) setTimeout(function () { say(q.say, 0.85, q.lang); }, 400);
+  if (q.t === 'dchoix' && canSpeak && !q.done) { var tok = ++SAYTOK; setTimeout(function () { if (tok === SAYTOK) sayTwice(q.say, 0.85, q.lang); }, 400); }
   PADBUF = '';
   if (q.limit && !q.done) startQT(q.limit);
 }
@@ -1055,7 +1091,7 @@ function fb(html, cls) { var el = document.getElementById('fb'); if (el) el.inne
 function bubble(t) { var b = document.getElementById('btext'); if (b) { b.innerHTML = t; var p = b.parentNode; p.classList.remove('pop'); void p.offsetWidth; p.classList.add('pop'); } }
 function hud() {
   var c = document.getElementById('combo'), p = document.getElementById('pts');
-  if (c) { c.textContent = RUN.combo >= 2 ? '🔥 série ' + RUN.combo : ''; c.className = 'combo' + (RUN.combo >= 3 ? ' hot' : ''); }
+  if (c) { c.textContent = RUN.combo >= 2 ? '🔥 ' + L('série ', 'Serie ') + RUN.combo : ''; c.className = 'combo' + (RUN.combo >= 3 ? ' hot' : ''); }
   if (p) p.textContent = CFG.icons.points + ' ' + RUN.pts;
 }
 function showNext() {
@@ -1086,14 +1122,14 @@ function submit(val, btn) {
     RUN.pts += gain; RUN.res.push({ dom: q.dom, r: first ? 2 : 1, id: q.id });
     if (first) { RUN.combo++; RUN.maxCombo = Math.max(RUN.maxCombo, RUN.combo); } else RUN.combo = 0;
     if (btn) btn.classList.add('right');
-    if (q.t === 'qcm' || q.t === 'fill') lockChoices();
+    if (isPick(q)) lockChoices();
     if (q.t === 'fill') { var bl = document.getElementById('blank'); if (bl) { bl.textContent = q.a; bl.className = 'blank ok'; } }
     if (inp) inp.classList.add('ok');
     if (q.pad) padDraw('good');
     var extra = '';
     if (!first && q.c && q.c.length === 2) addMissed(q);
-    if (RUN.mode === 'rev' && first) { S.missed = S.missed.filter(function (m) { return m.q.id !== q.id; }); extra = ' <b>Revanche gagnée !</b>'; }
-    fb('<b>+' + gain + '</b> ' + (first ? '' : '(2e essai) ') + extra + (q.e && !first ? '<div class="exp">' + q.e + '</div>' : q.e && (CFG.showExp || ['ortho']).indexOf(q.dom) >= 0 ? '<div class="exp">' + q.e + '</div>' : ''), 'good');
+    if (RUN.mode === 'rev' && first) { S.missed = S.missed.filter(function (m) { return m.q.id !== q.id; }); extra = ' <b>' + L('Revanche gagnée !', 'Revanche gewonnen!') + '</b>'; }
+    fb('<b>+' + gain + '</b> ' + (first ? '' : L('(2e essai) ', '(2. Versuch) ')) + extra + (q.e && !first ? expOf(q) : q.e && (CFG.showExp || ['ortho']).indexOf(q.dom) >= 0 ? expOf(q) : ''), 'good');
     if (q.txt) markRefs(q, 'okref');
     var line = first ? pick(CFG.lines.ok) : pick(CFG.lines.ok2);
     if (first && (RUN.combo === 5 || RUN.combo === 10)) { line = pick(CFG.lines.combo); burst(14, btn || inp); tone(CFG.sounds.win, 0.08); }
@@ -1106,14 +1142,20 @@ function submit(val, btn) {
   }
   if (RUN.mode === 'day') save();
 }
+function expOf(q) { return q.e ? '<div class="exp">' + q.e + frt(q.fr && q.fr.e, 'div') + '</div>' : ''; }
 function shake(el) { if (!el) return; el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); }
 function showZone(q, val, btn) {
   bubble(pick(CFG.lines.wrong1));
+  if (q.t === 'dchoix') {
+    if (btn) { btn.innerHTML = wordDiff(val, q.a, 'err'); btn.classList.add('wrong'); btn.disabled = true; shake(btn); }
+    fb('<b>' + tr(q).notq + '</b> ' + tr(q).wordz + (q.z ? '<div class="hint">' + q.z + '</div>' : ''), 'zonemsg');
+    return;
+  }
   if (q.t === 'qcm' || q.t === 'fill') {
     if (btn) { btn.classList.add('wrong'); btn.disabled = true; shake(btn); }
     if (q.t === 'fill') { var bl = document.getElementById('blank'); if (bl) bl.classList.add('zone'); }
-    if (q.txt) { markRefs(q, 'zone'); fb('<b>' + tr(q).notq + '</b> ' + tr(q).txt, 'zonemsg'); }
-    else fb('<b>' + tr(q).notq + '</b> ' + (q.z || (q.lang === 'de' ? 'Lies die Frage noch einmal genau.' : 'Relis bien la question : un mot important t\'a peut-être échappé.')), 'zonemsg');
+    if (q.txt) { markRefs(q, 'zone'); fb('<b>' + tr(q).notq + '</b> ' + tr(q).txt + frt(q.fr && UI.fr.txt, 'div'), 'zonemsg'); }
+    else fb('<b>' + tr(q).notq + '</b> ' + (q.z || (q.lang === 'de' ? 'Lies die Frage noch einmal genau.' : 'Relis bien la question : un mot important t\'a peut-être échappé.')) + frt(q.fr && q.fr.z, 'div'), 'zonemsg');
     return;
   }
   var inp = document.getElementById('inp');
@@ -1154,13 +1196,13 @@ function showZone(q, val, btn) {
 function showAnswer(q, val, btn) {
   bubble(pick(CFG.lines.wrong2));
   var ans = ansText(q);
-  if (q.t === 'qcm' || q.t === 'fill') {
+  if (isPick(q)) {
     if (btn) { btn.classList.add('wrong'); shake(btn); }
-    document.querySelectorAll('.choice').forEach(function (b, i) { if (q.c[i] === q.a) b.classList.add('reveal'); });
+    document.querySelectorAll('.choice').forEach(function (b, i) { if (q.c[i] === q.a) { b.classList.add('reveal'); if (q.t === 'dchoix') b.innerHTML = wordDiff(q.a, val, 'good'); } });
     lockChoices();
     if (q.t === 'fill') { var bl = document.getElementById('blank'); if (bl) { bl.textContent = q.a; bl.className = 'blank reveal'; } }
     if (q.txt) markRefs(q, 'zone');
-    fb(tr(q).good + ' <b>' + ans + '</b>' + (q.e ? '<div class="exp">' + q.e + '</div>' : ''), 'answer');
+    fb(tr(q).good + ' <b>' + esc(strip(ans)) + '</b>' + frt(q.frm && q.frm[q.a], 'div') + expOf(q), 'answer');
   } else if (q.t === 'num') {
     if (q.pad) { PADBUF = String(q.a); padDraw('reveal'); }
     fb('La bonne réponse est : <b class="bigans">' + ans + '</b>' + (q.e ? '<div class="exp">' + q.e + '</div>' : ''), 'answer');
@@ -1178,7 +1220,7 @@ function addMissed(q) {
   S.missed.push({ q: c, day: RUN.day, date: today() });
 }
 function next() {
-  stopQT();
+  stopQT(); stopSay();
   RUN.i++;
   if (RUN.mode === 'day') save();
   if (RUN.i >= RUN.qs.length) return RUN.mode === 'day' ? finishDay() : finishRev();
@@ -1197,15 +1239,15 @@ function finishDay() {
   var pts = RUN.pts, maxC = RUN.maxCombo; RUN = null;
   var final = d === DATA.days.length - 1 && isFirst;
   app.innerHTML = topbar() + '<div class="screen"><div class="card endcard">' +
-    '<div class="kicker">Mission ' + (d + 1) + ' terminée</div><h2>' + D.place + '</h2>' +
+    '<div class="kicker">Mission ' + (d + 1) + L(' terminée', ' geschafft') + '</div><h2>' + D.place + '</h2>' +
     '<div class="bigstars">' + [0, 1, 2].map(function (i) { return '<span class="st' + (i < stars ? ' on' : '') + '" style="animation-delay:' + (300 + i * 350) + 'ms">★</span>'; }).join('') + '</div>' +
     '<p class="lead center">' + pick(CFG.lines['end' + stars]) + '</p>' +
-    '<div class="reward win"><span class="ricon">' + D.reward.icon + '</span><div><small>' + (isFirst ? 'Nouveau trésor débloqué !' : 'Déjà dans ta collection') + '</small><br><b>' + D.reward.name + '</b></div></div>' +
+    '<div class="reward win"><span class="ricon">' + D.reward.icon + '</span><div><small>' + (isFirst ? L('Nouveau trésor débloqué !', 'Neuer Schatz!') : L('Déjà dans ta collection', 'Schon in deiner Sammlung')) + '</small><br><b>' + D.reward.name + '</b></div></div>' +
     '<table class="mini">' + SECS.map(function (k) { return '<tr><td>' + CFG.icons[k] + ' ' + CFG.sec[k] + '</td><td>' + by[k][0] + '/' + by[k][1] + '</td></tr>'; }).join('') +
-    '<tr><td>🔥 Plus longue série</td><td>' + maxC + '</td></tr><tr><td>' + CFG.icons.points + ' Points gagnés</td><td>+' + pts + ' (+' + bonus + ' bonus étoiles)</td></tr></table>' +
-    '<p class="muted small center">(réponses justes du premier coup)</p>' +
+    '<tr><td>🔥 ' + L('Plus longue série', 'Längste Serie') + '</td><td>' + maxC + '</td></tr><tr><td>' + CFG.icons.points + L(' Points gagnés', ' Punkte') + '</td><td>+' + pts + ' (+' + bonus + L(' bonus étoiles', ' Sternbonus') + ')</td></tr></table>' +
+    '<p class="muted small center">' + L('(réponses justes du premier coup)', '(beim ersten Versuch richtig)') + '</p>' +
     (final ? '<div class="final">' + CFG.lines.final + '</div>' : '') +
-    '<div class="btns"><button class="primary big" data-act="home">Retour à la carte</button><button data-act="eclair">⚡ Bonus : Défi Éclair</button></div></div></div>';
+    '<div class="btns"><button class="primary big" data-act="home">' + BACK + '</button>' + (ECL ? '<button data-act="eclair">⚡ Bonus : Défi Éclair</button>' : '') + '</div></div></div>';
   tone(CFG.sounds.win, 0.1);
   setTimeout(function () { burst(final ? 40 : 20, document.querySelector('.bigstars')); }, 500);
   if (final) setTimeout(function () { burst(30); }, 1400);
@@ -1214,10 +1256,10 @@ function finishDay() {
 /* ---------- revanches ---------- */
 function renderRevIntro() {
   var n = S.missed.length;
-  app.innerHTML = topbar() + '<div class="screen"><div class="card intro center"><div class="introicon">' + CFG.revIcon + '</div><h2>Revanches</h2>' +
-    (n ? '<p class="lead">' + CFG.lines.revIntro + '</p><p>Questions à reconquérir : <b>' + n + '</b></p><p class="muted small">Une revanche réussie du premier coup disparaît de la liste et rapporte des points.</p>' +
-      '<div class="btns"><button class="primary big" data-act="revgo">Prendre ma revanche (' + Math.min(n, 10) + ' questions)</button><button class="ghost" data-act="home">Retour à la carte</button></div>'
-      : '<p class="lead">' + CFG.lines.revEmpty + '</p><div class="btns"><button class="primary big" data-act="home">Retour à la carte</button></div>') + '</div></div>';
+  app.innerHTML = topbar() + '<div class="screen"><div class="card intro center"><div class="introicon">' + CFG.revIcon + '</div><h2>' + L('Revanches', 'Revanche') + '</h2>' +
+    (n ? '<p class="lead">' + CFG.lines.revIntro + '</p><p>' + L('Questions à reconquérir : <b>', 'Offene Fragen: <b>') + n + '</b></p><p class="muted small">' + L('Une revanche réussie du premier coup disparaît de la liste et rapporte des points.', 'Eine Frage, die du beim ersten Versuch löst, verschwindet von der Liste und bringt Punkte.') + '</p>' +
+      '<div class="btns"><button class="primary big" data-act="revgo">' + L('Prendre ma revanche (', 'Revanche spielen (') + Math.min(n, 10) + L(' questions)', ' Fragen)') + '</button><button class="ghost" data-act="home">' + BACK + '</button></div>'
+      : '<p class="lead">' + CFG.lines.revEmpty + '</p><div class="btns"><button class="primary big" data-act="home">' + BACK + '</button></div>') + '</div></div>';
 }
 function startRev() {
   var list = shuffle(S.missed).slice(0, 10).map(function (m) { var q = clone(m.q); q.tries = 0; q.done = false; if (q.c) q.c = shuffle(q.c); return q; });
@@ -1228,22 +1270,22 @@ function startRev() {
 function finishRev() {
   var won = RUN.res.filter(function (r) { return r.r === 2; }).length, tot = RUN.res.length;
   S.points += RUN.pts; save(); var pts = RUN.pts; RUN = null;
-  app.innerHTML = topbar() + '<div class="screen"><div class="card endcard center"><div class="introicon">' + CFG.revIcon + '</div><h2>Revanches terminées</h2>' +
-    '<p class="lead">' + won + ' revanche' + (won > 1 ? 's' : '') + ' gagnée' + (won > 1 ? 's' : '') + ' sur ' + tot + '.</p><p>' + CFG.icons.points + ' +' + pts + ' points</p>' +
-    '<p class="muted">Il reste ' + S.missed.length + ' question' + (S.missed.length > 1 ? 's' : '') + ' à reconquérir.</p>' +
-    '<div class="btns"><button class="primary big" data-act="home">Retour à la carte</button></div></div></div>';
+  app.innerHTML = topbar() + '<div class="screen"><div class="card endcard center"><div class="introicon">' + CFG.revIcon + '</div><h2>' + L('Revanches terminées', 'Revanche beendet') + '</h2>' +
+    '<p class="lead">' + L(won + ' revanche' + (won > 1 ? 's' : '') + ' gagnée' + (won > 1 ? 's' : '') + ' sur ' + tot + '.', won + ' von ' + tot + ' gewonnen.') + '</p><p>' + CFG.icons.points + ' +' + pts + L(' points', ' Punkte') + '</p>' +
+    '<p class="muted">' + L('Il reste ' + S.missed.length + ' question' + (S.missed.length > 1 ? 's' : '') + ' à reconquérir.', 'Noch offen: ' + S.missed.length) + '</p>' +
+    '<div class="btns"><button class="primary big" data-act="home">' + BACK + '</button></div></div></div>';
   if (won) burst(16);
 }
 
 /* ---------- collection ---------- */
 function renderColl() {
-  var h = '<div class="screen"><div class="card"><h2 class="center">🎁 ' + CFG.collTitle + '</h2><p class="center muted">Chaque mission terminée t\'offre un trésor.</p><div class="coll">';
+  var h = '<div class="screen"><div class="card"><h2 class="center">🎁 ' + CFG.collTitle + '</h2><p class="center muted">' + L('Chaque mission terminée t\'offre un trésor.', 'Jede geschaffte Mission bringt dir einen Schatz.') + '</p><div class="coll">';
   DATA.days.forEach(function (D, i) {
     var st = S.days[i], done = st && st.done;
     h += '<div class="item' + (done ? ' got' : '') + '"><div class="iicon">' + (done ? D.reward.icon : '?') + '</div><div class="iname">' + (done ? D.reward.name : 'Mission ' + (i + 1)) + '</div><div class="istars">' + (done ? starsStr(st.stars) : '') + '</div></div>';
   });
-  h += '</div><p class="center">Rang actuel : <b>' + rank() + '</b></p><div class="ranks">' + CFG.ranks.map(function (r) { return '<span class="' + (daysDone() >= r.min ? 'on' : '') + '">' + r.name + '<small>' + r.min + ' mission' + (r.min > 1 ? 's' : '') + '</small></span>'; }).join('') + '</div>' +
-    '<div class="btns"><button class="primary" data-act="home">Retour à la carte</button></div></div></div>';
+  h += '</div><p class="center">' + L('Rang actuel : <b>', 'Dein Rang: <b>') + rank() + '</b></p><div class="ranks">' + CFG.ranks.map(function (r) { return '<span class="' + (daysDone() >= r.min ? 'on' : '') + '">' + r.name + '<small>' + r.min + (L(' mission', ' Mission') + (r.min > 1 ? L('s', 'en') : '')) + '</small></span>'; }).join('') + '</div>' +
+    '<div class="btns"><button class="primary" data-act="home">' + BACK + '</button></div></div></div>';
   app.innerHTML = topbar() + h;
 }
 
@@ -1253,7 +1295,7 @@ function renderEclairIntro() {
   app.innerHTML = topbar() + '<div class="screen"><div class="card intro center"><div class="introicon">⚡</div><h2>Défi Éclair</h2>' +
     '<p class="lead">60 secondes pour répondre à un maximum de ' + (CFG.level === 'CM2' ? 'multiplications et divisions' : 'tables de multiplication') + '.</p>' +
     '<p>Record : <b>' + S.eclairBest + '</b> · chaque bonne réponse rapporte 2 ' + CFG.icons.points + '</p>' +
-    '<div class="btns"><button class="primary big" data-act="ecgo">C\'est parti !</button><button class="ghost" data-act="home">Retour à la carte</button></div></div></div>';
+    '<div class="btns"><button class="primary big" data-act="ecgo">C\'est parti !</button><button class="ghost" data-act="home">' + BACK + '</button></div></div></div>';
 }
 function eclairGo() {
   stopEclair();
@@ -1297,7 +1339,7 @@ function ecEnd() {
   app.innerHTML = topbar() + '<div class="screen"><div class="card endcard center"><div class="introicon">⚡</div><h2>Temps écoulé !</h2>' +
     '<p class="lead"><b>' + sc + '</b> bonne' + (sc > 1 ? 's' : '') + ' réponse' + (sc > 1 ? 's' : '') + '</p>' +
     (rec ? '<p class="final">' + CFG.lines.record + '</p>' : '<p class="muted">Record : ' + S.eclairBest + '</p>') +
-    '<p>' + CFG.icons.points + ' +' + sc * 2 + ' points</p><div class="btns"><button class="primary big" data-act="ecgo">Rejouer</button><button class="ghost" data-act="home">Retour à la carte</button></div></div></div>';
+    '<p>' + CFG.icons.points + ' +' + sc * 2 + ' points</p><div class="btns"><button class="primary big" data-act="ecgo">Rejouer</button><button class="ghost" data-act="home">' + BACK + '</button></div></div></div>';
   tone(CFG.sounds.win, 0.09); if (rec) burst(24);
 }
 
@@ -1323,11 +1365,11 @@ function renderParents() {
     '<p><b>Le principe :</b> à la première erreur, le jeu montre <i>où</i> se trouve l\'erreur (lettres fautives, chiffre faux, phrase du texte, astuce de remplacement). À la deuxième, il donne la réponse et range la question dans les « Revanches » à rejouer plus tard.</p>' +
     '<p class="tip">Le plus utile pour vous : regarder ensemble la liste des erreurs ci-dessous, et faire expliquer la règle avec ses mots plutôt que la réponse.</p>' +
     '<h3>Résultats (réponses justes du premier coup)</h3><div class="tblwrap"><table class="res"><tr><th></th><th>Mission</th><th>Étoiles</th>' + SECS.map(function (k) { return '<th>' + CFG.icons[k] + '</th>'; }).join('') + '<th>Date</th></tr>' + rows + '</table></div>' +
-    '<div class="aggs">' + SECS.map(function (k) { return '<span>' + CFG.icons[k] + ' ' + CFG.sec[k] + ' <b>' + pct(agg[k][0], agg[k][1]) + '</b></span>'; }).join('') + '<span>⚡ Record Éclair <b>' + S.eclairBest + '</b></span></div>' +
+    '<div class="aggs">' + SECS.map(function (k) { return '<span>' + CFG.icons[k] + ' ' + CFG.sec[k] + ' <b>' + pct(agg[k][0], agg[k][1]) + '</b></span>'; }).join('') + (ECL ? '<span>⚡ Record Éclair <b>' + S.eclairBest + '</b></span>' : '') + '</div>' +
     '<h3>Erreurs à retravailler (' + S.missed.length + ')</h3>' + (miss ? '<ul class="misslist">' + miss + '</ul>' : '<p class="muted">Aucune pour le moment.</p>') +
     '<h3>Le programme des 10 jours</h3><ul class="planlist">' + plan + '</ul>' +
     '<details class="danger"><summary>Remettre le jeu à zéro</summary><p>Efface toutes les étoiles, points, trésors et erreurs enregistrés sur cet appareil.</p><button data-act="reset">Tout effacer</button></details>' +
-    '<div class="btns"><button class="primary" data-act="home">Retour à la carte</button></div></div></div>';
+    '<div class="btns"><button class="primary" data-act="home">' + BACK + '</button></div></div></div>';
 }
 
 /* ---------- événements ---------- */
@@ -1341,7 +1383,7 @@ document.addEventListener('click', function (ev) {
     case 'day': renderIntro(+b.getAttribute('data-d')); break;
     case 'start': startDay(+b.getAttribute('data-d')); break;
     case 'quit':
-      if (RUN && RUN.mode === 'day') { if (confirm('Faire une pause ? Ta mission est gardée, tu pourras la reprendre.')) renderMap(); }
+      if (RUN && RUN.mode === 'day') { if (confirm(L('Faire une pause ? Ta mission est gardée, tu pourras la reprendre.', 'Pause machen? Deine Mission bleibt gespeichert.'))) { stopSay(); renderMap(); } }
       else { if (RUN) { S.points += RUN.pts; save(); } renderMap(); }
       break;
     case 'choice': var q = cur(); if (!q.done) submit(q.c[+b.getAttribute('data-i')], b); break;
@@ -1353,7 +1395,9 @@ document.addEventListener('click', function (ev) {
       i2.value = i2.value.slice(0, s0) + c + i2.value.slice(s1); i2.focus(); try { i2.setSelectionRange(s0 + c.length, s0 + c.length); } catch (e) {}
       break;
     case 'say': say(cur().say, 0.85, cur().lang); break;
-    case 'sayslow': say(cur().say, 0.55, cur().lang); break;
+    case 'say2': sayTwice(cur().say, 0.85, cur().lang); break;
+    case 'fr': setFr(!FRON); break;
+    case 'sayslow': SAYTOK++; say(cur().say, 0.55, cur().lang); break;
     case 'reveal': var sc = document.getElementById('secret'); if (sc) sc.classList.toggle('show'); break;
     case 'coll': renderColl(); break;
     case 'rev': renderRevIntro(); break;

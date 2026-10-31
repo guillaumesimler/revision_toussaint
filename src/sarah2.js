@@ -10,7 +10,7 @@ var CFG = {
   sec: { hist: 'Histoire', geo: 'Géographie', deu: 'Deutsch', erd: 'Erdkunde', tab: 'Tables chrono' },
   showExp: ['hist', 'geo', 'deu', 'erd'],
   timer: { start: 15, step: 1, min: 6 },
-  sibling: { href: 'sarah.html', key: 'revision-sarah-v1', icon: '🦇', label: 'Retour au Manoir des Ombres' },
+  siblings: [{ href: 'sarah.html', key: 'revision-sarah-v1', icon: '🦇', label: 'Retour au Manoir des Ombres' }, { href: 'sarah-vampire.html', key: 'revision-sarah3-v1', icon: '🌊', label: 'Nouveau : Über das stürmische Meer kamen die Vampire' }],
   parentsText: "Une mission par jour, 20 minutes environ : un texte d'histoire avec ses questions (Moyen Âge puis Première Guerre mondiale), de la géographie de la France, un texte en allemand avec un petit exercice d'écriture (niveau Klasse 3, soit deux classes en dessous de son niveau français), de la géographie de l'Allemagne en allemand, puis 10 multiplications chronométrées. Le chrono commence à 15 secondes par calcul le jour 1 et perd une seconde chaque jour, jusqu'à 6 secondes le jour 10. Ce jeu est indépendant du Manoir des Ombres : sa progression est enregistrée à part.",
   ranks: [{ min: 0, name: 'Louveteau' }, { min: 3, name: 'Éclaireuse de la meute' }, { min: 6, name: 'Gardienne du territoire' }, { min: 10, name: 'Cheffe de meute' }],
   mapX: [130, 270, 200, 115, 250, 285, 160, 115, 245, 200],

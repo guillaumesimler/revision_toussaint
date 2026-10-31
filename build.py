@@ -1,4 +1,4 @@
-"""Build the four games at the repo root from the files in src/."""
+"""Build the six games at the repo root from the files in src/."""
 import pathlib
 
 ROOT = pathlib.Path(__file__).parent
@@ -11,6 +11,9 @@ GAMES = [
      'https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Crimson+Pro:wght@400;600;700&display=swap'),
     ('elena2', 'elena-harmonie.html', "Elena · L'Harmonie des Fées et des Sirènes (CM1)", FAIRY),
     ('sarah2', 'sarah-meute.html', 'Sarah · Le Territoire de la Meute (CM2)',
+     'https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Spectral:wght@400;600;700&display=swap'),
+    ('elena3', 'elena-livre.html', "Elena · Le Livre de l'Harmonie (CM1)", FAIRY),
+    ('sarah3', 'sarah-vampire.html', 'Sarah · Über das stürmische Meer kamen die Vampire',
      'https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Spectral:wght@400;600;700&display=swap'),
 ]
 

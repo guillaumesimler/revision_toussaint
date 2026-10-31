@@ -11,7 +11,7 @@ from playwright.async_api import async_playwright
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SHOTS = ROOT / 'tests' / 'shots'
 SHOTS.mkdir(exist_ok=True)
-GAMES = ['elena.html', 'sarah.html', 'elena-harmonie.html', 'sarah-meute.html']
+GAMES = ['elena.html', 'sarah.html', 'elena-harmonie.html', 'sarah-meute.html', 'elena-livre.html', 'sarah-vampire.html']
 FAIL = []
 
 CHECK_JS = r"""
@@ -35,6 +35,9 @@ CHECK_JS = r"""
         if (q.c && (typeof q.a !== 'number' || !q.c[q.a])) errs.push(`${w}: bad answer index`);
         if (q.c && new Set(q.c).size !== q.c.length) errs.push(`${w}: duplicate choices`);
         if (q.t === 'fill' && q.s.indexOf('___') < 0) errs.push(`${w}: no blank`);
+        if (q.t === 'dchoix' && (q.c.length !== 4 || q.say !== q.c[q.a] || !q.z)) errs.push(`${w}: a sentence dictation needs four choices, the spoken one right, and a hint`);
+        if (q.fr && (!q.fr.q || !q.fr.e || !q.fr.c || q.fr.c.length !== q.c.length)) errs.push(`${w}: incomplete French version`);
+        if (G.dom === 'ges' && !q.fr) errs.push(`${w}: no French version`);
         if ((q.t === 'type' || q.t === 'dictee') && !(q.a && q.a.length)) errs.push(`${w}: no accepted answer`);
         if (q.t === 'type' || q.t === 'dictee') {
           const p = T.prep(q, G.dom, 'x'); if (G.lang) p.lang = G.lang;
@@ -45,11 +48,13 @@ CHECK_JS = r"""
       G.gen.forEach(g => { if (!T.GEN[g[0]]) errs.push(`${where}: unknown generator ${g[0]}`); });
       if (G.lect) {
         if (!G.lect.title || !G.lect.s.length) errs.push(`${where}: empty text`);
+        if (G.dom === 'ges' && (!G.lect.fr || !G.lect.fr.title || G.lect.fr.s.length !== G.lect.s.length)) errs.push(`${where}: French text does not match sentence by sentence`);
         G.lect.qs.forEach((q, i) => {
           if (!q.c[q.a]) errs.push(`${where} text q${i}: bad answer index`);
           if (new Set(q.c).size !== q.c.length) errs.push(`${where} text q${i}: duplicate choices`);
           if (!q.e) errs.push(`${where} text q${i}: no explanation`);
           (q.r || []).forEach(r => { if (!G.lect.s[r]) errs.push(`${where} text q${i}: sentence ${r} missing`); });
+          if (G.dom === 'ges' && (!q.fr || !q.fr.q || !q.fr.e || !q.fr.c || q.fr.c.length !== q.c.length)) errs.push(`${where} text q${i}: incomplete French version`);
           if (!q.r || !q.r.length) errs.push(`${where} text q${i}: no sentence reference`);
         });
       }
@@ -82,7 +87,7 @@ STATE = "()=>{const r=__TEST__.run();const q=r.qs[r.i];return {t:q.t,a:q.a,c:q.c
 
 async def answer(page, correct=True, case_only=False):
     q = await page.evaluate(STATE)
-    if q['t'] in ('qcm', 'fill'):
+    if q['t'] in ('qcm', 'fill', 'dchoix'):
         if correct:
             idx = q['c'].index(q['a'])
         else:
@@ -126,10 +131,18 @@ async def run(browser, fn, vp, tag):
 
     # Day 1: exercise every kind of mistake once, then answer correctly
     n = await pg.evaluate('()=>__TEST__.run().qs.length')
-    seen, did_reveal, did_timer, did_case = set(), False, False, False
+    seen, did_reveal, did_timer, did_case, did_fr = set(), False, False, False, False
     for i in range(n):
         q = await pg.evaluate(STATE)
         key = (q['t'], q['lect'], q['pad'])
+        if not did_fr and await pg.locator('#frbtn').count():
+            did_fr = True
+            check(not await pg.locator('.textcard .frt').first.is_visible(), f'{kid} French shown before asking')
+            await pg.click('#frbtn'); await pg.wait_for_timeout(120)
+            check(await pg.locator('.textcard .frt').first.is_visible(), f'{kid} French toggle shows nothing')
+            await pg.screenshot(path=f'{SHOTS}/{kid}_{tag}_french.png', full_page=True)
+            await pg.click('#frbtn'); await pg.wait_for_timeout(120)
+            check(not await pg.locator('.textcard .frt').first.is_visible(), f'{kid} French toggle does not hide')
         if q['pad'] and not did_timer:
             did_timer = True
             await pg.evaluate('__TEST__.expireTimer()'); await pg.wait_for_timeout(350)
@@ -150,7 +163,7 @@ async def run(browser, fn, vp, tag):
             await answer(pg, True); await pg.wait_for_timeout(200)
             await pg.click('#next'); await pg.wait_for_timeout(120)
             continue
-        if not did_reveal and q['t'] in ('type', 'num') and not q['pad']:
+        if not did_reveal and (q['t'] in ('type', 'num') or (q['t'] == 'fill' and len(q['c']) > 2)) and not q['pad']:
             did_reveal = True
             await answer(pg, False); await pg.wait_for_timeout(200)
             await answer(pg, False); await pg.wait_for_timeout(300)
@@ -161,6 +174,8 @@ async def run(browser, fn, vp, tag):
             seen.add(key)
             await answer(pg, False); await pg.wait_for_timeout(350)
             await pg.screenshot(path=f'{SHOTS}/{kid}_{tag}_zone_{q["dom"]}_{q["t"]}{"_text" if q["lect"] else ""}.png', full_page=True)
+            if q['t'] == 'dchoix':
+                check(await pg.locator('.choice mark.err').count() > 0, f'{kid} sentence dictation does not mark the wrong word')
         await answer(pg, True); await pg.wait_for_timeout(150)
         await pg.click('#next'); await pg.wait_for_timeout(100)
     await pg.wait_for_timeout(1600)
@@ -187,10 +202,11 @@ async def run(browser, fn, vp, tag):
         await pg.screenshot(path=f'{SHOTS}/{kid}_{tag}_rev.png', full_page=True)
         await answer(pg, True); await pg.wait_for_timeout(200)
         await pg.click('[data-act="quit"]'); await pg.wait_for_timeout(150)
-        await pg.click('[data-act="eclair"]'); await pg.click('[data-act="ecgo"]')
-        for _ in range(4):
-            a = await pg.evaluate("()=>{const m=document.getElementById('ecq').textContent.match(/(\\d+) ([×÷]) (\\d+)/);return m[2]==='×'?m[1]*m[3]:m[1]/m[3];}")
-            await pg.keyboard.type(str(int(a))); await pg.keyboard.press('Enter'); await pg.wait_for_timeout(220)
+        if await pg.locator('[data-act="eclair"]').count():
+            await pg.click('[data-act="eclair"]'); await pg.click('[data-act="ecgo"]')
+            for _ in range(4):
+                a = await pg.evaluate("()=>{const m=document.getElementById('ecq').textContent.match(/(\\d+) ([×÷]) (\\d+)/);return m[2]==='×'?m[1]*m[3]:m[1]/m[3];}")
+                await pg.keyboard.type(str(int(a))); await pg.keyboard.press('Enter'); await pg.wait_for_timeout(220)
         st = await pg.evaluate('()=>{const s=__TEST__.state();return {days:Object.keys(s.days).length,missed:s.missed.length,pts:s.points}}')
         print(kid, 'state', st)
         check(st['days'] == 10, f'{kid} expected 10 days done, got {st}')

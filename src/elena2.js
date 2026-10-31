@@ -10,7 +10,7 @@ var CFG = {
   sec: { hist: 'Histoire', geo: 'Géographie', deu: 'Deutsch', erd: 'Erdkunde', tab: 'Tables chrono' },
   showExp: ['hist', 'geo', 'deu', 'erd'],
   timer: { start: 15, step: 1, min: 6 },
-  sibling: { href: 'elena.html', key: 'revision-elena-v1', icon: '🏰', label: 'Retour au Royaume des Fées' },
+  siblings: [{ href: 'elena.html', key: 'revision-elena-v1', icon: '🏰', label: 'Retour au Royaume des Fées' }, { href: 'elena-livre.html', key: 'revision-elena3-v1', icon: '📖', label: "Nouveau : Le Livre de l'Harmonie" }],
   parentsText: "Une mission par jour, 20 minutes environ : un texte d'histoire avec ses questions (Moyen Âge puis Révolution française), de la géographie de la France, un texte en allemand avec un petit exercice d'écriture (niveau Klasse 2, soit deux classes en dessous de son niveau français), de la géographie de l'Allemagne en allemand, puis 10 multiplications chronométrées. Le chrono commence à 15 secondes par calcul le jour 1 et perd une seconde chaque jour, jusqu'à 6 secondes le jour 10. Ce jeu est indépendant du Royaume des Fées : sa progression est enregistrée à part.",
   ranks: [{ min: 0, name: 'Petite ondine' }, { min: 3, name: 'Fée des vagues' }, { min: 6, name: "Sirène d'améthyste" }, { min: 10, name: "Reine de l'Harmonie" }],
   mapX: [120, 270, 200, 115, 250, 285, 160, 110, 245, 200],
